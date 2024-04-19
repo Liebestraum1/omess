@@ -16,3 +16,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  data:
+    host: ${MONGODB_HOST}
+    port: ${MONGODB_PORT}
+    database: ${MONGODB_DATABASE}
