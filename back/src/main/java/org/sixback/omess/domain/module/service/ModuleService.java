@@ -7,5 +7,5 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ModuleService {
-    private final ModuleRepository moduleRepository;
+//    private final ModuleRepository moduleRepository;
 }

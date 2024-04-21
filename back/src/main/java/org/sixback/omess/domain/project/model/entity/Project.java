@@ -21,4 +21,5 @@ public class Project extends BaseTimeEntity {
 
     @Column(unique = true, nullable = false)
     private String name;
+
 }
