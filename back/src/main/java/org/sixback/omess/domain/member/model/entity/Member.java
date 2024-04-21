@@ -18,10 +18,24 @@ public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
+
     @Column(length = 10, unique = true, nullable = false)
     private String nickname;
+
     @Column(length = 20, unique = true, nullable = false)
     private String email;
+
     @Column(nullable = false)
     private String password;
+
+    public Member(String nickname, String email, String password) {
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+    }
+
+    public Member(Long id, String nickname, String email, String password) {
+        this(nickname, email, password);
+        this.id = id;
+    }
 }
