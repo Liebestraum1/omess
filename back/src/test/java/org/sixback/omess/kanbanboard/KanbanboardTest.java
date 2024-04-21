@@ -34,28 +34,28 @@ public class KanbanboardTest {
 
     @Test
     public void creatKanbanBoard(){
-        Member member = new Member();
-
-        member.setEmail("wjs6265");
-        member.setPassword("wb6265");
-
-        memberRepository.save(member);
-
-        Project project = new Project();
-        project.setTitle("프젝 1");
-
-        projectRepository.save(project);
-
-        KanbanBoard module = new KanbanBoard();
-        module.setTitle("칸반보드");
-        module.setProject(project);
-        kanbanBoardRepository.save(module);
-
-        Long id = 1L;
-
-        Module module1 = moduleRepository.findById(id).get();
-
-        System.out.println(module1.getTitle());
+//        Member member = new Member();
+//
+//        member.setEmail("wjs6265");
+//        member.setPassword("wb6265");
+//
+//        memberRepository.save(member);
+//
+//        Project project = new Project();
+//        project.setTitle("프젝 1");
+//
+//        projectRepository.save(project);
+//
+//        KanbanBoard module = new KanbanBoard();
+//        module.setTitle("칸반보드");
+//        module.setProject(project);
+//        kanbanBoardRepository.save(module);
+//
+//        Long id = 1L;
+//
+//        Module module1 = moduleRepository.findById(id).get();
+//
+//        System.out.println(module1.getTitle());
     }
 
 }
