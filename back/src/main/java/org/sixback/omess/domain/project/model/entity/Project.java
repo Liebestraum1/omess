@@ -22,4 +22,12 @@ public class Project extends BaseTimeEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
+    public Project(String name) {
+        this.name = name;
+    }
+
+    public Project(Long id, String name) {
+        this(name);
+        this.name = name;
+    }
 }
