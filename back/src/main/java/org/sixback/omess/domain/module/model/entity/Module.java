@@ -4,10 +4,14 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sixback.omess.common.BaseTimeEntity;
+import org.sixback.omess.domain.project.model.entity.Project;
 
 @Entity
 @Getter
+@Setter
+@Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Module extends BaseTimeEntity {
     @Id
@@ -17,4 +21,6 @@ public class Module extends BaseTimeEntity {
     @Column(length = 50, nullable = false)
     private String title;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Project project;
 }
