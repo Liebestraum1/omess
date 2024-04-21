@@ -25,4 +25,14 @@ public class ProjectMember extends BaseTimeEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    public ProjectMember(Project project, Member member) {
+        this.project = project;
+        this.member = member;
+    }
+
+    public ProjectMember(Long id, Project project, Member member) {
+        this(project, member);
+        this.id = id;
+    }
 }
