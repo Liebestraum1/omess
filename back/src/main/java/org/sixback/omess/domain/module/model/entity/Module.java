@@ -15,7 +15,7 @@ import org.sixback.omess.domain.project.model.entity.Project;
 public class Module extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Column(length = 50, nullable = false)
     private String title;
@@ -30,5 +30,9 @@ public class Module extends BaseTimeEntity {
         this.title = title;
         this.category = category;
         this.project = project;
+    }
+
+    public void updateModule(String title){
+        this.title = title;
     }
 }
