@@ -9,9 +9,12 @@ import org.sixback.omess.domain.module.model.entity.QModule;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 public class ModuleRepositoryImpl implements ModuleCsutomRepository{
     private final JPQLQueryFactory jpaQueryFactory;
+
+    public ModuleRepositoryImpl(EntityManager entityManager) {
+        this.jpaQueryFactory = new JPAQueryFactory(entityManager);
+    }
     private final QModule qModule = QModule.module;
     @Override
     public List<Module> findByProjectID(Long projectId) {
