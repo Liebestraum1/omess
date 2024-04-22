@@ -20,8 +20,8 @@ public class ModuleController {
     }
 
     @PatchMapping("/module_id")
-    public void updateModule(@PathVariable("module_id")Long module_id, @RequestBody String title){
-        moduleService.updateModule(module_id, title);
+    public void updateModule(@PathVariable("module_id")Long moduleId, @RequestBody String title){
+        moduleService.updateModule(moduleId, title);
     }
 
     @GetMapping

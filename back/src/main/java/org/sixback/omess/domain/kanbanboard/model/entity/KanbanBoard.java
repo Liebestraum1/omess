@@ -7,18 +7,22 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.sixback.omess.common.BaseTimeEntity;
 import org.sixback.omess.domain.module.model.entity.Module;
+import org.sixback.omess.domain.project.model.entity.Project;
 
 import java.util.List;
 
 @Entity
 @Getter
-@Setter //삭제
-@NoArgsConstructor(access = AccessLevel.PUBLIC) // 수정
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class KanbanBoard extends Module {
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
     List<Issue> issues;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
     List<Label> labels;
+
+    public KanbanBoard(String title, String category, Project project){
+        super(title, category, project);
+    }
 }
