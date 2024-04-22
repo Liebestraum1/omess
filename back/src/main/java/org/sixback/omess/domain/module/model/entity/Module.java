@@ -10,7 +10,6 @@ import org.sixback.omess.domain.project.model.entity.Project;
 
 @Entity
 @Getter
-@Setter
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Module extends BaseTimeEntity {
@@ -23,4 +22,9 @@ public class Module extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Project project;
+
+    public Module(String title, Project project){
+        this.title = title;
+        this.project = project;
+    }
 }
