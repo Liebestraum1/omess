@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.sixback.omess.common.BaseTimeEntity;
 import org.sixback.omess.domain.project.model.entity.Project;
 
