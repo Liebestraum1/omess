@@ -1,0 +1,23 @@
+spring:
+  config:
+    import:
+      - optional:file:env/.env[.properties]
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${TEST_DB_URL}
+    username: ${TEST_DB_USERNAME}
+    password: ${TEST_DB_PASSWORD}
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:/sql/initialize.sql
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
