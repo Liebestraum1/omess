@@ -4,4 +4,7 @@ import org.sixback.omess.domain.member.model.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
+    boolean existsMemberByEmail(String email);
+
+    boolean existsMemberByNickname(String nickname);
 }
