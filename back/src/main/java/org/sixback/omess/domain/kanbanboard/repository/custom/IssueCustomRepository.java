@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IssueCustomRepository {
     List<Issue> findByModuleId(Long moduleId);
+
 }

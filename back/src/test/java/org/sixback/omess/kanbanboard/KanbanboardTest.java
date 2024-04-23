@@ -2,6 +2,7 @@ package org.sixback.omess.kanbanboard;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.DeleteKanbanBoardRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.WriteKanbanBoardRequest;
@@ -23,6 +24,7 @@ import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.bind.annotation.InitBinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +59,8 @@ public class KanbanboardTest {
     @Autowired
     LabelRepository labelRepository;
 
-    // 칸반보드 생성/삭제 테스트
-    @Test
-    public void creatKanbanBoard() {
+    @BeforeEach
+    public void initTest(){
         Member member = new Member("bam", "wjs6265", "wb6265");
 
         memberRepository.save(member);
@@ -72,6 +73,13 @@ public class KanbanboardTest {
         ProjectMember projectMember = new ProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
+    }
+
+    // 칸반보드 생성/삭제 테스트
+    @Test
+    public void creatKanbanBoard() {
+        Member member = memberRepository.findById(1L).get();
+        Project project = projectRepository.findById(1L).get();
 
         WriteKanbanBoardRequest writeKanbanBoardRequest = new WriteKanbanBoardRequest();
         writeKanbanBoardRequest.setTitle("칸반보드");
@@ -89,7 +97,7 @@ public class KanbanboardTest {
             System.out.println(findKanban.getTitle());
             DeleteKanbanBoardRequest deleteKanbanBoardRequest = new DeleteKanbanBoardRequest();
             deleteKanbanBoardRequest.setProjectId(project.getId());
-            kanbanBoardService.deleteKanbanBoard(member.getId(), findKanban.getId(), deleteKanbanBoardRequest);
+            kanbanBoardService.deleteKanbanBoard(member.getId(), findKanban.getId(), project.getId());
         }
 
         List<Module> afterModules = moduleRepository.findAll();
@@ -99,18 +107,8 @@ public class KanbanboardTest {
 
     @Test
     public void getKanbanBoard() {
-        Member member = new Member("bam", "wjs6265", "wb6265");
-
-        memberRepository.save(member);
-
-
-        Project project = new Project("프젝 1");
-
-        projectRepository.save(project);
-
-        ProjectMember projectMember = new ProjectMember(project, member);
-
-        projectMemberRepository.save(projectMember);
+        Member member = memberRepository.findById(1L).get();
+        Project project = projectRepository.findById(1L).get();
 
         KanbanBoard kanbanBoard = new KanbanBoard("칸반보드", "KanbanBoard", project);
         kanbanBoardRepository.save(kanbanBoard);
@@ -121,11 +119,11 @@ public class KanbanboardTest {
         List<Issue> issues = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            issues.add(new Issue("할일 " + i, "이거해라", 0, 0, kanbanBoard));
+            issues.add(new Issue("할일 " + i, "이거해라", 0, 0, kanbanBoard, null, null));
         }
 
         for (int i = 0; i < 10; i++) {
-            issues.add(new Issue("할일 " + i, "이거해라", 0, 0, kanbanBoard2));
+            issues.add(new Issue("할일 " + i, "이거해라", 0, 0, kanbanBoard2, null, null));
         }
 
         issueRepository.saveAll(issues);

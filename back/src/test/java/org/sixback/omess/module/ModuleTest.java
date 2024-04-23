@@ -108,10 +108,9 @@ public class ModuleTest {
             Module module = findModule.get();
 
             UpdateMouleRequest updateMouleRequest = new UpdateMouleRequest();
-            updateMouleRequest.setProjectId(project.getId());
             updateMouleRequest.setTitle("칸반보드");
 
-            moduleService.updateModule(member.getId(), module.getId(), updateMouleRequest);
+            moduleService.updateModule(member.getId(), module.getId(), project.getId(), updateMouleRequest);
 
             em.flush();
 

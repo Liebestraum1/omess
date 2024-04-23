@@ -14,6 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "kanbanboard")
 public class KanbanBoard extends Module {
 
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)

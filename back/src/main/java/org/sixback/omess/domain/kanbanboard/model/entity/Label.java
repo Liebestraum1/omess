@@ -16,6 +16,9 @@ public class Label {
     @Column(length = 50, nullable = false)
     private String name;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    KanbanBoard kanbanBoard;
+
     public Label(String name) {
         this.name = name;
     }
