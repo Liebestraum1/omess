@@ -15,4 +15,8 @@ public class Label {
 
     @Column(length = 50, nullable = false)
     private String name;
+
+    public Label(String name) {
+        this.name = name;
+    }
 }
