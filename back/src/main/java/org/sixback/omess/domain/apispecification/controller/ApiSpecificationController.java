@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/api-specifications")
+@RequestMapping("/api/v1/projects/{projectId}/api-specifications")
 @RequiredArgsConstructor
 public class ApiSpecificationController {
     private final ApiSpecificationService apiSpecificationService;
@@ -15,9 +15,10 @@ public class ApiSpecificationController {
     @PostMapping
     public ResponseEntity<Void> addApiSpecification(
             @SessionAttribute(name = "memberId") Long memberId, //FIXME : 추후 Project에 속한 Member인지 확인하는 AOP or Filter로 대체
+            @PathVariable Long projectId,
             @RequestBody CreateApiSpecificationRequest createApiSpecificationRequest
     ) {
-        apiSpecificationService.createApiSpecification(memberId, createApiSpecificationRequest);
+        apiSpecificationService.createApiSpecification(memberId, projectId, createApiSpecificationRequest);
         return ResponseEntity.ok().build();
     }
 }

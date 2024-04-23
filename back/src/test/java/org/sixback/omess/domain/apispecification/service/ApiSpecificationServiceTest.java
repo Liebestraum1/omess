@@ -49,7 +49,7 @@ class ApiSpecificationServiceTest {
         Project project = newProject();
         Member member = newMember();
         CreateApiSpecificationRequest request = new CreateApiSpecificationRequest(
-                "testName", "testCategory", project.getId()
+                "testName", "testCategory"
         );
 
         when(projectMemberRepository.findByProjectIdAndMemberId(project.getId(), member.getId()))
@@ -60,7 +60,7 @@ class ApiSpecificationServiceTest {
 
         //then
         Assertions.assertDoesNotThrow(
-                () -> apiSpecificationService.createApiSpecification(member.getId(), request)
+                () -> apiSpecificationService.createApiSpecification(member.getId(), project.getId(), request)
         );
     }
 
@@ -71,7 +71,7 @@ class ApiSpecificationServiceTest {
         Project project = newProject();
         Member member = newMember();
         CreateApiSpecificationRequest request = new CreateApiSpecificationRequest(
-                "testName", "testCategory", project.getId()
+                "testName", "testCategory"
         );
 
         when(projectMemberRepository.findByProjectIdAndMemberId(project.getId(), member.getId()))
@@ -82,7 +82,7 @@ class ApiSpecificationServiceTest {
         //then
         Assertions.assertThrows(
                 EntityNotFoundException.class,
-                () -> apiSpecificationService.createApiSpecification(member.getId(), request)
+                () -> apiSpecificationService.createApiSpecification(member.getId(), project.getId(), request)
         );
     }
 

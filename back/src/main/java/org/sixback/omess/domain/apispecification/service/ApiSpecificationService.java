@@ -21,9 +21,7 @@ public class ApiSpecificationService {
     private final ProjectRepository projectRepository;
 
     @Transactional
-    public void createApiSpecification(Long memberId, CreateApiSpecificationRequest createApiSpecificationRequest) {
-        Long projectId = createApiSpecificationRequest.projectId();
-
+    public void createApiSpecification(Long memberId, Long projectId, CreateApiSpecificationRequest createApiSpecificationRequest) {
         checkIsProjectMember(memberId, projectId);
 
         //FIXME : 추후 ProjectService에서 제공하는 method로 대체
