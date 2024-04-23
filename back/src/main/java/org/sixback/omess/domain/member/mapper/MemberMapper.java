@@ -12,4 +12,8 @@ public class MemberMapper {
     public static GetMemberResponse toGetMemberResponse(Member member) {
         return new GetMemberResponse(member.getId(), member.getNickname(), member.getEmail());
     }
+
+    public static Member toMember(GetMemberResponse getMemberResponse) {
+        return new Member(getMemberResponse.id(), getMemberResponse.nickname(), getMemberResponse.email());
+    }
 }
