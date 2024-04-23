@@ -10,6 +10,7 @@ import org.sixback.omess.domain.kanbanboard.repository.KanbanBoardRepository;
 import org.sixback.omess.domain.kanbanboard.service.KanbanBoardService;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
+import org.sixback.omess.domain.module.model.dto.request.UpdateMouleRequest;
 import org.sixback.omess.domain.module.model.dto.response.GetModuleResponse;
 import org.sixback.omess.domain.module.model.entity.Module;
 import org.sixback.omess.domain.module.repository.ModuleRepository;
@@ -74,7 +75,7 @@ public class ModuleTest {
             kanbanBoardService.createKanbanBoard(member.getId(), project.getId(), writeKanbanBoardRequest);
         }
 
-        List<GetModuleResponse> getModuleResponses = moduleService.getModules(project.getId());
+        List<GetModuleResponse> getModuleResponses = moduleService.getModules(project.getId(), member.getId());
 
         for (int i = 0; i < getModuleResponses.size(); i++) {
             System.out.println(getModuleResponses.get(i).title());
@@ -85,10 +86,17 @@ public class ModuleTest {
     // 모듈 수정 테스트
     @Test
     public void updateModule() {
+        Member member = new Member("bam", "wjs6265", "wb6265");
+
+        memberRepository.save(member);
 
         Project project = new Project("프젝 1");
 
         projectRepository.save(project);
+
+        ProjectMember projectMember = new ProjectMember(project, member);
+
+        projectMemberRepository.save(projectMember);
 
         KanbanBoard kanbanBoard = new KanbanBoard("api 명세서", "KanbanBoard", project);
         
@@ -98,8 +106,12 @@ public class ModuleTest {
         
         if(findModule.isPresent()){
             Module module = findModule.get();
-            
-            moduleService.updateModule(module.getId(), "칸반보드");
+
+            UpdateMouleRequest updateMouleRequest = new UpdateMouleRequest();
+            updateMouleRequest.setProjectId(project.getId());
+            updateMouleRequest.setTitle("칸반보드");
+
+            moduleService.updateModule(member.getId(), module.getId(), updateMouleRequest);
 
             em.flush();
 
