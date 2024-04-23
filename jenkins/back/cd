@@ -33,7 +33,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'application_yaml', variable: 'application')]) {
                     script {
                         sh 'chmod 755 $application'
-                        sh 'cp -f -R $application backend/src/main/resources/application.yml'
+                        sh 'cp -f -R $application back/src/main/resources/application.yml'
                     }
                 }
             }
