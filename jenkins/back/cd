@@ -1,0 +1,88 @@
+// 백엔드용 젠킨스 파일
+
+pipeline {
+    agent any
+
+    tools {
+        jdk "jdk 21"
+    }
+    
+    environment {
+        JAVA_HOME = "tool jdk 21"
+    }
+
+    stages {
+    	stage('Remove docker') {
+            steps{
+                script {
+                    echo 'Remove Docker Process and Image...'
+            
+                    sh '''if [ "$(docker ps -a -q -f name=backend)" ]; then
+			            docker stop backend
+			            if [ "$(docker ps -aq -f status=exited -f name=backend)" ]; then
+				            docker rm backend
+                            docker rmi backend
+			            fi
+		            fi'''
+                }
+            }
+	    }
+
+        stage('Copy env') {
+            steps {
+                withCredentials([file(credentialsId: 'backend_env', variable: 'env')]) {
+                    script {
+		    	        sh 'mkdir -p back/env'
+                        sh 'chmod 755 $env'
+                        sh 'cp -f -R $env back/env/.env'
+                    }
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Build gradle...'
+                dir('back') {
+                    sh "chmod +x ./gradlew"
+                    sh "./gradlew clean build -x check --parallel"
+                }
+                
+    		echo 'Docker build...'
+		    sh "docker build --build-arg JAR_FILE=backend/build/libs/voda-0.0.1-SNAPSHOT.jar -f ./docker/back-docker -t backend ."
+            }
+
+            post {
+                success {
+                    echo "Build success"
+                    updateGitlabCommitStatus name: 'build', state: 'success'
+                }
+                failure {
+                    echo "Build failed"
+                    updateGitlabCommitStatus name: 'build', state: 'failed'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Docker run...'
+                script {
+                    echo 'Docker run...'
+		            sh "docker run -d --net omess --name backend backend"
+                }
+            }
+
+            post {
+                success {
+                    echo "Deploy success"
+                    updateGitlabCommitStatus name: 'deploy', state: 'success'
+                }
+                failure {
+                    echo "Deploy failed"
+                    updateGitlabCommitStatus name: 'deploy', state: 'failed'
+                }
+            }
+        }
+    }
+}
