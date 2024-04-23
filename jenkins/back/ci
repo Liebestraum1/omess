@@ -1,0 +1,62 @@
+// backend ci
+
+pipeline {
+    agent any
+    stages {
+        stage('Copy env') {
+            steps {
+                withCredentials([file(credentialsId: 'backend_env', variable: 'env')]) {
+                    script {
+                        sh 'chmod 755 $env'
+                        sh 'cp -f -R $env backend/env/.env'
+                    }
+                }
+            }
+        }
+        stage('Test stage') {
+            steps {
+                dir('backend') {
+                    script {
+                        echo 'Running tests...'
+                        sh 'chmod +x ./gradlew'
+                        sh '/gradlew clean test'
+                        sh './gradlew clean build -x check --parallel'
+                    }
+
+                }
+            }
+            post {
+                success {
+                    echo 'Test success'
+                    updateGitlabCommitStatus name: 'test', state: 'success'
+                }
+                failure {
+                    echo 'Test failed'
+                    updateGitlabCommitStatus name: 'test', state: 'failed'
+                }
+            }
+        }
+        stage('Build stage') {
+            steps {
+                dir('backend') {
+                    script {
+                        echo 'Running build...'
+                        sh 'chmod +x ./gradlew'
+                        sh './gradlew clean build -x test --parallel'
+                    }
+
+                }
+            }
+            post {
+                success {
+                    echo 'Build success'
+                    updateGitlabCommitStatus name: 'build', state: 'success'
+                }
+                failure {
+                    echo 'Build failed'
+                    updateGitlabCommitStatus name: 'build', state: 'failed'
+                }
+            }
+        }
+    }
+}
