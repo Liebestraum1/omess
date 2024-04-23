@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sixback.omess.common.TestUtils;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
 import org.sixback.omess.domain.member.model.entity.Member;
@@ -38,16 +39,12 @@ class ApiSpecificationServiceTest {
         return new Project(1L, "testProject");
     }
 
-    private Member newMember(){
-        return new Member(1L, "testNickname", "test@test.com", "testPassword");
-    }
-
     @Test
     @DisplayName("API 명세서 생성 성공 테스트")
     void createApiSpecificationSuccessTest(){
         //given
         Project project = newProject();
-        Member member = newMember();
+        Member member = TestUtils.makeMember();
         CreateApiSpecificationRequest request = new CreateApiSpecificationRequest(
                 "testName", "testCategory"
         );
@@ -69,7 +66,7 @@ class ApiSpecificationServiceTest {
     void createApiSpecificationFailTest(){
         //given
         Project project = newProject();
-        Member member = newMember();
+        Member member = TestUtils.makeMember();
         CreateApiSpecificationRequest request = new CreateApiSpecificationRequest(
                 "testName", "testCategory"
         );
