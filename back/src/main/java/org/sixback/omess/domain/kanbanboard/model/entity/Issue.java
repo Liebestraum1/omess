@@ -38,4 +38,15 @@ public class Issue {
     @JoinColumn(name = "label_id")
     private Label label;
 
+    public Issue(String title, String content, int importance, int status, KanbanBoard kanbanBoard) {
+        this.title = title;
+        this.content = content;
+        this.importance = importance;
+        this.status = status;
+        this.kanbanBoard = kanbanBoard;
+    }
+
+    public void updateLabel(Label label){
+        this.label = label;
+    }
 }
