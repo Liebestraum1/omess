@@ -7,6 +7,7 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'backend_env', variable: 'env')]) {
                     script {
+		    	sh 'mkdir -p back/env'
                         sh 'chmod 755 $env'
                         sh 'cp -f -R $env back/env/.env'
                     }
