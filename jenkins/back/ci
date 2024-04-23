@@ -8,7 +8,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'backend_env', variable: 'env')]) {
                     script {
                         sh 'chmod 755 $env'
-                        sh 'cp -f -R $env backend/env/.env'
+                        sh 'cp -f -R $env back/env/.env'
                     }
                 }
             }
