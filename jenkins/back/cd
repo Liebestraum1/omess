@@ -30,11 +30,10 @@ pipeline {
 
         stage('Copy env') {
             steps {
-                withCredentials([file(credentialsId: 'backend_env', variable: 'env')]) {
+                withCredentials([file(credentialsId: 'application_yaml', variable: 'application')]) {
                     script {
-		    	        sh 'mkdir -p back/env'
-                        sh 'chmod 755 $env'
-                        sh 'cp -f -R $env back/env/.env'
+                        sh 'chmod 755 $application'
+                        sh 'cp -f -R $application backend/src/main/resources/application.yml'
                     }
                 }
             }
