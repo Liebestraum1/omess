@@ -2,23 +2,27 @@ package org.sixback.omess.domain.chat.model.entity;
 
 import jakarta.persistence.Id;
 import lombok.Builder;
+import lombok.Getter;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document
+@Getter
 public class Chat {
 
-    @Id
+    @MongoId
     private String chatId;
     private Long projectId;
     private String name;
     private Content header;
     private Content notice;
     private List<ChatMember> members;
-    private List<Content> messages;
+    private List<Content> messages = new ArrayList<>();
 
-    public Chat() {
+    protected Chat() {
     }
 
     @Builder
