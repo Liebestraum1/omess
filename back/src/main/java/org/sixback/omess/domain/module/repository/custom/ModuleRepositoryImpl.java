@@ -17,7 +17,7 @@ public class ModuleRepositoryImpl implements ModuleCsutomRepository{
     }
     private final QModule qModule = QModule.module;
     @Override
-    public List<Module> findByProjectID(Long projectId) {
+    public List<Module> findByProjectId(Long projectId) {
         return jpaQueryFactory
                 .select(qModule)
                 .from(qModule)
