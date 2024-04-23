@@ -3,11 +3,18 @@ package org.sixback.omess.domain.chat.model.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class ChatSubscriber {
 
+    private ResponseType type = ResponseType.MEMBER;
     private String email;
     private String nickname;
     private String profile;
+
+    @Builder
+    public ChatSubscriber(String email, String nickname, String profile) {
+        this.email = email;
+        this.nickname = nickname;
+        this.profile = profile;
+    }
 }
