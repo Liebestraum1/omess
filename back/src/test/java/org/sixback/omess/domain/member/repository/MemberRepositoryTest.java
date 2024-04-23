@@ -67,6 +67,6 @@ class MemberRepositoryTest {
         Optional<Member> foundMember = memberRepository.findById(-1L);
 
         // then
-        Assertions.assertThatThrownBy(() -> foundMember.get()).doesNotThrowAnyException();
+        Assertions.assertThatThrownBy(() -> foundMember.get());
     }
 }
