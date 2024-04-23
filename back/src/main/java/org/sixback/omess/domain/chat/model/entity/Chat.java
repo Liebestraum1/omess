@@ -30,13 +30,9 @@ public class Chat {
     }
 
     @Builder
-    public Chat(Long projectId, String name, Content header, Content notice, List<ChatMember> members,
-                List<Content> messages) {
+    public Chat(Long projectId, String name, List<ChatMember> members) {
         this.projectId = projectId;
         this.name = name;
-        this.header = header;
-        this.notice = notice;
         this.members = members;
-        this.messages = messages;
     }
 }
