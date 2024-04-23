@@ -39,12 +39,12 @@ public class ModuleService {
     }
 
     @Transactional
-    public void updateModule(Long memberId, Long module_id, UpdateMouleRequest updateMouleRequest) {
+    public void updateModule(Long memberId, Long moduleId, Long projectId, UpdateMouleRequest updateMouleRequest) {
         // FixMe 요청자가 팀원인지 확인 로직 추가
-        isProjectMember(updateMouleRequest.getProjectId(), memberId);
+        isProjectMember(projectId, memberId);
 
         // FixMe 예외 처리
-        Module module = moduleRepository.findById(module_id).orElseThrow(() -> new EntityNotFoundException());
+        Module module = moduleRepository.findById(moduleId).orElseThrow(() -> new EntityNotFoundException());
 
         module.updateModule(updateMouleRequest.getTitle());
 

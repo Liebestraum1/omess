@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sixback.omess.domain.member.model.entity.Member;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @Entity
 @Getter
@@ -38,12 +39,14 @@ public class Issue {
     @JoinColumn(name = "label_id")
     private Label label;
 
-    public Issue(String title, String content, int importance, int status, KanbanBoard kanbanBoard) {
+    public Issue(String title, String content, int importance, int status, KanbanBoard kanbanBoard, Member member, Label label) {
         this.title = title;
         this.content = content;
         this.importance = importance;
         this.status = status;
         this.kanbanBoard = kanbanBoard;
+        this.member = member;
+        this.label = label;
     }
 
     public void updateLabel(Label label){

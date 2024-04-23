@@ -11,29 +11,24 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/modules")
+@RequestMapping("/api/v1/projects/{project_id}/modules")
 @RequiredArgsConstructor
 public class ModuleController {
     private final ModuleService moduleService;
 
-    @GetMapping("/{project_id}")
-    public ResponseEntity<List<GetModuleResponse>> getModules(
-            @SessionAttribute(name = "memberId") Long memberId,
-            @PathVariable("project_id") Long projectId) {
+    @GetMapping
+    public ResponseEntity<List<GetModuleResponse>> getModules(@SessionAttribute(name = "memberId") Long memberId, @PathVariable("project_id") Long projectId) {
         return ResponseEntity.ok().body(moduleService.getModules(projectId, memberId));
     }
 
     @PatchMapping("/{module_id}")
-    public ResponseEntity<Void> updateModule(
-            @SessionAttribute(name = "memberId") Long memberId,
-            @PathVariable("module_id") Long moduleId,
-            @RequestBody UpdateMouleRequest updateMouleRequest) {
-        moduleService.updateModule(memberId, moduleId, updateMouleRequest);
+    public ResponseEntity<Void> updateModule(@SessionAttribute(name = "memberId") Long memberId, @PathVariable("project_id") Long projectId, @PathVariable("module_id") Long moduleId, @RequestBody UpdateMouleRequest updateMouleRequest) {
+        moduleService.updateModule(memberId, moduleId, projectId, updateMouleRequest);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
-    public ResponseEntity<List<GetModuleCategoryResponse>> getModuleCategories() {
+    @GetMapping("/modulecategory")
+    public ResponseEntity<List<GetModuleCategoryResponse>> getModuleCategories(@SessionAttribute(name = "memberId") Long memberId, @PathVariable("project_id") Long projectId) {
         return ResponseEntity.ok().body(moduleService.getModuleCategories());
     }
 
