@@ -1,12 +1,14 @@
 package org.sixback.omess.domain.chat.model.entity;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Setter
+@Getter
 public class Content {
 
     private String contentId = UUID.randomUUID().toString();

@@ -1,8 +1,10 @@
 package org.sixback.omess.domain.chat.model.entity;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class ChatMember {
     private Long memberId;
     @Setter
