@@ -10,6 +10,7 @@ import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.sixback.omess.domain.module.repository.ModuleRepository;
 import org.sixback.omess.domain.project.model.entity.Project;
+import org.sixback.omess.domain.project.model.entity.ProjectMember;
 import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,7 @@ public class KanbanBoardService {
 
     @Transactional
     public void createKanbanBoard(Long memberId, Long projectId, WriteKanbanBoardRequest writeKanbanBoardRequest) {
-        // FixMe 공통에러 처리
-        if(!isProjectMember(projectId, memberId)){
-            throw new EntityNotFoundException();
-        }
+        isProjectMember(projectId, memberId);
 
         Project project = getProject(projectId);
 
@@ -39,23 +37,25 @@ public class KanbanBoardService {
 
     @Transactional
     public void deleteKanbanBoard(Long memberId, Long moduleId, DeleteKanbanBoardRequest deleteKanbanBoardRequest) {
-        if(!isProjectMember(deleteKanbanBoardRequest.getProjectId(), memberId)){
-            throw new EntityNotFoundException();
-        }
+        isProjectMember(deleteKanbanBoardRequest.getProjectId(), memberId);
 
         kanbanBoardRepository.deleteById(moduleId);
     }
 
-    private boolean isProjectMember(Long projectId, Long memberId){
-        return projectMemberRepository.findByProjectIdAndMemberId(projectId, memberId).isPresent();
+    // FixMe 에러 처리 수정
+    // 프로젝트 멤버 유효성 검사
+    private void isProjectMember(Long projectId, Long memberId) {
+        projectMemberRepository.findByProjectIdAndMemberId(projectId, memberId).orElseThrow(() -> new EntityNotFoundException());
     }
 
     // FixMe 에러 처리 수정
+    // 프로젝트 조회
     private Project getProject(Long projectId){
         return projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException());
     }
 
     // FixMe 에러 처리 수정
+    // 멤버 조회
     private Member getMember(Long memberId){
         return memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException());
     }

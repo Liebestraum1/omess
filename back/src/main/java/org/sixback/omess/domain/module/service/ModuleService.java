@@ -2,25 +2,30 @@ package org.sixback.omess.domain.module.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.sixback.omess.domain.module.model.dto.request.UpdateMouleRequest;
 import org.sixback.omess.domain.module.model.dto.response.GetModuleCategoryResponse;
 import org.sixback.omess.domain.module.model.dto.response.GetModuleResponse;
 import org.sixback.omess.domain.module.model.entity.Module;
 import org.sixback.omess.domain.module.model.entity.ModuleCategory;
 import org.sixback.omess.domain.module.repository.ModuleCategoryRepository;
 import org.sixback.omess.domain.module.repository.ModuleRepository;
+import org.sixback.omess.domain.project.model.entity.ProjectMember;
+import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ModuleService {
     private final ModuleRepository moduleRepository;
     private final ModuleCategoryRepository moduleCategoryRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
-    public List<GetModuleResponse> getModules(Long projectId) {
-        // FixMe 요청자가 팀원인지 확인 로직 추가
+    public List<GetModuleResponse> getModules(Long projectId, Long memberId) {
+        isProjectMember(projectId, memberId);
 
         List<Module> modules = moduleRepository.findByProjectID(projectId);
 
@@ -34,13 +39,14 @@ public class ModuleService {
     }
 
     @Transactional
-    public void updateModule(Long module_id, String title) {
+    public void updateModule(Long memberId, Long module_id, UpdateMouleRequest updateMouleRequest) {
         // FixMe 요청자가 팀원인지 확인 로직 추가
+        isProjectMember(updateMouleRequest.getProjectId(), memberId);
 
         // FixMe 예외 처리
         Module module = moduleRepository.findById(module_id).orElseThrow(() -> new EntityNotFoundException());
 
-        module.updateModule(title);
+        module.updateModule(updateMouleRequest.getTitle());
 
     }
 
@@ -54,5 +60,11 @@ public class ModuleService {
                         .path(moduleCategory.getPath())
                         .build()
         ).toList();
+    }
+
+    // FixMe 에러 처리 수정
+    // 프로젝트 멤버 유효성 검사
+    private void isProjectMember(Long projectId, Long memberId) {
+        projectMemberRepository.findByProjectIdAndMemberId(projectId, memberId).orElseThrow(() -> new EntityNotFoundException());
     }
 }
