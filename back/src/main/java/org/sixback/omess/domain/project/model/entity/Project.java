@@ -19,7 +19,7 @@ public class Project extends BaseTimeEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(length = 10, unique = true, nullable = false)
     private String name;
 
     public Project(String name) {
