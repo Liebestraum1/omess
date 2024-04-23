@@ -27,7 +27,7 @@ public class ModuleService {
     public List<GetModuleResponse> getModules(Long projectId, Long memberId) {
         isProjectMember(projectId, memberId);
 
-        List<Module> modules = moduleRepository.findByProjectID(projectId);
+        List<Module> modules = moduleRepository.findByProjectId(projectId);
 
         return modules.stream().map(
                 module -> GetModuleResponse.builder()
