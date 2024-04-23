@@ -69,6 +69,7 @@ pipeline {
                 echo 'Docker run...'
                 script {
                     echo 'Docker run...'
+                    sh 'docker network inspect omess'
 		            sh "docker run -d --net omess --name backend backend"
                 }
             }
