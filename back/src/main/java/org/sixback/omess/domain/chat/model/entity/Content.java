@@ -11,6 +11,7 @@ import java.util.UUID;
 @Getter
 public class Content {
 
+    private MessageType type;
     private String contentId = UUID.randomUUID().toString();
     private Long memberId;
     private String subject;
@@ -19,7 +20,8 @@ public class Content {
     private Boolean isDeleted = false;
 
     @Builder
-    public Content(Long memberId, String subject) {
+    public Content(MessageType type, Long memberId, String subject) {
+        this.type = type;
         this.memberId = memberId;
         this.subject = subject;
     }
