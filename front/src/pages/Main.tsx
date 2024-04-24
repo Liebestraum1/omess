@@ -1,8 +1,8 @@
 import Box from "@mui/material/Box"
-import ProjectSidebar from "../components/ProjectSidebar"
-import ModuleSidebar from "../components/ModuleSidebar"
-import ContentBox from "../components/ContentBox"
-import NavBar from "../components/NavBar"
+import ProjectSidebar from "../components/ProjectSidebar/ProjectSidebar"
+import ModuleSidebar from "../components/ModuleSidebar/ModuleSidebar"
+import ContentBox from "../components/ContentBox/ContentBox"
+import NavBar from "../components/NavBar/NavBar"
 
 export default function MainPage(){
     return(
