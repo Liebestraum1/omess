@@ -1,19 +1,22 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs '20.12.2'
-    }
-
     stages{
         stage('Build stage') {
             steps {
                 dir('front') {
                     script {
-                        sh 'node --version'
                         echo 'Npm build...'
-                        sh 'npm i'
-                        sh 'npm run build'
+                        try {
+                            docker.image('node:20.12.2).inside {
+                                sh 'npm install'
+                                sh 'npm build'
+                            }
+                        } catch(Exception e) {
+                            echo '$(e.getMessage())'
+                            currentBuild.result = 'FAILURE'
+                            error('Build fail')
+                        }
                     }
                 }
             }
