@@ -2,6 +2,7 @@ package org.sixback.omess.domain.kanbanboard.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.UpdateIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.WriteIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.WriteKanbanBoardRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.GetIssueResponse;
@@ -94,6 +95,13 @@ public class KanbanBoardService {
         if(kanbanBoardRepository.findByIdAndProjectId(projectId, moduleId) != null && issue.getKanbanBoard().getId() == moduleId){
             issueRepository.delete(issue);
         }
+    }
+
+    @Transactional
+    public void updateIssue(Long memberId, Long projectId, Long moduleId, Long issueId, UpdateIssueRequest updateIssueRequest) {
+        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException());
+
+        issue.updateIssue(updateIssueRequest);
     }
 
     // FixMe 에러 처리 수정
