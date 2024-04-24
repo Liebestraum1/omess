@@ -1,20 +1,20 @@
 package org.sixback.omess.domain.kanbanboard.repository.custom;
 
-import com.querydsl.jpa.JPQLQueryFactory;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.kanbanboard.model.entity.Issue;
 import org.sixback.omess.domain.kanbanboard.model.entity.QIssue;
 import org.sixback.omess.domain.kanbanboard.model.entity.QLabel;
 import org.sixback.omess.domain.member.model.entity.QMember;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+
+@Repository
+@RequiredArgsConstructor
 public class IssueRepositoryImpl implements IssueCustomRepository {
-    private final JPQLQueryFactory jpaQueryFactory;
-    public IssueRepositoryImpl(EntityManager entityManager) {
-        this.jpaQueryFactory = new JPAQueryFactory(entityManager);
-    }
+    private final JPAQueryFactory jpaQueryFactory;
 
     private final QIssue qIssue = QIssue.issue;
     private final QLabel qLabel = QLabel.label;
