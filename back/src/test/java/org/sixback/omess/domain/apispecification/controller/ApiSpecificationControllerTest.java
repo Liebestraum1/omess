@@ -8,7 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sixback.omess.common.TestUtils;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
+import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
+import org.sixback.omess.domain.apispecification.model.entity.Domain;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
+import org.sixback.omess.domain.apispecification.repository.DomainRepository;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
@@ -23,6 +27,9 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -54,6 +61,9 @@ class ApiSpecificationControllerTest {
     ProjectMemberRepository projectMemberRepository;
 
     @Autowired
+    DomainRepository domainRepository;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     private MockHttpSession mockitoSession;
@@ -69,6 +79,14 @@ class ApiSpecificationControllerTest {
         projectMemberRepository.deleteAll();
         projectRepository.deleteAll();
         memberRepository.deleteAll();
+    }
+
+    private ApiSpecification apiSpecification(Project project) {
+        return ApiSpecification.builder()
+                .moduleName("testModule")
+                .moduleCategory("testCategory")
+                .project(project)
+                .build();
     }
 
 
@@ -100,5 +118,31 @@ class ApiSpecificationControllerTest {
                         .contentType(APPLICATION_JSON)
         ).andExpect(status().isOk())
                 .andDo(print());
+    }
+
+
+    @Test
+    @DisplayName("도메인 생성 성공 통합 테스트")
+    void createDomainSuccessTest() throws Exception {
+        //given
+        CreateDomainRequest request = new CreateDomainRequest("testDomain");
+        Project project = TestUtils.makeProject();
+        ApiSpecification apiSpecification = apiSpecification(project);
+
+        projectRepository.save(project);
+        apiSpecificationRepository.save(apiSpecification);
+
+        //when
+        mockMvc.perform(
+                        post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains",
+                                project.getId(), apiSpecification.getId())
+                                .contentType(APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        //then
+        List<Domain> all = domainRepository.findAll();
+        assertThat(all).isNotEmpty();
     }
 }
