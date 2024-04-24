@@ -5,24 +5,26 @@ pipeline {
         nodejs 'Node 20.12.2'
     }
 
-    stage('Build stage') {
-        steps {
-            dir('front') {
-                script {
-                    echo 'Npm build...'
-                    sh 'npm i'
-                    sh 'npm run build'
+    stages{
+        stage('Build stage') {
+            steps {
+                dir('front') {
+                    script {
+                        echo 'Npm build...'
+                        sh 'npm i'
+                        sh 'npm run build'
+                    }
                 }
             }
-        }
-        post {
-            success {
-                echo 'Build success'
-                updateGitlabCommitStatus name: 'build', state: 'success'
-            }
-            failure {
-                echo 'Build failed'
-                updateGitlabCommitStatus name: 'build', state: 'failed'
+            post {
+                success {
+                    echo 'Build success'
+                    updateGitlabCommitStatus name: 'build', state: 'success'
+                }
+                failure {
+                    echo 'Build failed'
+                    updateGitlabCommitStatus name: 'build', state: 'failed'
+                }
             }
         }
     }
