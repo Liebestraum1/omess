@@ -52,4 +52,8 @@ public class Issue {
     public void updateLabel(Label label){
         this.label = label;
     }
+
+    public void updateMember(Member member) {
+        this.member = member;
+    }
 }
