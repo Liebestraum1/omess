@@ -4,13 +4,16 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.sixback.omess.common.BaseTimeEntity;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.UpdateIssueRequest;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Issue {
+public class Issue extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,9 +25,11 @@ public class Issue {
     private String content;
 
     @Column(nullable = true)
+    @ColumnDefault("0")
     private int importance;
 
     @Column(nullable = true)
+    @ColumnDefault("0")
     private int status;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,6 +52,11 @@ public class Issue {
         this.kanbanBoard = kanbanBoard;
         this.member = member;
         this.label = label;
+    }
+
+    public void updateIssue(UpdateIssueRequest updateIssueRequest){
+        this.title = updateIssueRequest.getTitle();
+        this.content = updateIssueRequest.getContent();
     }
 
     public void updateLabel(Label label){
