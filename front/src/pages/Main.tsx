@@ -4,7 +4,7 @@ import ModuleSidebar from "../components/ModuleSidebar/ModuleSidebar"
 import ContentBox from "../components/ContentBox/ContentBox"
 import NavBar from "../components/NavBar/NavBar"
 
-export default function MainPage(){
+const MainPage = () => {
     return(
         <Box sx={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column'}}>
             <Box sx={{height: '32px'}}>
@@ -18,3 +18,5 @@ export default function MainPage(){
         </Box>
     )
 }
+
+export default MainPage;
