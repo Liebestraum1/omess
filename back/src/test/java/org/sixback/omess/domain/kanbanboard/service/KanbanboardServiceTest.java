@@ -1,12 +1,11 @@
 package org.sixback.omess.domain.kanbanboard.service;
 
-import com.mysema.commons.lang.Assert;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.DeleteKanbanBoardRequest;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.UpdateIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.WriteIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.WriteKanbanBoardRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.GetKanbanBoardResponse;
@@ -16,7 +15,6 @@ import org.sixback.omess.domain.kanbanboard.model.entity.Label;
 import org.sixback.omess.domain.kanbanboard.repository.IssueRepository;
 import org.sixback.omess.domain.kanbanboard.repository.KanbanBoardRepository;
 import org.sixback.omess.domain.kanbanboard.repository.LabelRepository;
-import org.sixback.omess.domain.kanbanboard.service.KanbanBoardService;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.sixback.omess.domain.module.model.entity.Module;
@@ -35,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional
-public class KanbanboardTest {
+public class KanbanboardServiceTest {
     @Autowired
     EntityManager em;
 
@@ -262,4 +260,39 @@ public class KanbanboardTest {
         assertThat(allLabel.size()).isEqualTo(10);
     }
 
+    @Test
+    public void updateIssueTest(){
+        Member member = new Member("bam", "wjs6265", "wb6265");
+
+        memberRepository.save(member);
+
+        Project project = new Project("프젝 1");
+
+        projectRepository.save(project);
+
+        ProjectMember projectMember = new ProjectMember(project, member);
+
+        projectMemberRepository.save(projectMember);
+
+        KanbanBoard kanbanBoard = new KanbanBoard("칸반보드", "KanbanBoard", project);
+        kanbanBoardRepository.save(kanbanBoard);
+        
+        Issue issue = new Issue("이슈 테스트", "이슈 테스트 입니다.", 0, 0, kanbanBoard, null, null);
+        
+        issueRepository.save(issue);
+
+        UpdateIssueRequest updateIssueRequest = new UpdateIssueRequest();
+        
+        updateIssueRequest.setTitle("수정됨");
+        updateIssueRequest.setContent("수정됨요");
+        
+        kanbanBoardService.updateIssue(member.getId(), project.getId(), kanbanBoard.getId(), issue.getId(), updateIssueRequest);
+
+        em.flush();
+
+        Issue findIssue = issueRepository.findById(issue.getId()).orElseThrow(() -> new EntityNotFoundException());
+
+        assertThat(findIssue.getContent()).isEqualTo(updateIssueRequest.getContent());
+
+    }
 }
