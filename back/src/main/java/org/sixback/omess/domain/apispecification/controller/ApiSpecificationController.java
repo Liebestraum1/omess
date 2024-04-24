@@ -3,6 +3,7 @@ package org.sixback.omess.domain.apispecification.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
+import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,16 @@ public class ApiSpecificationController {
             @Valid @RequestBody CreateApiSpecificationRequest createApiSpecificationRequest
     ) {
         apiSpecificationService.createApiSpecification(memberId, projectId, createApiSpecificationRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{apiSpecificationId}/domains")
+    public ResponseEntity<Void> createDomain(
+            @PathVariable Long apiSpecificationId,
+            @Valid @RequestBody CreateDomainRequest createDomainRequest
+    ){
+        apiSpecificationService.createDomain(apiSpecificationId, createDomainRequest);
+
         return ResponseEntity.ok().build();
     }
 }
