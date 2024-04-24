@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box"
-import MainContainer from "../components/MainContainer"
 import ProjectSidebar from "../components/ProjectSidebar"
 import ModuleSidebar from "../components/ModuleSidebar"
 import ContentBox from "../components/ContentBox"
@@ -11,12 +10,10 @@ export default function MainPage(){
             <Box sx={{height: '32px'}}>
                 <NavBar/>
             </Box>
-            <Box sx={{ height: `calc(100vh - 32px)`, overflow: 'auto'}}>
-                <MainContainer>
+            <Box sx={{ height: `calc(100vh - 32px)`, overflow: 'auto', display: 'flex'}}>
                     <ProjectSidebar/>
                     <ModuleSidebar/>
                     <ContentBox/>
-                </MainContainer>
             </Box>
         </Box>
     )
