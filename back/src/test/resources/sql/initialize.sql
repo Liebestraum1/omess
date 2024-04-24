@@ -10,7 +10,6 @@ TRUNCATE TABLE `issue`;
 TRUNCATE TABLE `api_specification`;
 TRUNCATE TABLE `domain`;
 TRUNCATE TABLE `api`;
-TRUNCATE TABLE `http_method`;
 
 SET FOREIGN_KEY_CHECKS=1;
 
