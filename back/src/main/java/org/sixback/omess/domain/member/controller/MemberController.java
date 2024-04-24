@@ -3,6 +3,7 @@ package org.sixback.omess.domain.member.controller;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 import org.sixback.omess.domain.member.model.dto.response.MemberEmailCheckResponse;
 import org.sixback.omess.domain.member.service.MemberService;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/check")
+    @GetMapping("/check-email")
     public ResponseEntity<MemberEmailCheckResponse> isExistEmail(
             @Email
             @NotBlank
@@ -25,5 +26,16 @@ public class MemberController {
     ) {
         return ResponseEntity.ok()
                 .body(memberService.isExistEmail(email));
+    }
+
+    @GetMapping("/check-nickname")
+    public ResponseEntity<MemberNicknameCheckResponse> isExistNickname(
+            @Length(max = 30)
+            @NotBlank
+            @Validated
+            @RequestParam(name = "nickname") String nickname
+    ) {
+        return ResponseEntity.ok()
+                .body(memberService.isExistNickname(nickname));
     }
 }
