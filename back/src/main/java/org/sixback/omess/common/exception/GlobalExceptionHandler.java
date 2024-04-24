@@ -3,10 +3,10 @@ package org.sixback.omess.common.exception;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -19,6 +19,18 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ErrorResponse missingServletRequestParameterException(
+            HttpServletRequest request, MissingServletRequestParameterException exception
+    ) {
+        printException(exception);
+        return ErrorResponse.builder(exception, BAD_REQUEST, exception.getParameterName() + " 은 필수 값입니다.")
+                .type(URI.create("VALIDATION_ERROR"))
+                .title("유효한 요청이 아닙니다.")
+                .instance(URI.create(request.getRequestURI()))
+                .build();
+    }
+
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ErrorResponse handlerMethodValidationExceptionHandler(
             HttpServletRequest request, HandlerMethodValidationException exception
@@ -27,7 +39,7 @@ public class GlobalExceptionHandler {
         String detail = exception.getAllValidationResults().toString();
         return ErrorResponse.builder(exception, BAD_REQUEST, detail)
                 .type(URI.create("VALIDATION_ERROR"))
-                .title("유효한 입력이 아닙니다")
+                .title("유효한 요청이 아닙니다.")
                 .instance(URI.create(request.getRequestURI()))
                 .build();
     }
@@ -40,7 +52,7 @@ public class GlobalExceptionHandler {
         String detail = exception.getBindingResult().getFieldErrors().toString();
         return ErrorResponse.builder(exception, BAD_REQUEST, detail)
                 .type(URI.create("VALIDATION_ERROR"))
-                .title("유효한 입력이 아닙니다")
+                .title("유효한 요청이 아닙니다")
                 .instance(URI.create(request.getRequestURI()))
                 .build();
     }
