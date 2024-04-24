@@ -1,10 +1,7 @@
-import Display from "./components/display"
-
+import MainPage from "./pages/Main"
 function App() {
   return (
-    <Display>
-
-    </Display>
+    <MainPage/>
   )
 }
 
