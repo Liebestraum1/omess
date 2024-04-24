@@ -11,6 +11,6 @@ const ContentBox = () => {
         <ContentBoxComponent>
         </ContentBoxComponent>
     )
-};
+}
 
 export default ContentBox;
