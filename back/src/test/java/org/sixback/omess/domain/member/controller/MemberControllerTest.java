@@ -138,7 +138,7 @@ class MemberControllerTest {
         }
 
         @DisplayName("해당하는 nickname을 가진 member가 있는지 조회 실패 - nickname validation 실패")
-        @ValueSource(strings = {"", "1234567890_1"})
+        @ValueSource(strings = {"", "1234567890_1234567890_1234567890_1"})
         @ParameterizedTest
         void isExistNickname_fail_validation(String nickname) throws Exception {
             mockMvc.perform(get("/api/v1/members/check-nickname")
