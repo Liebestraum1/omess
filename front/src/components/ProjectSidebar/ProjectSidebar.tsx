@@ -7,11 +7,13 @@ const ProjectSidebarComponent = styled(Box)({
     flexDirection: "column",
     width: 64,
     backgroundColor: "#4F378B",
-})
+});
 
-export default function ProjectSidebar(){
+const ProjectSidebar = () => {
     return (
         <ProjectSidebarComponent>
         </ProjectSidebarComponent>
     )
-}
+};
+
+export default ProjectSidebar;

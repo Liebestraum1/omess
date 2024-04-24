@@ -4,11 +4,13 @@ import styled from '@mui/system/styled'
 const ModuleSidebarComponent = styled(Box)({
     width: 200,
     backgroundColor: "#E8DEF8",
-})
+});
 
-export default function ModuleSidebar(){
+const ModuleSidebar = () => {
     return (
         <ModuleSidebarComponent>
         </ModuleSidebarComponent>
     )
-}
+};
+
+export default ModuleSidebar;

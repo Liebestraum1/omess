@@ -6,10 +6,12 @@ const NavBarBox = styled(Box)({
     backgroundColor: '#fef7ff'
 });
 
-export default function NavBar(){
+const NavBar = () => {
     return (
         <NavBarBox>
             
         </NavBarBox>
     )
-}
+};
+
+export default NavBar;
