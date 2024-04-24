@@ -1,18 +1,18 @@
 package org.sixback.omess.domain.kanbanboard.repository.custom;
 
-import com.querydsl.jpa.JPQLQueryFactory;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.kanbanboard.model.entity.KanbanBoard;
 import org.sixback.omess.domain.kanbanboard.model.entity.QKanbanBoard;
 import org.sixback.omess.domain.module.model.entity.QModule;
 import org.sixback.omess.domain.project.model.entity.QProject;
+import org.springframework.stereotype.Repository;
 
+
+@Repository
+@RequiredArgsConstructor
 public class KanbanBoardRepositoryImpl implements KanbanBoardCustomRepository{
-    private final JPQLQueryFactory jpaQueryFactory;
-    public KanbanBoardRepositoryImpl(EntityManager entityManager) {
-        this.jpaQueryFactory = new JPAQueryFactory(entityManager);
-    }
+    private final JPAQueryFactory jpaQueryFactory;
 
     private final QKanbanBoard qKanbanBoard = QKanbanBoard.kanbanBoard;
     private final QProject qProject = QProject.project;
