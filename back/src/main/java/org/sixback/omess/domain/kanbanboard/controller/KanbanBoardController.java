@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.kanbanboard.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.UpdateIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.WriteIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.WriteKanbanBoardRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.GetKanbanBoardResponse;
@@ -56,9 +57,21 @@ public class KanbanBoardController {
     public ResponseEntity<Void> deleteIssue(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
-                                            @PathVariable("issue_id") Long issue_id){
+                                            @PathVariable("issue_id") Long issue_id) {
 
         kanbanBoardService.deleteIssue(memberId, projectId, moduleId, issue_id);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping()
+    public ResponseEntity<Void> updateIssue(@SessionAttribute(name = "memberId") Long memberId,
+                                            @PathVariable("project_id") Long projectId,
+                                            @PathVariable("module_id") Long moduleId,
+                                            @PathVariable("issue_id") Long issue_id,
+                                            @RequestBody UpdateIssueRequest updateIssueRequest) {
+
+        kanbanBoardService.updateIssue(memberId, projectId, moduleId, issue_id, updateIssueRequest);
 
         return ResponseEntity.ok().build();
     }
