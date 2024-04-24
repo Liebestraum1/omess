@@ -14,7 +14,7 @@ public class ApiSpecificationController {
     private final ApiSpecificationService apiSpecificationService;
 
     @PostMapping
-    public ResponseEntity<Void> addApiSpecification(
+    public ResponseEntity<Void> createApiSpecification(
             @SessionAttribute(name = "memberId") Long memberId, //FIXME : 추후 Project에 속한 Member인지 확인하는 AOP or Filter로 대체
             @PathVariable Long projectId,
             @Valid @RequestBody CreateApiSpecificationRequest createApiSpecificationRequest
