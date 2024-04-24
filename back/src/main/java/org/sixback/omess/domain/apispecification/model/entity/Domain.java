@@ -1,13 +1,11 @@
 package org.sixback.omess.domain.apispecification.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sixback.omess.common.BaseTimeEntity;
 
+import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -21,4 +19,13 @@ public class Domain extends BaseTimeEntity {
 
     @Column(nullable = false, length = 20)
     private String name;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "api_specification_id")
+    ApiSpecification apiSpecification;
+
+    public Domain(String name, ApiSpecification apiSpecification) {
+        this.name = name;
+        this.apiSpecification = apiSpecification;
+    }
 }
