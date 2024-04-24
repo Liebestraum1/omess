@@ -17,7 +17,7 @@ pipeline {
         stage('Build image') {
             steps{
                 echo 'Docker build...'
-                sh 'docker build -f ./docker/back-front -t frontend .'
+                sh 'docker build -f ./docker/front-docker -t frontend .'
             }
             post {
                 success {
