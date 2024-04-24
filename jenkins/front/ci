@@ -1,0 +1,13 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'Node 20.12.2'
+    }
+
+    stages{
+        stage('Node version') {
+            sh 'node -v'
+        }
+    }
+}
