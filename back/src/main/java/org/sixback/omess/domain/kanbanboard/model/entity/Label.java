@@ -17,9 +17,11 @@ public class Label {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kanbanboard_id")
     KanbanBoard kanbanBoard;
 
-    public Label(String name) {
+    public Label(String name, KanbanBoard kanbanBoard) {
         this.name = name;
+        this.kanbanBoard = kanbanBoard;
     }
 }
