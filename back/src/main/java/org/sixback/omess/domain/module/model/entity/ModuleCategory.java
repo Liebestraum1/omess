@@ -10,6 +10,7 @@ import org.sixback.omess.common.BaseTimeEntity;
 @Getter
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "module_category")
 public class ModuleCategory extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

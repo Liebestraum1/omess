@@ -1,6 +1,5 @@
 package org.sixback.omess.domain.module.service;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.kanbanboard.WriteKanbanBoardRequest;
@@ -27,9 +26,6 @@ import java.util.Optional;
 @Transactional
 public class ModuleTest {
     @Autowired
-    EntityManager em;
-
-    @Autowired
     KanbanBoardRepository kanbanBoardRepository;
 
     @Autowired
@@ -49,7 +45,7 @@ public class ModuleTest {
 
     @Autowired
     ModuleService moduleService;
-    
+
     // 모듈 조회 테스트
     @Test
     public void getModules() {
@@ -97,11 +93,11 @@ public class ModuleTest {
         projectMemberRepository.save(projectMember);
 
         KanbanBoard kanbanBoard = new KanbanBoard("api 명세서", "KanbanBoard", project);
-        
+
         kanbanBoardRepository.save(kanbanBoard);
-        
+
         Optional<Module> findModule = moduleRepository.findById(kanbanBoard.getId());
-        
+
         if(findModule.isPresent()){
             Module module = findModule.get();
 
@@ -109,8 +105,6 @@ public class ModuleTest {
             updateMouleRequest.setTitle("칸반보드");
 
             moduleService.updateModule(member.getId(), module.getId(), project.getId(), updateMouleRequest);
-
-            em.flush();
 
             Optional<Module> updateModule = moduleRepository.findById(kanbanBoard.getId());
 

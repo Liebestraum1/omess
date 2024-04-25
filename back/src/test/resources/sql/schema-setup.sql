@@ -1,8 +1,8 @@
 CREATE TABLE `member`
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nickname   VARCHAR(10)  NOT NULL,
-    email      VARCHAR(20)  NOT NULL,
+    nickname   VARCHAR(30)  NOT NULL,
+    email      VARCHAR(50)  NOT NULL,
     password   VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
@@ -23,9 +23,10 @@ CREATE TABLE `project_member`
     project_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now(),
-    FOREIGN KEY (member_id) REFERENCES member (id) on DELETE CASCADE,
-    FOREIGN KEY (project_id) REFERENCES project (id) on DELETE CASCADE
+    FOREIGN KEY (member_id) REFERENCES member(id) on DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES project(id) on DELETE CASCADE
 );
+
 
 CREATE TABLE `module`
 (
@@ -118,8 +119,9 @@ CREATE TABLE `http_method`
 
 CREATE TABLE `module_category`
 (
-    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    category   VARCHAR(50) NOT NULL,
+    `id`       BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `category` VARCHAR(50) NOT NULL,
+    `path`     VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
 );

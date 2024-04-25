@@ -3,6 +3,7 @@ package org.sixback.omess.domain.kanbanboard.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
+import org.sixback.omess.common.config.QuerydslConfig;
 import org.sixback.omess.domain.kanbanboard.model.entity.KanbanBoard;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
@@ -13,15 +14,20 @@ import org.sixback.omess.domain.project.model.entity.ProjectMember;
 import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 
-@SpringBootTest
-@Transactional
+@DataJpaTest
+@Import(QuerydslConfig.class)
+@AutoConfigureTestDatabase(replace = NONE)
 public class KanbanBoardRepositoryTest {
     @Autowired
     EntityManager em;
