@@ -3,7 +3,7 @@ import { styled } from "@mui/system";
 
 const NavBarBox = styled(Box)({
     height: '100%',
-    backgroundColor: '#fef7ff'
+    backgroundColor: '#4F378B'
 });
 
 const NavBar = () => {
