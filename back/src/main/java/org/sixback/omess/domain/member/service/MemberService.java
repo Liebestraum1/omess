@@ -3,8 +3,10 @@ package org.sixback.omess.domain.member.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.member.model.dto.request.MemberNicknameCheckResponse;
+import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
 import org.sixback.omess.domain.member.model.dto.response.GetMemberResponse;
 import org.sixback.omess.domain.member.model.dto.response.MemberEmailCheckResponse;
+import org.sixback.omess.domain.member.model.dto.response.SignupMemberResponse;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,11 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MemberNicknameCheckResponse isExistNickname(String nickname) {
         return toMemberNicknameCheckResponse(memberRepository.existsMemberByNickname(nickname));
+    }
+
+    @Transactional
+    public SignupMemberResponse signup(SignupMemberRequest signupMemberRequest) {
+        return toSignupMemberResponse(memberRepository.save(toMember(signupMemberRequest)));
     }
 
     @Transactional(readOnly = true)
