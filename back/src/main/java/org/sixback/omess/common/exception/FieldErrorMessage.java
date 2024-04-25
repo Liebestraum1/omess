@@ -5,26 +5,21 @@ import org.springframework.validation.FieldError;
 
 @Getter
 public class FieldErrorMessage {
-    private final String objectName;
     private final String field;
     private final String message;
     private final Object rejectedValue;
-    private final String code;
 
-    public FieldErrorMessage(String objectName, String field, String message, Object rejectedValue, String code) {
-        this.objectName = objectName;
+    public FieldErrorMessage(String field, String message, Object rejectedValue) {
         this.field = field;
         this.message = message;
         this.rejectedValue = rejectedValue;
-        this.code = code;
     }
 
     public FieldErrorMessage(FieldError fieldError) {
-        this(fieldError.getObjectName(),
+        this(
                 fieldError.getField(),
                 fieldError.getDefaultMessage(),
-                fieldError.getRejectedValue(),
-                fieldError.getCode()
+                fieldError.getRejectedValue()
         );
     }
 
@@ -32,13 +27,11 @@ public class FieldErrorMessage {
     public String toString() {
         return String.format(
                 "FieldErrorMessage{"
-                        + "objectName='%s', "
                         + "field='%s', "
                         + "message='%s', "
-                        + "rejectedValue=%s, "
-                        + "code='%s'"
-                        + "}",
-                objectName, field, message, rejectedValue, code
+                        + "rejectedValue=%s"
+                        + "}\n",
+                field, message, rejectedValue
         );
     }
 }
