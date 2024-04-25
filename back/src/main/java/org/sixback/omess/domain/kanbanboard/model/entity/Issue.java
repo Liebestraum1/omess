@@ -6,9 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.sixback.omess.common.BaseTimeEntity;
-import org.sixback.omess.domain.kanbanboard.model.dto.request.UpdateIssueRequest;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.UpdateIssueRequest;
 import org.sixback.omess.domain.member.model.entity.Member;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @Entity
 @Getter
@@ -26,31 +25,35 @@ public class Issue extends BaseTimeEntity {
 
     @Column(nullable = true)
     @ColumnDefault("0")
-    private int importance;
+    private Integer importance;
 
     @Column(nullable = true)
     @ColumnDefault("0")
-    private int status;
+    private Integer status;
+
+    @Column(length = 20)
+    String path;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kanbanboard_id")
     private KanbanBoard kanbanBoard;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "charger_id")
+    private Member charger;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "label_id")
     private Label label;
 
-    public Issue(String title, String content, int importance, int status, KanbanBoard kanbanBoard, Member member, Label label) {
+
+    public Issue(String title, String content, Integer importance, Integer status, KanbanBoard kanbanBoard, Member charger, Label label) {
         this.title = title;
         this.content = content;
         this.importance = importance;
         this.status = status;
         this.kanbanBoard = kanbanBoard;
-        this.member = member;
+        this.charger = charger;
         this.label = label;
     }
 
@@ -63,7 +66,21 @@ public class Issue extends BaseTimeEntity {
         this.label = label;
     }
 
-    public void updateMember(Member member) {
-        this.member = member;
+    public void updateMember(Member charger) {
+        this.charger = charger;
+    }
+
+    public void updatePath(String path){
+        if(this.path == null){
+            this.path = path;
+        }
+    }
+
+    public void updateImportance(Integer importance) {
+        this.importance = importance;
+    }
+
+    public void updateStatus(Integer status) {
+        this.status = status;
     }
 }
