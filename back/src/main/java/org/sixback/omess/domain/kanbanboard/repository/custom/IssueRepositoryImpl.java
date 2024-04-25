@@ -1,5 +1,6 @@
 package org.sixback.omess.domain.kanbanboard.repository.custom;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.kanbanboard.model.entity.Issue;
@@ -27,8 +28,33 @@ public class IssueRepositoryImpl implements IssueCustomRepository {
                 .leftJoin(qLabel)
                 .on(qLabel.id.eq(qIssue.label.id))
                 .leftJoin(qMember)
-                .on(qMember.id.eq(qIssue.member.id))
+                .on(qMember.id.eq(qIssue.charger.id))
                 .where(qIssue.kanbanBoard.id.eq(moduleId))
                 .fetch();
+    }
+
+    @Override
+    public List<Issue> getIssues(String path, Long chargerId, Long labelId, Integer importance) {
+        return jpaQueryFactory
+                .select(qIssue)
+                .from(qIssue)
+                .leftJoin(qLabel)
+                .on(qLabel.id.eq(qIssue.label.id))
+                .leftJoin(qMember)
+                .on(qMember.id.eq(qIssue.charger.id))
+                .where(qIssue.path.like(path + "%"), eqCharger(chargerId), eqLabelId(labelId), eqImportance(importance))
+                .fetch();
+    }
+
+    private BooleanExpression eqCharger(Long chargerId){
+        return chargerId != null ? qIssue.charger.id.eq(chargerId) : null;
+    }
+
+    private BooleanExpression eqLabelId(Long labelId){
+        return labelId != null ? qIssue.label.id.eq(labelId) : null;
+    }
+
+    private BooleanExpression eqImportance(Integer importance){
+        return importance != null ? qIssue.importance.eq(importance) : null;
     }
 }
