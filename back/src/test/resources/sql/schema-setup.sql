@@ -1,7 +1,7 @@
 CREATE TABLE `member`
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nickname   VARCHAR30)  NOT NULL,
+    nickname   VARCHAR(30)  NOT NULL,
     email      VARCHAR(50)  NOT NULL,
     password   VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
@@ -14,7 +14,7 @@ CREATE TABLE `project`
     name       VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
-)
+);
 
 CREATE TABLE `project_member`
 (
@@ -102,18 +102,17 @@ CREATE TABLE `api` (
                        FOREIGN KEY (domain_id) REFERENCES domain(id) ON DELETE CASCADE
 );
 
-CREATE TABLE `http_method` (
+CREATE TABLE IF NOT EXISTS `http_method` (
                                `id`	BIGINT	AUTO_INCREMENT PRIMARY KEY,
                                `method`	VARCHAR(10)	NOT NULL,
                                created_at TIMESTAMP DEFAULT now(),
                                updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
 );
 
-CREATE TABLE `module_category`
+CREATE TABLE IF NOT EXISTS `module_category`
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     category   VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
 );
-
