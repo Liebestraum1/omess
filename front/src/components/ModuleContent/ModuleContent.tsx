@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box"
 import styled from '@mui/system/styled'
+import PathBar from "./PathBar";
 
 const ModuleContentBox = styled(Box)({
     flex: 7,
@@ -20,6 +21,7 @@ const ModuleContentBox = styled(Box)({
 const ModuleContent = () => {
     return (
         <ModuleContentBox>
+            <PathBar/>
         </ModuleContentBox>
     )
 }
