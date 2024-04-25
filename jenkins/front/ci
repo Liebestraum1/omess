@@ -21,6 +21,9 @@ pipeline {
                 }
             }
             post {
+                always {
+                    sh 'docker image prune'
+                }
                 success {
                     echo 'Build success'
                     updateGitlabCommitStatus name: 'build', state: 'success'
