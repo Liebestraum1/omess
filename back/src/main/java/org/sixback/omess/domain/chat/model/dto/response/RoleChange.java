@@ -11,6 +11,9 @@ public class RoleChange {
     private ChatSubscriber target;
     private ChatRole to;
 
+    protected RoleChange() {
+    }
+
     @Builder
     public RoleChange(ChatSubscriber target, ChatRole to) {
         this.target = target;

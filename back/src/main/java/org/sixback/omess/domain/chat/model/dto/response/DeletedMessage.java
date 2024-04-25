@@ -8,6 +8,9 @@ public class DeletedMessage {
     private ResponseType type = ResponseType.DELETED;
     private String messageId;
 
+    protected DeletedMessage() {
+    }
+
     @Builder
     public DeletedMessage(String messageId) {
         this.messageId = messageId;

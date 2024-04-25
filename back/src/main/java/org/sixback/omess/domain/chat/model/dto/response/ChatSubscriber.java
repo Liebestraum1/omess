@@ -11,6 +11,9 @@ public class ChatSubscriber {
     private String nickname;
     private String profile;
 
+    protected ChatSubscriber() {
+    }
+
     @Builder
     public ChatSubscriber(String email, String nickname, String profile) {
         this.email = email;

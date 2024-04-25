@@ -1,13 +1,14 @@
 package org.sixback.omess.domain.chat.model.dto.response;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.sixback.omess.domain.chat.model.entity.MessageType;
 
 import java.time.LocalDateTime;
 
 @Builder
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatMessage {
     private ResponseType type;
     private MessageType messageType;
