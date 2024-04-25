@@ -2,7 +2,6 @@ package org.sixback.omess.domain.kanbanboard.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sixback.omess.domain.kanbanboard.model.entity.KanbanBoard;
 import org.sixback.omess.domain.member.model.entity.Member;
@@ -52,6 +51,8 @@ public class KanbanBoardRepositoryTest {
         ProjectMember projectMember = new ProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
+
+        String path = "P" + project.getId() + "/K";
 
         KanbanBoard kanbanBoard = new KanbanBoard("칸테", "칸반", project);
 
