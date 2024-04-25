@@ -1,6 +1,9 @@
 export type ChatInfo = {
     id: string,
     name: string,
+    notice?: ChatMessage,
+    header?: ChatMessage,
+    memberCount: number,
     messageCount: number
 }
 
