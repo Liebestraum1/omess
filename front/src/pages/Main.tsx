@@ -1,8 +1,8 @@
-import Box from "@mui/material/Box"
 import ProjectSidebar from "../components/ProjectSidebar/ProjectSidebar"
 import ModuleSidebar from "../components/ModuleSidebar/ModuleSidebar"
-import ContentBox from "../components/ContentBox/ContentBox"
+import ModuleContent from "../components/ModuleContent/ModuleContent"
 import NavBar from "../components/NavBar/NavBar"
+import Box from "@mui/material/Box"
 
 const MainPage = () => {
     return(
@@ -13,7 +13,7 @@ const MainPage = () => {
             <Box sx={{ height: `calc(100vh - 32px)`, overflow: 'auto', display: 'flex'}}>
                     <ProjectSidebar/>
                     <ModuleSidebar/>
-                    <ContentBox/>
+                    <ModuleContent/>
             </Box>
         </Box>
     )

@@ -1,14 +1,26 @@
-import Box from "@mui/material/Box"
-import styled from '@mui/system/styled'
+import {Box, styled} from "@mui/material"
 import ProjectFab from "./ProjectFab"
 import AddIcon from '@mui/icons-material/Add';
 
 const ProjectSidebarBox = styled(Box)({
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     flexDirection: "column",
     width: 64,
+    minWidth: 64,
     backgroundColor: "#4F378B",
+    overflow: "auto",
+    '&::-webkit-scrollbar': {
+        width: '0px', // 스크롤바의 너비
+    },
+    '&::-webkit-scrollbar-track': {
+        background: 'transparent',
+    },
+    '&::-webkit-scrollbar-thumb': {
+        display: 'none',
+        backgroundColor: 'purple', // 스크롤바 썸(움직이는 부분)의 배경색
+        borderRadius: '4px', // 스크롤바 썸의 모서리 둥글기
+    },
 });
 
 const ProjectSidebar = () => {
@@ -25,8 +37,8 @@ const ProjectSidebar = () => {
     return (
         // 더하기 버튼에 대해서는 새로운 프로젝트를 생성하는 API를 호출
         <ProjectSidebarBox>
-            {fabComponent}
-            <ProjectFab content={<AddIcon/>}/>
+                {fabComponent}
+                <ProjectFab content={<AddIcon/>}/>
         </ProjectSidebarBox>
     )
 };

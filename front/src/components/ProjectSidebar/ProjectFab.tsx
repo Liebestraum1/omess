@@ -32,6 +32,8 @@ const ProjectFab = ({content}: ProjectFabProps) => {
         <Box sx={{
             height: 64,
             width: 64,
+            minHeight: 64,
+            maxHeight: 64,
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'
