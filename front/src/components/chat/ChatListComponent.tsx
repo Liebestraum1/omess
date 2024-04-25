@@ -1,8 +1,9 @@
 import AddIcon from '@mui/icons-material/Add';
-import {Avatar, Box, Divider} from "@mui/material";
+import {Avatar, Box, Divider, IconButton, Link} from "@mui/material";
 import {useEffect, useState} from "react";
 import {loadChatList} from "../../services/chat/ChatApiRequest.ts";
 import {ChatInfo} from "../../types/chat/chat.ts";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 
 const ChatListComponent = ({projectId}: { projectId: number }) => {
     const [chatList, setChatList] = useState<ChatInfo[] | null>(null);
@@ -19,26 +20,42 @@ const ChatListComponent = ({projectId}: { projectId: number }) => {
             {/* Header */}
             <Box
                 display="flex"
+                alignItems="center"
                 justifyContent="space-between"
-                p={5}
             >
-                <span>채팅</span>
-                <Divider/>
+                <Box
+                    display="flex"
+                    alignItems="center"
+                >
+                    <IconButton>
+                        <ArrowRightIcon/>
+                    </IconButton>
+                    <span>채팅</span>
+                </Box>
                 <AddIcon></AddIcon>
             </Box>
             {/* Body */}
             {
                 chatList ? (chatList.map(value => (
                     <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        p={3}
+                        p={1}
                     >
-                        <Avatar>{value.memberCount}</Avatar>
-                        <a href="">{value.name}</a>
+                        <Link href=""
+                              color="inherit"
+                              underline="none"
+                              variant="body1"
+                              display="flex"
+                              gap={1}
+                        >
+                            <Avatar
+                                sx={{width: 20, height: 20, fontSize: "12px"}}
+                                variant="rounded"
+                            >{value.memberCount}</Avatar>
+                            {value.name}</Link>
                     </Box>
                 ))) : null
             }
+            <Divider variant="middle"/>
         </>
     );
 }
