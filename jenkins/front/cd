@@ -18,7 +18,7 @@ pipeline {
             steps{
                 dir('front') {
                     echo 'Docker build...'
-                    sh 'docker build -f ./docker/front-docker -t frontend .'
+                    sh 'docker build -f ../docker/front-docker -t frontend .'
                 }
             }
             post {
