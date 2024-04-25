@@ -1,12 +1,15 @@
 package org.sixback.omess.domain.member.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +23,12 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import static org.sixback.omess.common.TestUtils.makeMember;
+import static org.sixback.omess.common.exception.ErrorType.INCOMPLETE_REQUEST_BODY_ERROR;
+import static org.sixback.omess.common.exception.ErrorType.VALIDATION_ERROR;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,6 +44,9 @@ class MemberControllerTest {
 
     @Autowired
     WebApplicationContext context;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Autowired
     MemberController memberController;
@@ -161,6 +171,65 @@ class MemberControllerTest {
                     .andExpect(jsonPath("$.title").value("유효한 요청이 아닙니다."))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/check-nickname"))
+                    .andDo(print())
+            ;
+        }
+    }
+
+    @Nested
+    @DisplayName("checkEmail Test")
+    @Transactional
+    class SignupTest {
+        @Test
+        @DisplayName("회원가입 성공")
+        void signup_success() throws Exception {
+            String signupMemberRequest = objectMapper.writeValueAsString(new SignupMemberRequest(
+                    "nickname", "email@naver.com", "password"));
+
+            mockMvc.perform(post("/api/v1/members/signup")
+                            .contentType(APPLICATION_JSON)
+                            .content(signupMemberRequest)
+                    ).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.memberId").isNumber())
+                    .andDo(print())
+            ;
+        }
+
+        @DisplayName("회원가입 실패 - validation 실패")
+        @CsvSource(value = {
+                " : : ", // all: NOT_BLANK
+                "1234567890_1234567890_1234567890_:1234567890_1234567890_1234567890_1234567890_1234567890_:1234567890_1234567890_", // all: MAX_LENGTH,
+                "nickname:email@naver.com:pass", // password: MIN_LENGTH
+                "nickname:noEmail:password", // email: EMAIL
+        }, delimiter = ':'
+        )
+        @ParameterizedTest
+        void signup_fail_validation(String email, String nickname, String password) throws Exception {
+            String signupMemberRequest = objectMapper.writeValueAsString(new SignupMemberRequest(email, nickname, password));
+
+            mockMvc.perform(post("/api/v1/members/signup")
+                            .contentType(APPLICATION_JSON)
+                            .content(signupMemberRequest)
+                    ).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.type").value(VALIDATION_ERROR.name()))
+                    .andExpect(jsonPath("$.title").value(VALIDATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.detail").isString())
+                    .andExpect(jsonPath("$.instance").value("/api/v1/members/signup"))
+                    .andDo(print())
+            ;
+        }
+
+        @Test
+        @DisplayName("회원가입 실패 - 빈 바디")
+        void signup_fail_noBody() throws Exception {
+            mockMvc.perform(post("/api/v1/members/signup")
+                            .contentType(APPLICATION_JSON)
+                    ).andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.type").value(INCOMPLETE_REQUEST_BODY_ERROR.name()))
+                    .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/members/signup"))
                     .andDo(print())
             ;
         }
