@@ -3,7 +3,7 @@ import styled from '@mui/system/styled'
 import ProjectFab from "./ProjectFab"
 import AddIcon from '@mui/icons-material/Add';
 
-const ProjectSidebarComponent = styled(Box)({
+const ProjectSidebarBox = styled(Box)({
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
@@ -24,10 +24,10 @@ const ProjectSidebar = () => {
 
     return (
         // 더하기 버튼에 대해서는 새로운 프로젝트를 생성하는 API를 호출
-        <ProjectSidebarComponent>
+        <ProjectSidebarBox>
             {fabComponent}
             <ProjectFab content={<AddIcon/>}/>
-        </ProjectSidebarComponent>
+        </ProjectSidebarBox>
     )
 };
 
