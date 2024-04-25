@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     ) {
         printException(exception);
         return ErrorResponse.builder(exception, BAD_REQUEST, INCOMPLETE_REQUEST_BODY_ERROR.getTitle())
-                .type(URI.create(VALIDATION_ERROR.name()))
+                .type(URI.create(INCOMPLETE_REQUEST_BODY_ERROR.name()))
                 .title(INCOMPLETE_REQUEST_BODY_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
@@ -68,11 +68,6 @@ public class GlobalExceptionHandler {
                 .getFieldErrors()
                 .stream().map(FieldErrorMessage::new)
                 .toList();
-//        StringBuilder detail = new StringBuilder();
-//        for (FieldErrorMessage fieldErrorMessage : fieldErrorMessages) {
-//            detail.append(fieldErrorMessage)
-//                    .append('\n');
-//        }
         return ErrorResponse.builder(exception, BAD_REQUEST, detail.toString())
                 .type(URI.create(VALIDATION_ERROR.name()))
                 .title(VALIDATION_ERROR.getTitle())
