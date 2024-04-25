@@ -10,6 +10,8 @@ DROP TABLE if exists `issue`;
 DROP TABLE if exists `api_specification`;
 DROP TABLE if exists `domain`;
 DROP TABLE if exists `api`;
+DROP TABLE if exists `module_category`;
+DROP TABLE if exists `http_method`;
 
 SET FOREIGN_KEY_CHECKS=1;
 
