@@ -16,6 +16,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "kanbanboard")
 public class KanbanBoard extends Module {
+    @Column(length = 20)
+    String path;
 
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
     List<Issue> issues;
@@ -25,5 +27,11 @@ public class KanbanBoard extends Module {
 
     public KanbanBoard(String title, String category, Project project){
         super(title, category, project);
+    }
+
+    public void updatePath(String path){
+        if(this.path == null){
+            this.path = path;
+        }
     }
 }
