@@ -36,9 +36,12 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // Spring Boot Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
-def querydslSrcDir =  layout.buildDirectory.dir("querydsl") //'src/main/generated'
+def querydslSrcDir = layout.buildDirectory.dir("querydsl") //'src/main/generated'
 clean {
     delete file(querydslSrcDir)
 }
