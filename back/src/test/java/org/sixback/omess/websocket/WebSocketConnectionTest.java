@@ -1,6 +1,5 @@
 package org.sixback.omess.websocket;
 
-import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WebSocketConnectionTest {
 
@@ -41,7 +39,7 @@ public class WebSocketConnectionTest {
                 .connect(String.format("ws://localhost:%d/chat/v1", port), headers, new StompSessionHandlerAdapter() {
                     @Override
                     public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-                        log.info("WebSocket Connected");
+                        System.out.println("WebSocket Connected");
                     }
 
                     @Override
