@@ -223,6 +223,7 @@ public class KanbanBoardService {
         String lPath = makeLabelePath(projectId, moduleId, labelId);
 
         if (findLabel.isPresent() && findLabel.get().getPath().equals(lPath)) {
+            issueRepository.updateIssues(labelId);
             labelRepository.delete(findLabel.get());
         } else {
             throw new EntityNotFoundException("잘못된 요청입니다");
