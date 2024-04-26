@@ -1,25 +1,24 @@
+def oldBackend
+def newBackend
+
 pipeline {
     agent any
-
-    def oldBackend
-    def newBackend
 
     stages {
         stage('Get current backend') {
             steps {
                 script {
                     echo 'Get current backend...'
-                    oldBackend = sh(script: """grep "set \$current_backend" /etc/nginx/conf.d/custom.conf | awk '{print \$3}' | tr -d ';'""", returnStdout: true).trim()
-
-                }
-
-                if(oldBackend == 'backend-blue') {
-                    newBackend = 'backend-green'
-                } else if(oldBackend == 'backend-green') {
-                    newBackend = 'backend-blue'
-                } else {
-                    currentBuild.result = 'FAILURE'
-                    error('Get current backend fail')
+                    oldBackend = sh(script: """docker exec nginx grep "set \$current_backend" /etc/nginx/conf.d/custom.conf | awk '{print \$3}' | tr -d ';'""", returnStdout: true).trim()
+                    
+                    if(oldBackend == 'backend-blue') {
+                        newBackend = 'backend-green'
+                    } else if(oldBackend == 'backend-green') {
+                        newBackend = 'backend-blue'
+                    } else {
+                        currentBuild.result = 'FAILURE'
+                        error('Get current backend fail')
+                    }
                 }
             }
 
@@ -40,10 +39,12 @@ pipeline {
 
         stage('Copy env') {
             steps {
-                withCredentials([file(credentialsId: 'application_yaml', variable: 'application')]) {
-                    script {
-                        sh 'chmod 755 $application'
-                        sh 'cp -f -R $application back/src/main/resources/application.yml'
+                script {
+                    withCredentials([file(credentialsId: 'application_yaml', variable: 'application')]) {
+                        script {
+                            sh 'chmod 755 $application'
+                            sh 'cp -f -R $application back/src/main/resources/application.yml'
+                        }
                     }
                 }
             }
@@ -96,15 +97,15 @@ pipeline {
         }
 
         stage('Health check') {
-            sleep 10
-            def status
-
             steps{
-                status = sh(script: "curl -s -o /dev/null -I -w \"%{http_code}\" http://${newBackend}:8080/actuator/health", returnStdout: true).trim()
+                script {
+                    sleep 10
+                    def status = sh(script: "curl -s -o /dev/null -I -w \"%{http_code}\" http://${newBackend}:8080/actuator/health", returnStdout: true).trim()
 
-                if(status.toInteger() != 200) {
-                    currentBuild.result = 'FAILURE'
-                    error('Health check fail')
+                    if(status != '200') {
+                        currentBuild.result = 'FAILURE'
+                        error('Health check fail')
+                    }
                 }
             }
 
@@ -134,25 +135,26 @@ pipeline {
 
         stage('Update backend') {
             steps{
-                echo 'Update nginx conf...'
-
-                sh "docker exec nginx sed -i 's/set \$current_backend ${oldBackend};/set \$current_backend ${newBackend};/g' /etc/nginx/conf.d/default.conf"
-                sh 'docker exec nginx nginx -s reload'
-
                 script {
-                    echo 'Remove Docker Process and Image...'
-            
-                    sh '''
-                    if [ "$(docker ps -a -q -f name=${oldBackend})" ]; then
-                        docker stop ${oldBackend}
-                        if [ "$(docker ps -aq -f status=exited -f name=${oldBackend})" ]; then
-                            docker rm ${oldBackend}
-                            docker rmi ${oldBackend}
-                        fi
-                    fi
-                    '''.replace("${oldBackend}", oldBackend)
-                }
+                    echo 'Update nginx conf...'
+
+                    sh "docker exec nginx sed -i 's/set \$current_backend ${oldBackend};/set \$current_backend ${newBackend};/g' /etc/nginx/conf.d/default.conf"
+                    sh 'docker exec nginx nginx -s reload'
+
+                    script {
+                        echo 'Remove Docker Process and Image...'
                 
+                        sh '''
+                        if [ "$(docker ps -a -q -f name=${oldBackend})" ]; then
+                            docker stop ${oldBackend}
+                            if [ "$(docker ps -aq -f status=exited -f name=${oldBackend})" ]; then
+                                docker rm ${oldBackend}
+                                docker rmi ${oldBackend}
+                            fi
+                        fi
+                        '''.replace("${oldBackend}", oldBackend)
+                    }
+                }
             }
 
             post {
