@@ -9,7 +9,8 @@ pipeline {
             steps {
                 script {
                     echo 'Get current backend...'
-                    oldBackend = sh(script: """docker exec nginx grep "set $current_backend" /etc/nginx/conf.d/custom.conf | awk '{print $3}' | tr -d ';'""", returnStdout: true).trim()
+                    oldBackend = sh(script: """docker exec nginx grep "set \$current_backend" /etc/nginx/conf.d/custom.conf | awk '{print \$3}' | tr -d ';'""", returnStdout: true).trim()
+
                 }
 
                 if(oldBackend == 'backend-blue') {
