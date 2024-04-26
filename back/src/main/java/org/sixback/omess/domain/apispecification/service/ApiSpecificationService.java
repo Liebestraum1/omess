@@ -13,6 +13,8 @@ import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
 
+import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.PATH_MISMATCH;
+import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.generateEstimatedParentPath;
 import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.generatePath;
 
 @Service
@@ -33,20 +35,27 @@ public class ApiSpecificationService {
                 .project(project)
                 .build();
 
-        ApiSpecification savedApiSpecification = apiSpecificationRepository.save(apiSpecification);
-        savedApiSpecification.addPath(generatePath(uri, savedApiSpecification.getId()));
-
-        apiSpecificationRepository.save(savedApiSpecification);
+        apiSpecificationRepository.save(apiSpecification);
+        apiSpecification.addPath(generatePath(uri, apiSpecification.getId()));
+        apiSpecificationRepository.save(apiSpecification);
     }
 
 
     @Transactional
-    public void createDomain(Long apiSpecificationId, CreateDomainRequest createDomainRequest) {
-        ApiSpecification apiSpecification = apiSpecificationRepository.findById(apiSpecificationId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 API 명세서입니다."));
+    public void createDomain(Long apiSpecificationId, CreateDomainRequest createDomainRequest, String uri) {
+        String estimatedParentPath = generateEstimatedParentPath(uri, apiSpecificationId);
 
-        Domain domain = new Domain(createDomainRequest.name(), apiSpecification);
+        ApiSpecification apiSpecification = apiSpecificationRepository.findByPath(estimatedParentPath)
+                .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
+
+        Domain domain = Domain.builder()
+                .name(createDomainRequest.name())
+                .apiSpecification(apiSpecification)
+                .build();
 
         domainRepository.save(domain);
+        domain.addPath(generatePath(uri, domain.getId()));
+        domainRepository.save(domain);
     }
+
 }

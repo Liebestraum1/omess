@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.apispecification.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sixback.omess.common.BaseTimeEntity;
@@ -34,8 +35,13 @@ public class Domain extends BaseTimeEntity {
     @OneToMany(mappedBy = "domain", fetch = LAZY, cascade = REMOVE)
     List<Api> apis = new ArrayList<>();
 
+    @Builder
     public Domain(String name, ApiSpecification apiSpecification) {
         this.name = name;
         this.apiSpecification = apiSpecification;
+    }
+
+    public void addPath(String path){
+        this.path = path;
     }
 }
