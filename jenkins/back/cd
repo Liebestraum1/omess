@@ -9,7 +9,7 @@ pipeline {
             steps {
                 script {
                     echo 'Get current backend...'
-                    oldBackend = sh(script: """docker exec nginx grep "set \$current_backend" /etc/nginx/conf.d/custom.conf | awk '{print \$3}' | tr -d ';'""", returnStdout: true).trim()
+                    oldBackend = sh(script: """grep "set \$current_backend" /etc/nginx/conf.d/custom.conf | awk '{print \$3}' | tr -d ';'""", returnStdout: true).trim()
 
                 }
 
@@ -116,7 +116,7 @@ pipeline {
                 failure {
                     echo "Health check failed"
 
-                    sh """
+                    sh '''
                     if [ "$(docker ps -a -q -f name=${newBackend})" ]; then
                         docker stop ${newBackend}
                         if [ "$(docker ps -aq -f status=exited -f name=${newBackend})" ]; then
@@ -124,7 +124,8 @@ pipeline {
                             docker rmi ${newBackend}
                         fi
                     fi
-                    """
+                    '''.replace("${newBackend}", newBackend)
+
 
                     updateGitlabCommitStatus name: 'healthcheck', state: 'failed'
                 }
@@ -141,7 +142,7 @@ pipeline {
                 script {
                     echo 'Remove Docker Process and Image...'
             
-                    sh """
+                    sh '''
                     if [ "$(docker ps -a -q -f name=${oldBackend})" ]; then
                         docker stop ${oldBackend}
                         if [ "$(docker ps -aq -f status=exited -f name=${oldBackend})" ]; then
@@ -149,7 +150,7 @@ pipeline {
                             docker rmi ${oldBackend}
                         fi
                     fi
-                    """
+                    '''.replace("${oldBackend}", oldBackend)
                 }
                 
             }
