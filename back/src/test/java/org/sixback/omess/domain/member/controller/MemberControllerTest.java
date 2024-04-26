@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
@@ -22,16 +23,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.sixback.omess.common.TestUtils.makeMember;
-import static org.sixback.omess.common.exception.ErrorType.INCOMPLETE_REQUEST_BODY_ERROR;
-import static org.sixback.omess.common.exception.ErrorType.VALIDATION_ERROR;
+import static org.sixback.omess.common.exception.ErrorType.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -177,7 +179,7 @@ class MemberControllerTest {
     }
 
     @Nested
-    @DisplayName("checkEmail Test")
+    @DisplayName("회원가입 테스트")
     @Transactional
     class SignupTest {
         @Test
@@ -232,6 +234,80 @@ class MemberControllerTest {
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/signup"))
                     .andDo(print())
             ;
+        }
+    }
+
+    @Nested
+    @DisplayName("로그인 테스트")
+    @Transactional
+    class SigninTest {
+        @Test
+        @DisplayName("로그인 - 성공")
+        void signin_success() throws Exception {
+            // given
+            Member member = makeMember("nickname", "email@naver.com", "password");
+            Member savedMember = memberRepository.save(member);
+
+            String signinMemberRequest = objectMapper.writeValueAsString(
+                    new SignInMemberRequest("email@naver.com", "password")
+            );
+
+            // when
+            mockMvc.perform(post("/api/v1/members/signin")
+                            .contentType(APPLICATION_JSON)
+                            .content(signinMemberRequest))
+                    //then
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.memberId").value(savedMember.getId()))
+                    .andExpect(jsonPath("$.nickname").value(savedMember.getNickname()))
+                    .andExpect(request().sessionAttribute("memberId", is(notNullValue())))
+                    .andExpect(request().sessionAttribute("SPRING_SECURITY_CONTEXT", is(notNullValue())))
+                    .andDo(print());
+        }
+
+        @Test
+        @DisplayName("로그인 - 빈바디 실패")
+        void signin_fail() throws Exception {
+            // when
+            mockMvc.perform(post("/api/v1/members/signin")
+                            .contentType(APPLICATION_JSON))
+                    //then
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.type").value(INCOMPLETE_REQUEST_BODY_ERROR.name()))
+                    .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/members/signin"))
+                    .andDo(print());
+        }
+
+        @CsvSource(value = {
+                "notSaved:email@naver.com:password:password:", // email에 해당하는 유저가 존재하지 않음
+                "nickname:email@naver.com:password:failPassword:", // 비밀번호 불일치
+        }, delimiter = ':')
+        @DisplayName("로그인 - 인증 실패")
+        @ParameterizedTest
+        void signin_fail_unauthenticated(String nickname, String email, String realPassword, String inputPassword) throws Exception {
+            if (!nickname.equals("notSaved")) {
+                Member member = makeMember(nickname, email, realPassword);
+                memberRepository.save(member);
+            }
+
+            String signinMemberRequest = objectMapper.writeValueAsString(
+                    new SignInMemberRequest(email, inputPassword)
+            );
+
+            // when
+            mockMvc.perform(post("/api/v1/members/signin")
+                                    .contentType(APPLICATION_JSON)
+                                    .content(signinMemberRequest)
+                            //then
+                    )
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.type").value(UNAUTHENTICATED_ERROR.name()))
+                    .andExpect(jsonPath("$.title").value(UNAUTHENTICATED_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(UNAUTHORIZED.value()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/members/signin"))
+                    .andDo(print());
         }
     }
 }
