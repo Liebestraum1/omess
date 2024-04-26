@@ -1,8 +1,6 @@
-import MainPage from "./pages/Main"
+import MainPage from "./pages/Main";
 function App() {
-  return (
-        <MainPage/>
-  )
+    return <MainPage />;
 }
 
-export default App
+export default App;
