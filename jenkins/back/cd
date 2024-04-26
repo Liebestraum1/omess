@@ -56,7 +56,7 @@ pipeline {
                     echo 'Build gradle...'
                     dir('back') {
                         sh "chmod +x ./gradlew"
-                        sh "./gradlew clean build -x check --parallel"
+                        sh "./gradlew clean build -x check --parallel --stacktrace"
                     }
 
                     echo 'Docker build...'
