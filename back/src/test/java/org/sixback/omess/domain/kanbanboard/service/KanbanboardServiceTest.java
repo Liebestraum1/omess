@@ -191,9 +191,13 @@ public class KanbanboardServiceTest {
 
         KanbanBoard kanbanBoard = new KanbanBoard("칸반보드", "KanbanBoard", project);
         kanbanBoardRepository.save(kanbanBoard);
+        String kPath = "P" + project.getId() + "/K" + kanbanBoard.getId();
+        kanbanBoard.updatePath(kPath);
 
         KanbanBoard kanbanBoard2 = new KanbanBoard("칸반보드 2", "KanbanBoard", project);
         kanbanBoardRepository.save(kanbanBoard2);
+        String kPath2 = "P" + project.getId() + "/K" + kanbanBoard2.getId();
+        kanbanBoard2.updatePath(kPath2);
 
         WriteIssueRequest writeIssueRequest = new WriteIssueRequest();
         writeIssueRequest.setTitle("이슈생성 테스트");
