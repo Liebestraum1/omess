@@ -1,18 +1,21 @@
 package org.sixback.omess.domain.kanbanboard.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.UpdateIssueCommonRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.UpdateIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.WriteIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.kanbanboard.WriteKanbanBoardRequest;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.label.WriteLabelRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.issue.GetIssueDetailResponse;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.kanbanboard.GetKanbanBoardResponse;
 import org.sixback.omess.domain.kanbanboard.service.KanbanBoardService;
 import org.sixback.omess.domain.member.model.dto.response.GetIssueResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/projects/{projects_id}/kanbanboards")
+@RequestMapping("/api/v1/projects/{project_id}/kanbanboards")
 @RequiredArgsConstructor
 public class KanbanBoardController {
     private final KanbanBoardService kanbanBoardService;
@@ -21,7 +24,7 @@ public class KanbanBoardController {
     public ResponseEntity<Void> createKanbanBoard(
             @SessionAttribute(name = "memberId") Long memberId,
             @PathVariable("project_id") Long projectId,
-            @RequestBody WriteKanbanBoardRequest writeKanbanBoardRequest) {
+            @RequestBody @Validated WriteKanbanBoardRequest writeKanbanBoardRequest) {
         kanbanBoardService.createKanbanBoard(memberId, projectId, writeKanbanBoardRequest);
 
         return ResponseEntity.ok().build();
@@ -49,8 +52,8 @@ public class KanbanBoardController {
     public ResponseEntity<Void> createIssue(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
-                                            @RequestBody WriteIssueRequest writeIssueRequest) {
-        kanbanBoardService.createIssue(projectId, moduleId, writeIssueRequest);
+                                            @RequestBody @Validated WriteIssueRequest writeIssueRequest) {
+        kanbanBoardService.createIssue(memberId, projectId, moduleId, writeIssueRequest);
 
         return ResponseEntity.ok().build();
     }
@@ -71,7 +74,7 @@ public class KanbanBoardController {
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
                                             @PathVariable("issue_id") Long issue_id,
-                                            @RequestBody UpdateIssueRequest updateIssueRequest) {
+                                            @RequestBody @Validated UpdateIssueRequest updateIssueRequest) {
 
         kanbanBoardService.updateIssue(memberId, projectId, moduleId, issue_id, updateIssueRequest);
 
@@ -83,9 +86,9 @@ public class KanbanBoardController {
                                                   @PathVariable("project_id") Long projectId,
                                                   @PathVariable("module_id") Long moduleId,
                                                   @PathVariable("issue_id") Long issue_id,
-                                                  @RequestBody Long chargerId) {
+                                                  @RequestBody UpdateIssueCommonRequest updateIssueCommonRequest) {
 
-        kanbanBoardService.updateIssueMember(memberId, projectId, moduleId, issue_id, chargerId);
+        kanbanBoardService.updateIssueMember(memberId, projectId, moduleId, issue_id, updateIssueCommonRequest.getChargerId());
 
         return ResponseEntity.ok().build();
     }
@@ -95,9 +98,9 @@ public class KanbanBoardController {
                                                       @PathVariable("project_id") Long projectId,
                                                       @PathVariable("module_id") Long moduleId,
                                                       @PathVariable("issue_id") Long issue_id,
-                                                      @RequestBody Integer importance) {
+                                                      @RequestBody @Validated UpdateIssueCommonRequest updateIssueCommonRequest) {
 
-        kanbanBoardService.updateIssueImportance(memberId, projectId, moduleId, issue_id, importance);
+        kanbanBoardService.updateIssueImportance(memberId, projectId, moduleId, issue_id, updateIssueCommonRequest.getImportance());
 
         return ResponseEntity.ok().build();
     }
@@ -107,9 +110,9 @@ public class KanbanBoardController {
                                                   @PathVariable("project_id") Long projectId,
                                                   @PathVariable("module_id") Long moduleId,
                                                   @PathVariable("issue_id") Long issue_id,
-                                                  @RequestBody Integer status) {
+                                                  @RequestBody @Validated UpdateIssueCommonRequest updateIssueCommonRequest) {
 
-        kanbanBoardService.updateIssueStatus(memberId, projectId, moduleId, issue_id, status);
+        kanbanBoardService.updateIssueStatus(memberId, projectId, moduleId, issue_id, updateIssueCommonRequest.getStatus());
 
         return ResponseEntity.ok().build();
     }
@@ -119,9 +122,9 @@ public class KanbanBoardController {
                                                  @PathVariable("project_id") Long projectId,
                                                  @PathVariable("module_id") Long moduleId,
                                                  @PathVariable("issue_id") Long issue_id,
-                                                 @RequestBody Long labelId) {
+                                                 @RequestBody UpdateIssueCommonRequest updateIssueCommonRequest) {
 
-        kanbanBoardService.updateIssueLabel(memberId, projectId, moduleId, issue_id, labelId);
+        kanbanBoardService.updateIssueLabel(memberId, projectId, moduleId, issue_id, updateIssueCommonRequest.getLabelId());
 
         return ResponseEntity.ok().build();
     }
@@ -134,7 +137,7 @@ public class KanbanBoardController {
                                                        @RequestParam(required = false) Long labelId,
                                                        @RequestParam(required = false) Integer importance) {
 
-        GetIssueResponses getIssueResponses =  kanbanBoardService.getIssues(memberId, projectId, moduleId, chargerId, labelId, importance);
+        GetIssueResponses getIssueResponses = kanbanBoardService.getIssues(memberId, projectId, moduleId, chargerId, labelId, importance);
 
         return ResponseEntity.ok().body(getIssueResponses);
     }
@@ -143,11 +146,32 @@ public class KanbanBoardController {
     public ResponseEntity<GetIssueDetailResponse> getIssue(@SessionAttribute(name = "memberId") Long memberId,
                                                            @PathVariable("project_id") Long projectId,
                                                            @PathVariable("module_id") Long moduleId,
-                                                           @PathVariable("issue_id") Long issue_id){
+                                                           @PathVariable("issue_id") Long issue_id) {
 
         GetIssueDetailResponse getIssueDetailResponse = kanbanBoardService.getIssue(memberId, projectId, moduleId, issue_id);
 
         return ResponseEntity.ok().body(getIssueDetailResponse);
     }
 
+    @PostMapping("/{module_id}/label")
+    public ResponseEntity<Void> createLabel(@SessionAttribute(name = "memberId") Long memberId,
+                                            @PathVariable("project_id") Long projectId,
+                                            @PathVariable("module_id") Long moduleId,
+                                            @RequestBody @Validated WriteLabelRequest writeLabelRequest) {
+
+        kanbanBoardService.createLabel(memberId, projectId, moduleId, writeLabelRequest);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{module_id}/label/{label_id}")
+    public ResponseEntity<Void> deleteLabel(@SessionAttribute(name = "memberId") Long memberId,
+                                            @PathVariable("project_id") Long projectId,
+                                            @PathVariable("module_id") Long moduleId,
+                                            @PathVariable("label_id") Long labelId) {
+
+        kanbanBoardService.deleteLabel(memberId, projectId, moduleId, labelId);
+
+        return ResponseEntity.ok().build();
+    }
 }
