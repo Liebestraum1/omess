@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     echo 'Docker build...'
-                    sh "docker build --build-arg JAR_FILE=build/libs/*.jar -f ./docker/back-docker -t ${newBackend} ."
+                    sh "docker build --build-arg JAR_FILE=back/build/libs/*.jar -f ./docker/back-docker -t ${newBackend} ."
                 }
             }
 
