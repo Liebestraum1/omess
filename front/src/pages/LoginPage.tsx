@@ -1,16 +1,16 @@
-import { Box, Container } from "@mui/material";
+import { Box, Container, styled } from "@mui/material";
 import Login from "../components/Login/Login";
+
+const LoginBox = styled(Box)({
+    height: "100vh",
+});
 
 const LoginPage = () => {
     return (
         <Container>
-            <Box
-                sx={{
-                    height: "100vh",
-                }}
-            >
+            <LoginBox>
                 <Login></Login>
-            </Box>
+            </LoginBox>
         </Container>
     );
 };
