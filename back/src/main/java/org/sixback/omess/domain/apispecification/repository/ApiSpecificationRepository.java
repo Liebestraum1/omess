@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface ApiSpecificationRepository extends JpaRepository<ApiSpecification, Long> {
     Optional<ApiSpecification> findByProjectId(Long projectId);
+
+    Optional<ApiSpecification> findByPath(String path);
 }

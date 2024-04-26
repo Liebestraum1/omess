@@ -28,9 +28,10 @@ public class ApiSpecificationController {
     @PostMapping("/{apiSpecificationId}/domains")
     public ResponseEntity<Void> createDomain(
             @PathVariable Long apiSpecificationId,
-            @Valid @RequestBody CreateDomainRequest createDomainRequest
+            @Valid @RequestBody CreateDomainRequest createDomainRequest,
+            HttpServletRequest httpServletRequest
     ){
-        apiSpecificationService.createDomain(apiSpecificationId, createDomainRequest);
+        apiSpecificationService.createDomain(apiSpecificationId, createDomainRequest, httpServletRequest.getRequestURI());
 
         return ResponseEntity.ok().build();
     }
