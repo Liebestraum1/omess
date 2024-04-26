@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum MemberErrorMessage {
-    MEMBER_NOT_FOUND("해당하는 member가 존재하지 않습니다.");
+    MEMBER_NOT_FOUND("해당하는 member가 존재하지 않습니다."),
+    MEMBER_AUTHENTICATION_FAIL("member 인증 실패");
 
     MemberErrorMessage(String message) {
         this.message = message;
