@@ -11,7 +11,9 @@ DROP TABLE if exists `api_specification`;
 DROP TABLE if exists `domain`;
 DROP TABLE if exists `api`;
 DROP TABLE if exists `module_category`;
-DROP TABLE if exists `http_method`;
+DROP TABLE if exists `path_variable`;
+DROP TABLE if exists `request_header`;
+DROP TABLE if exists `query_param`;
 
 SET FOREIGN_KEY_CHECKS=1;
 
