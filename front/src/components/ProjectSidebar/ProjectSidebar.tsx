@@ -30,13 +30,15 @@ const ProjectSidebar = () => {
      * 각 Fab은 개별 프로젝트를 조회하는 API를 호출하고, 그 결과값을 ModuleSidebar로 보냄
      */
 
-    const fabComponent: React.ReactNode = Array.from({ length: 5 }, (_, index) => <ProjectFab content={String(index)} key={index} />);
+    const fabComponent: React.ReactNode = Array.from({ length: 5 }, (_, index) => (
+        <ProjectFab fabContent={String(index)} key={index} />
+    ));
 
     return (
         // 더하기 버튼에 대해서는 새로운 프로젝트를 생성하는 API를 호출
         <ProjectSidebarBox>
             {fabComponent}
-            <ProjectFab content={<AddIcon />} />
+            <ProjectFab fabContent={<AddIcon />} />
         </ProjectSidebarBox>
     );
 };

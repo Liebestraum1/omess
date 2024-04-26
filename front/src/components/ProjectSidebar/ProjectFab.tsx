@@ -3,8 +3,8 @@ import Fab from "@mui/material/Fab";
 import Typography from "@mui/material/Typography";
 import React from "react";
 
-type ProjectFabProps = {
-    content: React.ReactNode;
+type ProjectFabPropsFromProjectSidebar = {
+    fabContent: React.ReactNode;
 };
 
 const fabContentTypeGuard = (fabContent: React.ReactNode): React.ReactNode => {
@@ -31,7 +31,7 @@ const fabContentTypeGuard = (fabContent: React.ReactNode): React.ReactNode => {
     }
 };
 
-const ProjectFab = ({ content }: ProjectFabProps) => {
+const ProjectFab = ({ fabContent }: ProjectFabPropsFromProjectSidebar) => {
     return (
         <Box
             sx={{
@@ -53,7 +53,7 @@ const ProjectFab = ({ content }: ProjectFabProps) => {
                     color: "#ECE6F0",
                 }}
             >
-                {fabContentTypeGuard(content)}
+                {fabContentTypeGuard(fabContent)}
             </Fab>
         </Box>
     );

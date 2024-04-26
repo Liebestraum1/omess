@@ -34,12 +34,9 @@ const ModuleSidebar = () => {
             <Box display="flex" flexDirection="column">
                 <ChatListComponent projectId={1} />
             </Box>
-            <Module moduleCategory={"채팅"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
-            <Module moduleCategory={"일정 관리"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
-            <Module moduleCategory={"API 명세서"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
-            <Module moduleCategory={"채팅"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
-            <Module moduleCategory={"채팅"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
-            <Module moduleCategory={"채팅"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
+            <Module moduleCategory={"채팅"} moduleItems={["채팅 모듈  1", "채팅 모듈 2"]}></Module>
+            <Module moduleCategory={"일정 관리"} moduleItems={["일정 관리 모듈 1", "일정 관리 모듈 2"]}></Module>
+            <Module moduleCategory={"API 명세서"} moduleItems={["API 명세서 모듈 1", "API 명세서 모듈 2"]}></Module>
         </ModuleSidebarBox>
     );
 };
