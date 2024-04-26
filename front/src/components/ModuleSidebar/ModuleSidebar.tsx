@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
-import ProjectName from "./ProjectName";
-import Module from "./Module";
+import ProjectName from "./ProjectName.tsx";
+import Module from "./Module.tsx";
 import ChatListComponent from "../chat/ChatListComponent.tsx";
 
 const ModuleSidebarBox = styled(Box)({
