@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.UpdateIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.WriteIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.kanbanboard.WriteKanbanBoardRequest;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.label.WriteLabelRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.issue.GetIssueDetailResponse;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.issue.GetIssueResponse;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.kanbanboard.GetKanbanBoardResponse;
@@ -53,69 +54,43 @@ public class KanbanBoardService {
 
     @Transactional
     public void deleteKanbanBoard(Long memberId, Long moduleId, Long projectId) {
-        Optional<KanbanBoard> findKanbanBaord = kanbanBoardRepository.findById(moduleId);
+        KanbanBoard findKanbanBaord = isProjectKanbanBoard(projectId, moduleId);
 
-        String path = makeKanbanBoardPath(projectId, moduleId);
-
-        if (findKanbanBaord.isPresent() && findKanbanBaord.get().getPath().equals(path)) {
-            kanbanBoardRepository.deleteById(moduleId);
-        } else {
-            //FixMe 잘못된 요청입니다 에러 반환
-            throw new EntityNotFoundException();
-        }
+        kanbanBoardRepository.delete(findKanbanBaord);
     }
 
     @Transactional
     public GetKanbanBoardResponse getKanbanBoard(Long memberId, Long moduleId, Long projectId) {
+        KanbanBoard kanbanBoard = isProjectKanbanBoard(projectId, moduleId);
 
-        String path = makeKanbanBoardPath(projectId, moduleId);
+        List<Issue> issues = issueRepository.findByModuleId(moduleId);
 
-        KanbanBoard findKanbanBoard = kanbanBoardRepository.findById(moduleId).orElseThrow(() -> new EntityNotFoundException());
-
-        if (findKanbanBoard.getPath().equals(path)) {
-            List<Issue> issues = issueRepository.findByModuleId(moduleId);
-
-            return GetKanbanBoardResponse.builder()
-                    .moduleId(findKanbanBoard.getId())
-                    .title(findKanbanBoard.getTitle())
-                    .category(findKanbanBoard.getCategory())
-                    .issues(issues.stream().map(
-                                    issue -> GetIssueResponse.builder()
-                                            .issueId(issue.getId())
-                                            .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
-                                            .label(issue.getLabel() != null ? GetLabelResponse.builder()
-                                                    .labelId(issue.getLabel().getId())
-                                                    .name(issue.getLabel().getName())
-                                                    .build() : null)
-                                            .title(issue.getTitle())
-                                            .importance(issue.getImportance())
-                                            .status(issue.getStatus())
-                                            .build()
-                            ).toList()
-                    )
-                    .build();
-        } else {
-            // FixMe 잘못된 요청 에러 던지기
-            throw new EntityNotFoundException();
-        }
+        return GetKanbanBoardResponse.builder()
+                .moduleId(kanbanBoard.getId())
+                .title(kanbanBoard.getTitle())
+                .category(kanbanBoard.getCategory())
+                .issues(issues.stream().map(issue -> GetIssueResponse.builder()
+                        .issueId(issue.getId())
+                        .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
+                        .label(issue.getLabel() != null ? GetLabelResponse.builder()
+                                .labelId(issue.getLabel().getId())
+                                .name(issue.getLabel().getName())
+                                .build() : null)
+                        .title(issue.getTitle())
+                        .importance(issue.getImportance())
+                        .status(issue.getStatus())
+                        .build()).toList())
+                .build();
 
     }
 
     @Transactional
-    public void createIssue(Long projectId, Long moduleId, WriteIssueRequest writeIssueRequest) {
-        Integer status = writeIssueRequest.getStatus();
-        Integer importance = writeIssueRequest.getImportance();
-
-        if (status == null || status > 3 || status < 1
-                || importance == null || importance > 3 || importance < 0) {
-            throw new EntityNotFoundException();
-        }
+    public void createIssue(Long memberId, Long projectId, Long moduleId, WriteIssueRequest writeIssueRequest) {
+        KanbanBoard kanbanBoard = isProjectKanbanBoard(projectId, moduleId);
 
         Member member = isProjectMember(projectId, writeIssueRequest.getMemberId());
 
         Label label = isModuleLabel(moduleId, writeIssueRequest.getLabelId());
-
-        KanbanBoard kanbanBoard = kanbanBoardRepository.findById(moduleId).orElseThrow(() -> new EntityNotFoundException());
 
         Issue issue = new Issue(
                 writeIssueRequest.getTitle(),
@@ -133,71 +108,47 @@ public class KanbanBoardService {
 
     @Transactional
     public void deleteIssue(Long memberId, Long projectId, Long moduleId, Long issueId) {
-        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException());
-        String path = makeIssuePath(projectId, moduleId, issueId);
+        Issue issue = isModuelIssue(projectId, moduleId, issueId);
 
-        if (issue.getPath().equals(path)) {
-            issueRepository.delete(issue);
-        }
+        issueRepository.delete(issue);
     }
 
     @Transactional
     public void updateIssue(Long memberId, Long projectId, Long moduleId, Long issueId, UpdateIssueRequest updateIssueRequest) {
-        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException());
-        String path = makeIssuePath(projectId, moduleId, issueId);
+        Issue issue = isModuelIssue(projectId, moduleId, issueId);
 
-        if (issue.getPath().equals(path)) {
-            issue.updateIssue(updateIssueRequest);
-        }
+        issue.updateIssue(updateIssueRequest);
     }
 
     @Transactional
     public void updateIssueMember(Long memberId, Long projectId, Long moduleId, Long issueId, Long chargerId) {
-        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException());
-        String path = makeIssuePath(projectId, moduleId, issueId);
+        Issue issue = isModuelIssue(projectId, moduleId, issueId);
 
-        if (issue.getPath().equals(path)) {
-            Member member = isProjectMember(projectId, chargerId);
-            issue.updateMember(member);
-        }
+        Member member = isProjectMember(projectId, chargerId);
+
+        issue.updateMember(member);
+
     }
 
     @Transactional
     public void updateIssueImportance(Long memberId, Long projectId, Long moduleId, Long issueId, Integer importance) {
-        if (importance == null || importance > 3 || importance < 0) {
-            throw new EntityNotFoundException();
-        }
+        Issue issue = isModuelIssue(projectId, moduleId, issueId);
 
-        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException());
-        String path = makeIssuePath(projectId, moduleId, issueId);
-
-        if (issue.getPath().equals(path)) {
-            issue.updateImportance(importance);
-        }
+        issue.updateImportance(importance);
     }
 
     @Transactional
     public void updateIssueStatus(Long memberId, Long projectId, Long moduleId, Long issueId, Integer status) {
-        if (status == null || status > 3 || status < 1) {
-            throw new EntityNotFoundException();
-        }
+        Issue issue = isModuelIssue(projectId, moduleId, issueId);
 
-        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException());
-        String path = makeIssuePath(projectId, moduleId, issueId);
-
-        if (issue.getPath().equals(path)) {
-            issue.updateStatus(status);
-        }
+        issue.updateStatus(status);
     }
 
     @Transactional
     public void updateIssueLabel(Long memberId, Long projectId, Long moduleId, Long issueId, Long labelId) {
-        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException());
-        String path = makeIssuePath(projectId, moduleId, issueId);
+        Issue issue = isModuelIssue(projectId, moduleId, issueId);
 
-        if (issue.getPath().equals(path)) {
-            issue.updateLabel(isModuleLabel(moduleId, labelId));
-        }
+        issue.updateLabel(isModuleLabel(moduleId, labelId));
     }
 
     @Transactional
@@ -209,25 +160,21 @@ public class KanbanBoardService {
         if (findKanbanBard.isPresent() && findKanbanBard.get().getPath().equals(path)) {
             List<Issue> findIssues = issueRepository.getIssues(path, chargerId, labelId, importance);
             return GetIssueResponses.builder()
-                    .issues(
-                            findIssues.stream().map(
-                                    issue -> GetIssueResponse.builder()
-                                            .issueId(issue.getId())
-                                            .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
-                                            .label(issue.getLabel() != null ? GetLabelResponse.builder()
-                                                    .labelId(issue.getLabel().getId())
-                                                    .name(issue.getLabel().getName())
-                                                    .build() : null)
-                                            .title(issue.getTitle())
-                                            .importance(issue.getImportance())
-                                            .status(issue.getStatus())
-                                            .build()
-                            ).toList()
-                    )
+                    .issues(findIssues.stream().map(issue -> GetIssueResponse.builder()
+                            .issueId(issue.getId())
+                            .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
+                            .label(issue.getLabel() != null ? GetLabelResponse.builder()
+                                    .labelId(issue.getLabel().getId())
+                                    .name(issue.getLabel().getName())
+                                    .build() : null)
+                            .title(issue.getTitle())
+                            .importance(issue.getImportance())
+                            .status(issue.getStatus())
+                            .build()
+                    ).toList())
                     .build();
         } else {
-            // FixMe 잘못된 요청 에러 던지기
-            throw new EntityNotFoundException();
+            throw new EntityNotFoundException("잘못된 요청입니다");
         }
     }
 
@@ -236,7 +183,7 @@ public class KanbanBoardService {
 
         String path = makeIssuePath(projectId, moduleId, issueId);
 
-        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException());
+        Issue issue = issueRepository.findById(issueId).orElseThrow(() -> new EntityNotFoundException("잘못된 요청입니다"));
 
         if (issue.getPath().equals(path)) {
             return GetIssueDetailResponse.builder()
@@ -252,20 +199,74 @@ public class KanbanBoardService {
                     .status(issue.getStatus())
                     .build();
         } else {
-            // FixMe 잘못된 요청 에러 던지기
-            throw new EntityNotFoundException();
+            throw new EntityNotFoundException("잘못된 요청입니다");
         }
     }
 
-    // FixMe 에러 처리 수정
+    @Transactional
+    public void createLabel(Long memberId, Long projectId, Long moduleId, WriteLabelRequest writeLabelRequest) {
+
+        KanbanBoard kanbanBoard = isProjectKanbanBoard(projectId, moduleId);
+
+        Label label = new Label(writeLabelRequest.getName(), kanbanBoard);
+
+        labelRepository.save(label);
+
+        String path = makeLabelePath(projectId, moduleId, label.getId());
+
+        label.updatePath(path);
+    }
+
+    @Transactional
+    public void deleteLabel(Long memberId, Long projectId, Long moduleId, Long labelId) {
+        Optional<Label> findLabel = labelRepository.findById(labelId);
+        String lPath = makeLabelePath(projectId, moduleId, labelId);
+
+        if (findLabel.isPresent() && findLabel.get().getPath().equals(lPath)) {
+            labelRepository.delete(findLabel.get());
+        } else {
+            throw new EntityNotFoundException("잘못된 요청입니다");
+        }
+    }
+
+    // 프로젝트 조회
+    private Project getProject(Long projectId) {
+        return projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("잘못된 요청입니다"));
+    }
+
     // 프로젝트 멤버 유효성 검사
     private Member isProjectMember(Long projectId, Long memberId) {
         if (memberId == null) {
             return null;
         }
-        projectMemberRepository.findByProjectIdAndMemberId(projectId, memberId).orElseThrow(() -> new EntityNotFoundException());
+        projectMemberRepository.findByProjectIdAndMemberId(projectId, memberId).orElseThrow(() -> new EntityNotFoundException("잘못된 요청입니다"));
 
-        return memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException());
+        return memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException("잘못된 요청입니다"));
+    }
+
+    // 칸반보드 유효성 검사 및 조회
+    private KanbanBoard isProjectKanbanBoard(Long projectId, Long moduleId) {
+        Optional<KanbanBoard> findKanbanBaord = kanbanBoardRepository.findById(moduleId);
+
+        String path = makeKanbanBoardPath(projectId, moduleId);
+
+        if (findKanbanBaord.isPresent() && findKanbanBaord.get().getPath().equals(path)) {
+            return findKanbanBaord.get();
+        } else {
+            throw new EntityNotFoundException("잘못된 요청입니다");
+        }
+    }
+
+    // 이슈 유효성 검사 및 조회
+    private Issue isModuelIssue(Long projectId, Long moduleId, Long issueId) {
+        Optional<Issue> issue = issueRepository.findById(issueId);
+        String path = makeIssuePath(projectId, moduleId, issueId);
+
+        if (issue.isPresent() && issue.get().getPath().equals(path)) {
+            return issue.get();
+        } else {
+            throw new EntityNotFoundException("잘못된 요청입니다");
+        }
     }
 
     // 라벨 검사 존재하는 라벨인지 -> 해당 모듈에 포함된 라벨인지
@@ -274,20 +275,13 @@ public class KanbanBoardService {
             return null;
         }
 
-        Label label = labelRepository.findById(labelId).orElseThrow(() -> new EntityNotFoundException());
+        Label label = labelRepository.findById(labelId).orElseThrow(() -> new EntityNotFoundException("잘못된 요청입니다"));
 
         if (label.getKanbanBoard().getId().equals(moduleId)) {
             return label;
         } else {
-            //FixMe 에러 수정
-            throw new EntityNotFoundException();
+            throw new EntityNotFoundException("잘못된 요청입니다");
         }
-    }
-
-    // FixMe 에러 처리 수정
-    // 프로젝트 조회
-    private Project getProject(Long projectId) {
-        return projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException());
     }
 
     private String makeKanbanBoardPath(Long projectId, Long kanbanBoardId) {
