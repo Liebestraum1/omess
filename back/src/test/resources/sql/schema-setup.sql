@@ -111,13 +111,13 @@ CREATE TABLE `api`
     FOREIGN KEY (domain_id) REFERENCES domain (id) ON DELETE CASCADE
 );
 
-CREATE TABLE `http_method`
-(
-    `id`       BIGINT AUTO_INCREMENT PRIMARY KEY,
-    `method`   VARCHAR(10) NOT NULL,
-    created_at TIMESTAMP DEFAULT now(),
-    updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
-);
+-- CREATE TABLE `http_method`
+-- (
+--     `id`       BIGINT AUTO_INCREMENT PRIMARY KEY,
+--     `method`   VARCHAR(10) NOT NULL,
+--     created_at TIMESTAMP DEFAULT now(),
+--     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
+-- );
 
 CREATE TABLE `module_category`
 (
