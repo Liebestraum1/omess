@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 
 public record CreateDomainRequest(
         @NotEmpty
-        @Size(max= 20)
+        @Size(min = 1, max= 20)
         String name
 ) {
 }
