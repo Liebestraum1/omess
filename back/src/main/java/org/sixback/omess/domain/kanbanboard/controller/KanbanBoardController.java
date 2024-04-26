@@ -1,5 +1,8 @@
 package org.sixback.omess.domain.kanbanboard.controller;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.UpdateIssueCommonRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.UpdateIssueRequest;
@@ -135,7 +138,7 @@ public class KanbanBoardController {
                                                        @PathVariable("module_id") Long moduleId,
                                                        @RequestParam(required = false) Long chargerId,
                                                        @RequestParam(required = false) Long labelId,
-                                                       @RequestParam(required = false) Integer importance) {
+                                                       @RequestParam(required = false)  @Max(3) @Min(0) @Validated Integer importance) {
 
         GetIssueResponses getIssueResponses = kanbanBoardService.getIssues(memberId, projectId, moduleId, chargerId, labelId, importance);
 
