@@ -30,4 +30,8 @@ public class ApiSpecification extends Module {
     public ApiSpecification(String moduleName, String moduleCategory, Project project) {
         super(moduleName, moduleCategory, project);
     }
+
+    public void addPath(String path) {
+        this.path = path;
+    }
 }

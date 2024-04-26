@@ -10,35 +10,33 @@ import org.sixback.omess.domain.apispecification.model.entity.Domain;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
 import org.sixback.omess.domain.apispecification.repository.DomainRepository;
 import org.sixback.omess.domain.project.model.entity.Project;
-import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
+
+import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.generatePath;
 
 @Service
 @RequiredArgsConstructor
 public class ApiSpecificationService {
     private final ApiSpecificationRepository apiSpecificationRepository;
-    //FIXME : 추후 Project에 속한 Member인지 확인하는 AOP or Filter로 대체
-    private final ProjectMemberRepository projectMemberRepository;
-    //FIXME : 추후 ProjectService에서 제공하는 method로 대체
     private final ProjectRepository projectRepository;
-
     private final DomainRepository domainRepository;
 
     @Transactional
-    public void createApiSpecification(Long memberId, Long projectId, CreateApiSpecificationRequest createApiSpecificationRequest) {
-        checkIsProjectMember(memberId, projectId);
-
-        //FIXME : 추후 ProjectService에서 제공하는 method로 대체
-        Project project = projectRepository.findById(projectId).get();
+    public void createApiSpecification(Long projectId, CreateApiSpecificationRequest createApiSpecificationRequest, String uri) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 프로젝트입니다."));
 
         ApiSpecification apiSpecification = ApiSpecification.builder()
                 .moduleName(createApiSpecificationRequest.name())
                 .moduleCategory(createApiSpecificationRequest.category())
-                .project(project)    //FIXME : 추후 ProjectService에서 제공하는 method로 대체
+                .project(project)
                 .build();
 
-        apiSpecificationRepository.save(apiSpecification);
+        ApiSpecification savedApiSpecification = apiSpecificationRepository.save(apiSpecification);
+        savedApiSpecification.addPath(generatePath(uri, savedApiSpecification.getId()));
+
+        apiSpecificationRepository.save(savedApiSpecification);
     }
 
 
@@ -50,11 +48,5 @@ public class ApiSpecificationService {
         Domain domain = new Domain(createDomainRequest.name(), apiSpecification);
 
         domainRepository.save(domain);
-    }
-
-    //FIXME : 추후 Project에 속한 Member인지 확인하는 AOP or Filter로 대체
-    private void checkIsProjectMember(Long memberId, Long projectId){
-        projectMemberRepository.findByProjectIdAndMemberId(projectId, memberId)
-                .orElseThrow(() -> new EntityNotFoundException("프로젝트의 멤버가 아닙니다."));
     }
 }
