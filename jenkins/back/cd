@@ -4,6 +4,14 @@ def newBackend
 pipeline {
     agent any
 
+    tools {
+        jdk "jdk 21"
+    }
+    
+    environment {
+        JAVA_HOME = "tool jdk 21"
+    }
+
     stages {
         stage('Get current backend') {
             steps {
