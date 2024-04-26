@@ -34,7 +34,7 @@ public class Api extends BaseTimeEntity {
     private String description;
 
     @Column(nullable = false, length = 2000)
-    private String endPoint;
+    private String endpoint;
 
     @Column(nullable = false)
     Short status_code;
