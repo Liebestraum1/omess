@@ -8,4 +8,6 @@ public interface IssueCustomRepository {
     List<Issue> findByModuleId(Long moduleId);
 
     List<Issue> getIssues(String path, Long chargerId, Long labelId, Integer importance);
+
+    void updateIssues(Long labelId);
 }

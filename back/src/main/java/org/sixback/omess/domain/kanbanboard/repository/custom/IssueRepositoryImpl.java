@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.kanbanboard.model.entity.Issue;
+import org.sixback.omess.domain.kanbanboard.model.entity.Label;
 import org.sixback.omess.domain.kanbanboard.model.entity.QIssue;
 import org.sixback.omess.domain.kanbanboard.model.entity.QLabel;
 import org.sixback.omess.domain.member.model.entity.QMember;
@@ -44,6 +45,15 @@ public class IssueRepositoryImpl implements IssueCustomRepository {
                 .on(qMember.id.eq(qIssue.charger.id))
                 .where(qIssue.path.like(path + "%"), eqCharger(chargerId), eqLabelId(labelId), eqImportance(importance))
                 .fetch();
+    }
+
+    @Override
+    public void updateIssues(Long labelId) {
+        jpaQueryFactory
+                .update(qIssue)
+                .set(qIssue.label, (Label) null)
+                .where(qIssue.label.id.eq(labelId))
+                .execute();
     }
 
     private BooleanExpression eqCharger(Long chargerId){
