@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.UpdateIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.WriteIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.kanbanboard.WriteKanbanBoardRequest;
+import org.sixback.omess.domain.kanbanboard.model.dto.request.label.WriteLabelRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.issue.GetIssueDetailResponse;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.issue.GetIssueResponse;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.kanbanboard.GetKanbanBoardResponse;
@@ -200,7 +201,7 @@ public class KanbanboardServiceTest {
         writeIssueRequest.setStatus(1);
         writeIssueRequest.setImportance(1);
 
-        kanbanBoardService.createIssue(project.getId(), kanbanBoard.getId(), writeIssueRequest);
+        kanbanBoardService.createIssue(member.getId(), project.getId(), kanbanBoard.getId(), writeIssueRequest);
 
         Issue findIssue = issueRepository.findByTitle("이슈생성 테스트");
 
@@ -273,7 +274,7 @@ public class KanbanboardServiceTest {
 
         em.flush();
 
-        kanbanBoardService.deleteIssue(member2.getId(), project.getId(), kanbanBoard.getId(), issues.get(0).getId());
+        kanbanBoardService.deleteIssue(member2.getId(), project.getId(), kanbanBoard.getId(), issues.getFirst().getId());
 
         List<Issue> allIssue = issueRepository.findAll();
         List<Label> allLabel = labelRepository.findAll();
@@ -318,7 +319,7 @@ public class KanbanboardServiceTest {
 
         em.flush();
 
-        Issue findIssue = issueRepository.findById(issue.getId()).orElseThrow(() -> new EntityNotFoundException());
+        Issue findIssue = issueRepository.findById(issue.getId()).orElseThrow(EntityNotFoundException::new);
 
         assertThat(findIssue.getContent()).isEqualTo(updateIssueRequest.getContent());
 
@@ -357,7 +358,7 @@ public class KanbanboardServiceTest {
 
         em.flush();
 
-        Issue findIssue = issueRepository.findById(issue.getId()).orElseThrow(() -> new EntityNotFoundException());
+        Issue findIssue = issueRepository.findById(issue.getId()).orElseThrow(EntityNotFoundException::new);
 
         assertThat(findIssue.getCharger()).isEqualTo(member);
 
@@ -370,7 +371,7 @@ public class KanbanboardServiceTest {
 
         em.flush();
 
-        Issue findIssueLabel = issueRepository.findById(issue.getId()).orElseThrow(() -> new EntityNotFoundException());
+        Issue findIssueLabel = issueRepository.findById(issue.getId()).orElseThrow(EntityNotFoundException::new);
 
         assertThat(findIssueLabel.getLabel()).isEqualTo(label);
 
@@ -380,7 +381,7 @@ public class KanbanboardServiceTest {
 
         em.flush();
 
-        Issue findIssueImportance = issueRepository.findById(issue.getId()).orElseThrow(() -> new EntityNotFoundException());
+        Issue findIssueImportance = issueRepository.findById(issue.getId()).orElseThrow(EntityNotFoundException::new);
 
         assertThat(findIssueImportance.getImportance()).isEqualTo(1);
 
@@ -390,7 +391,7 @@ public class KanbanboardServiceTest {
 
         em.flush();
 
-        Issue findIssueStatus = issueRepository.findById(issue.getId()).orElseThrow(() -> new EntityNotFoundException());
+        Issue findIssueStatus = issueRepository.findById(issue.getId()).orElseThrow(EntityNotFoundException::new);
 
         assertThat(findIssueStatus.getStatus()).isEqualTo(3);
     }
@@ -582,5 +583,36 @@ public class KanbanboardServiceTest {
         GetIssueDetailResponse getIssueDetailResponse = kanbanBoardService.getIssue(member.getId(), project.getId(), kanbanBoard.getId(), issue.getId());
 
         assertThat(getIssueDetailResponse.issueId()).isEqualTo(issue.getId());
+    }
+
+    @Test
+    public void createLabelTest(){
+        // 멤버 생성
+        Member member = new Member("bam", "wjs6265", "wb6265");
+
+        memberRepository.save(member);
+
+        // 프로젝트 생성
+        Project project = new Project("프젝 1");
+
+        projectRepository.save(project);
+
+        // 프로젝트 멤버 생성
+        ProjectMember projectMember = new ProjectMember(project, member);
+
+        projectMemberRepository.save(projectMember);
+
+        // 칸반 보드 생성
+        KanbanBoard kanbanBoard = new KanbanBoard("칸반보드", "KanbanBoard", project);
+        kanbanBoardRepository.save(kanbanBoard);
+
+        String kPath = "P" + project.getId() + "/K" + kanbanBoard.getId();
+        kanbanBoard.updatePath(kPath);
+
+        WriteLabelRequest writeLabelRequest = new WriteLabelRequest();
+        writeLabelRequest.setName("라벨 테스트 라벨");
+
+        kanbanBoardService.createLabel(member.getId(), project.getId(), kanbanBoard.getId(), writeLabelRequest);
+
     }
 }
