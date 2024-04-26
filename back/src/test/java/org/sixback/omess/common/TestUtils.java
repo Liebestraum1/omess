@@ -1,5 +1,6 @@
 package org.sixback.omess.common;
 
+import org.sixback.omess.common.utils.PasswordUtils;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.project.model.entity.Project;
 
@@ -12,7 +13,8 @@ public class TestUtils {
     }
 
     public static Member makeMember(String nickname, String email, String password) {
-        return new Member(nickname, email, password);
+        String encodePassword = PasswordUtils.encodePassword(password);
+        return new Member(nickname, email, encodePassword);
     }
 
     public static Project makeProject() {
