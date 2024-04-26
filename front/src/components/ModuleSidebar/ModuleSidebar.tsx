@@ -1,5 +1,5 @@
-import Box from "@mui/material/Box"
-import styled from '@mui/system/styled'
+import Box from "@mui/material/Box";
+import styled from "@mui/system/styled";
 import ProjectName from "./ProjectName";
 import Module from "./Module";
 import ChatListComponent from "../chat/ChatListComponent.tsx";
@@ -9,16 +9,16 @@ const ModuleSidebarBox = styled(Box)({
     backgroundColor: "#E8DEF8",
     overflow: "auto",
 
-    '&::-webkit-scrollbar': {
-        width: '8px', // 스크롤바의 너비
+    "&::-webkit-scrollbar": {
+        width: "8px", // 스크롤바의 너비
     },
-    '&::-webkit-scrollbar-track': {
-        background: 'transparent',
+    "&::-webkit-scrollbar-track": {
+        background: "transparent",
     },
-    '&::-webkit-scrollbar-thumb': {
-        display: 'none',
-        backgroundColor: 'purple', // 스크롤바 썸(움직이는 부분)의 배경색
-        borderRadius: '4px', // 스크롤바 썸의 모서리 둥글기
+    "&::-webkit-scrollbar-thumb": {
+        display: "none",
+        backgroundColor: "purple", // 스크롤바 썸(움직이는 부분)의 배경색
+        borderRadius: "4px", // 스크롤바 썸의 모서리 둥글기
     },
 });
 
@@ -30,12 +30,9 @@ const ModuleSidebarBox = styled(Box)({
 const ModuleSidebar = () => {
     return (
         <ModuleSidebarBox>
-            <ProjectName projectName={"A301 자율 프로젝트가너무길어지면어떻게될까나"}/>
-            <Box
-                display="flex"
-                flexDirection="column"
-            >
-                <ChatListComponent projectId={1}/>
+            <ProjectName projectName={"A301 자율 프로젝트가너무길어지면어떻게될까나"} />
+            <Box display="flex" flexDirection="column">
+                <ChatListComponent projectId={1} />
             </Box>
             <Module moduleCategory={"채팅"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
             <Module moduleCategory={"일정 관리"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
@@ -44,7 +41,7 @@ const ModuleSidebar = () => {
             <Module moduleCategory={"채팅"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
             <Module moduleCategory={"채팅"} moduleItems={["전승열이또너무길어지면어떻게될까나", "휘파람"]}></Module>
         </ModuleSidebarBox>
-    )
+    );
 };
 
 export default ModuleSidebar;
