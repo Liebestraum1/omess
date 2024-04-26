@@ -78,6 +78,7 @@ CREATE TABLE `issue`
 CREATE TABLE `api_specification`
 (
     `id` BIGINT      NOT NULL PRIMARY KEY,
+    `path`           VARCHAR(20)  NULL,
     FOREIGN KEY (id) REFERENCES module (id) ON DELETE CASCADE
 );
 
@@ -85,6 +86,7 @@ CREATE TABLE `domain`
 (
     `id`                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     `api_specification_id` BIGINT      NOT NULL,
+    `path`           VARCHAR(20)  NULL,
     `name`                 VARCHAR(20) NOT NULL,
     created_at             TIMESTAMP DEFAULT now(),
     updated_at             TIMESTAMP DEFAULT now() ON UPDATE now(),
@@ -96,7 +98,7 @@ CREATE TABLE `api`
 (
     `id`              BIGINT AUTO_INCREMENT PRIMARY KEY,
     `domain_id`       BIGINT        NOT NULL,
-    `api_code`        VARCHAR(20)   NULL,
+    `path`           VARCHAR(20)  NULL,
     `name`            VARCHAR(20)   NOT NULL,
     `description`     VARCHAR(50)   NULL,
     `endpoint`        VARCHAR(2000) NOT NULL,
@@ -124,4 +126,39 @@ CREATE TABLE `module_category`
     `path`     VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
+);
+
+CREATE TABLE `request_header` (
+    `id`	BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `api_id`	bigint	NOT NULL,
+    `path`	varchar(20)	NULL,
+    `key`	varchar(50)	NOT NULL,
+    `value`	varchar(100)	NOT NULL,
+    created_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now() ON UPDATE now(),
+    FOREIGN KEY (api_id) REFERENCES api(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE `query_param` (
+	`id`	BIGINT AUTO_INCREMENT PRIMARY KEY,
+	`api_id`	bigint	NOT NULL,
+	`path`	varchar(20)	NULL,
+	`name`	varchar(20)	NOT NULL,
+	`description`	varchar(5)	NULL,
+    created_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now() ON UPDATE now(),
+    FOREIGN KEY (api_id) REFERENCES api(id) ON DELETE CASCADE
+);
+
+CREATE TABLE `path_variable`
+(
+    `id`          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `api_id`      bigint      NOT NULL,
+    `path`        varchar(20) NULL,
+    `name`        varchar(20) NOT NULL,
+    `description` varchar(50) NULL,
+    created_at    TIMESTAMP DEFAULT now(),
+    updated_at    TIMESTAMP DEFAULT now() ON UPDATE now(),
+    FOREIGN KEY (api_id) REFERENCES api (id) ON DELETE CASCADE
 );

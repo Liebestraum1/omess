@@ -1,5 +1,6 @@
 package org.sixback.omess.domain.apispecification.model.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.Builder;
@@ -19,6 +20,9 @@ import static lombok.AccessLevel.PROTECTED;
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 public class ApiSpecification extends Module {
+    @Column(length = 20)
+    private String path;
+
     @OneToMany(mappedBy = "apiSpecification", fetch = LAZY, cascade = REMOVE)
     private List<Domain> domains = new ArrayList<>();
 
