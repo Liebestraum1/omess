@@ -1,16 +1,16 @@
 def oldBackend
 def newBackend
 
-def removeDockerContents(name) {
-    sh '''
-    if [ "$(docker ps -a -q -f name=${name})" ]; then
+def removeDockerContents(String name) {
+    sh script: """
+    if [ \$(docker ps -a -q -f name=${name}) ]; then
         docker stop ${name}
     fi
-    if [ "$(docker ps -aq -f status=exited -f name=${name})" ]; then
+    if [ \$(docker ps -aq -f status=exited -f name=${name}) ]; then
         docker rm ${name}
     fi
     docker image prune -f
-    '''.replace("${name}", name)
+    """, label: 'Removing Docker contents'
 }
 
 pipeline {
