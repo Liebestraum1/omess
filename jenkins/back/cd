@@ -102,7 +102,7 @@ pipeline {
             steps{
                 status = sh(script: "curl -s -o /dev/null -I -w \"%{http_code}\" http://${newBackend}:8080/actuator/health", returnStdout: true).trim()
 
-                if(status != 200) {
+                if(status.toInteger() != 200) {
                     currentBuild.result = 'FAILURE'
                     error('Health check fail')
                 }
@@ -116,13 +116,15 @@ pipeline {
                 failure {
                     echo "Health check failed"
 
-                    sh 'if [ "$(docker ps -a -q -f name=${newBackend})" ]; then
-			            docker stop ${newBackend}
-			            if [ "$(docker ps -aq -f status=exited -f name=#{newBackend})" ]; then
-				            docker rm ${newBackend}
+                    sh """
+                    if [ "$(docker ps -a -q -f name=${newBackend})" ]; then
+                        docker stop ${newBackend}
+                        if [ "$(docker ps -aq -f status=exited -f name=${newBackend})" ]; then
+                            docker rm ${newBackend}
                             docker rmi ${newBackend}
-			            fi
-		            fi'
+                        fi
+                    fi
+                    """
 
                     updateGitlabCommitStatus name: 'healthcheck', state: 'failed'
                 }
@@ -139,13 +141,15 @@ pipeline {
                 script {
                     echo 'Remove Docker Process and Image...'
             
-                    sh 'if [ "$(docker ps -a -q -f name=${oldBackend})" ]; then
-			            docker stop ${oldBackend}
-			            if [ "$(docker ps -aq -f status=exited -f name=${oldBackend})" ]; then
-				            docker rm ${oldBackend}
+                    sh """
+                    if [ "$(docker ps -a -q -f name=${oldBackend})" ]; then
+                        docker stop ${oldBackend}
+                        if [ "$(docker ps -aq -f status=exited -f name=${oldBackend})" ]; then
+                            docker rm ${oldBackend}
                             docker rmi ${oldBackend}
-			            fi
-		            fi'
+                        fi
+                    fi
+                    """
                 }
                 
             }
