@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -71,6 +72,18 @@ public class GlobalExceptionHandler {
         return ErrorResponse.builder(exception, BAD_REQUEST, detail.toString())
                 .type(URI.create(VALIDATION_ERROR.name()))
                 .title(VALIDATION_ERROR.getTitle())
+                .instance(URI.create(request.getRequestURI()))
+                .build();
+    }
+
+    @ExceptionHandler(InsufficientAuthenticationException.class)
+    public ErrorResponse unAuthenticationExceptionHandler(
+            HttpServletRequest request, InsufficientAuthenticationException exception
+    ) {
+        printException(exception);
+        return ErrorResponse.builder(exception, UNAUTHORIZED, UNAUTHENTICATED_ERROR.getTitle())
+                .type(URI.create(UNAUTHENTICATED_ERROR.name()))
+                .title(UNAUTHENTICATED_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
     }
