@@ -53,12 +53,6 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    echo 'Build gradle...'
-                    dir('back') {
-                        sh "chmod +x ./gradlew"
-                        sh "./gradlew clean build -x check --parallel --stacktrace"
-                    }
-
                     echo 'Docker build...'
                     sh "docker build --build-arg JAR_FILE=back/build/libs/omess-0.0.1-SNAPSHOT.jar -f ./docker/back-docker -t ${newBackend} ."
                 }
