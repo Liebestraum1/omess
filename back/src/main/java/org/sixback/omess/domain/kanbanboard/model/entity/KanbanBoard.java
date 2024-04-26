@@ -20,17 +20,19 @@ public class KanbanBoard extends Module {
     String path;
 
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "kanbanboard_id")
     List<Issue> issues;
 
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "kanbanboard_id")
     List<Label> labels;
 
-    public KanbanBoard(String title, String category, Project project){
+    public KanbanBoard(String title, String category, Project project) {
         super(title, category, project);
     }
 
-    public void updatePath(String path){
-        if(this.path == null){
+    public void updatePath(String path) {
+        if (this.path == null) {
             this.path = path;
         }
     }
