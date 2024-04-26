@@ -1,32 +1,41 @@
-// 백엔드용 젠킨스 파일
-
 pipeline {
     agent any
 
-    tools {
-        jdk "jdk 21"
-    }
-    
-    environment {
-        JAVA_HOME = "tool jdk 21"
-    }
+    def oldBackend
+    def newBackend
 
     stages {
-    	stage('Remove docker') {
-            steps{
+        stage('Get current backend') {
+            steps {
                 script {
-                    echo 'Remove Docker Process and Image...'
-            
-                    sh '''if [ "$(docker ps -a -q -f name=backend)" ]; then
-			            docker stop backend
-			            if [ "$(docker ps -aq -f status=exited -f name=backend)" ]; then
-				            docker rm backend
-                            docker rmi backend
-			            fi
-		            fi'''
+                    echo 'Get current backend...'
+                    oldBackend = sh(script: """grep "set $current_backend" /etc/nginx/conf.d/custom.conf | awk '{print $3}' | tr -d ';'""", returnStdout: true).trim()
+                }
+
+                if(oldBackend == 'backend-blue') {
+                    newBackend = 'backend-green'
+                } else if(oldBackend == 'backend-green') {
+                    newBackend = 'backend-blue'
+                } else {
+                    currentBuild.result = 'FAILURE'
+                    error('Get current backend fail')
                 }
             }
-	    }
+
+            post {
+                always {
+                    echo "Current Backend: ${oldBackend}"
+                }
+                success {
+                    echo "Get backend success"
+                    updateGitlabCommitStatus name: 'check', state: 'success'
+                }
+                failure {
+                    echo "Get backend failed"
+                    updateGitlabCommitStatus name: 'check', state: 'failed'
+                }
+            }
+        }
 
         stage('Copy env') {
             steps {
@@ -41,14 +50,16 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Build gradle...'
-                dir('back') {
-                    sh "chmod +x ./gradlew"
-                    sh "./gradlew clean build -x check --parallel"
+                script {
+                    echo 'Build gradle...'
+                    dir('back') {
+                        sh "chmod +x ./gradlew"
+                        sh "./gradlew clean build -x check --parallel"
+                    }
+
+                    echo 'Docker build...'
+                    sh "docker build --build-arg JAR_FILE=back/build/libs/omess-0.0.1-SNAPSHOT.jar -f ./docker/back-docker -t ${newBackend} ."
                 }
-                
-    		echo 'Docker build...'
-		    sh "docker build --build-arg JAR_FILE=back/build/libs/omess-0.0.1-SNAPSHOT.jar -f ./docker/back-docker -t backend ."
             }
 
             post {
@@ -63,23 +74,89 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Run') {
             steps {
-                echo 'Docker run...'
                 script {
                     echo 'Docker run...'
-		            sh "docker run -d --net omess --name backend backend"
+		            sh "docker run -d --net omess --name ${newBackend} ${newBackend}"
                 }
             }
 
             post {
                 success {
-                    echo "Deploy success"
-                    updateGitlabCommitStatus name: 'deploy', state: 'success'
+                    echo "Run success"
+                    updateGitlabCommitStatus name: 'run', state: 'success'
                 }
                 failure {
-                    echo "Deploy failed"
-                    updateGitlabCommitStatus name: 'deploy', state: 'failed'
+                    echo "Run failed"
+                    updateGitlabCommitStatus name: 'run', state: 'failed'
+                }
+            }
+        }
+
+        stage('Health check') {
+            sleep 10
+            def status
+
+            steps{
+                status = sh(script: "curl -s -o /dev/null -I -w \"%{http_code}\" http://${newBackend}:8080/actuator/health", returnStdout: true).trim()
+
+                if(status != 200) {
+                    currentBuild.result = 'FAILURE'
+                    error('Health check fail')
+                }
+            }
+
+            post {
+                success {
+                    echo "Health check success"
+                    updateGitlabCommitStatus name: 'healthcheck', state: 'success'
+                }
+                failure {
+                    echo "Health check failed"
+
+                    sh 'if [ "$(docker ps -a -q -f name=${newBackend})" ]; then
+			            docker stop ${newBackend}
+			            if [ "$(docker ps -aq -f status=exited -f name=#{newBackend})" ]; then
+				            docker rm ${newBackend}
+                            docker rmi ${newBackend}
+			            fi
+		            fi'
+
+                    updateGitlabCommitStatus name: 'healthcheck', state: 'failed'
+                }
+            }
+        }
+
+        stage('Update backend') {
+            steps{
+                echo 'Update nginx conf...'
+
+                sh "docker exec nginx sed -i 's/set \$current_backend ${oldBackend};/set \$current_backend ${newBackend};/g' /etc/nginx/conf.d/default.conf"
+                sh 'docker exec nginx nginx -s reload'
+
+                script {
+                    echo 'Remove Docker Process and Image...'
+            
+                    sh 'if [ "$(docker ps -a -q -f name=${oldBackend})" ]; then
+			            docker stop ${oldBackend}
+			            if [ "$(docker ps -aq -f status=exited -f name=${oldBackend})" ]; then
+				            docker rm ${oldBackend}
+                            docker rmi ${oldBackend}
+			            fi
+		            fi'
+                }
+                
+            }
+
+            post {
+                success {
+                    echo "Update success"
+                    updateGitlabCommitStatus name: 'update', state: 'success'
+                }
+                failure {
+                    echo "Update failed"
+                    updateGitlabCommitStatus name: '', state: 'failed'
                 }
             }
         }
