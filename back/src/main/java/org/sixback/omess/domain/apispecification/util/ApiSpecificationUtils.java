@@ -18,4 +18,11 @@ public class ApiSpecificationUtils {
 
         return path.toString();
     }
+
+    public static String generateEstimatedParentPath(String uri, Long parentId){
+        uri = uri.substring(0, uri.lastIndexOf('/'));
+        String parentUri = uri.substring(0, uri.lastIndexOf('/'));
+
+        return generatePath(parentUri, parentId);
+    }
 }
