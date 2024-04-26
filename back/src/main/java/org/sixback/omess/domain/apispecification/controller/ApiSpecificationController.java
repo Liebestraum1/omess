@@ -1,5 +1,6 @@
 package org.sixback.omess.domain.apispecification.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
@@ -16,11 +17,11 @@ public class ApiSpecificationController {
 
     @PostMapping
     public ResponseEntity<Void> createApiSpecification(
-            @SessionAttribute(name = "memberId") Long memberId, //FIXME : 추후 Project에 속한 Member인지 확인하는 AOP or Filter로 대체
             @PathVariable Long projectId,
-            @Valid @RequestBody CreateApiSpecificationRequest createApiSpecificationRequest
+            @Valid @RequestBody CreateApiSpecificationRequest createApiSpecificationRequest,
+            HttpServletRequest httpServletRequest
     ) {
-        apiSpecificationService.createApiSpecification(memberId, projectId, createApiSpecificationRequest);
+        apiSpecificationService.createApiSpecification(projectId, createApiSpecificationRequest, httpServletRequest.getRequestURI());
         return ResponseEntity.ok().build();
     }
 
