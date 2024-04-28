@@ -7,7 +7,7 @@ import static org.springframework.http.HttpStatus.*;
 import java.net.URI;
 import java.util.List;
 
-import org.sixback.omess.domain.apispecification.exception.InvalidJsonSchemaException;
+import org.sixback.omess.domain.apispecification.exception.InvalidApiInputException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.validation.BindException;
@@ -103,9 +103,9 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(InvalidJsonSchemaException.class)
+    @ExceptionHandler(InvalidApiInputException.class)
     public ErrorResponse invalidJsonSchemaExceptionHandler(
-        HttpServletRequest request, InvalidJsonSchemaException exception
+        HttpServletRequest request, InvalidApiInputException exception
     ) {
         printException(exception);
         return ErrorResponse.builder(exception, BAD_REQUEST, INVALID_JSON_SCHEMA.getMessage())
