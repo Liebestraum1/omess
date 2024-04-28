@@ -41,6 +41,13 @@ dependencies {
 
     // Spring Boot Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    //Json schema validator
+    implementation 'com.networknt:json-schema-validator:1.4.0'
+
+    //json parse
+    implementation 'com.google.code.gson:gson:2.10.1'
+
 }
 
 def querydslSrcDir = layout.buildDirectory.dir("querydsl") //'src/main/generated'
