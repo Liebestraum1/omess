@@ -1,13 +1,19 @@
 package org.sixback.omess.domain.apispecification.model.entity;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
+
 import org.sixback.omess.common.BaseTimeEntity;
 
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -29,4 +35,10 @@ public class QueryParam extends BaseTimeEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "api_id")
     Api api;
+
+    public QueryParam(String name, String description, Api api) {
+        this.name = name;
+        this.description = description;
+        this.api = api;
+    }
 }
