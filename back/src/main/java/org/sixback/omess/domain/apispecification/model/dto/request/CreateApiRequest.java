@@ -1,4 +1,4 @@
-package org.sixback.omess.domain.apispecification.model.dto;
+package org.sixback.omess.domain.apispecification.model.dto.request;
 
 import java.util.List;
 

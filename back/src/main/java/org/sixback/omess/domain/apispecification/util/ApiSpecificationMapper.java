@@ -3,9 +3,9 @@ package org.sixback.omess.domain.apispecification.util;
 import java.util.List;
 
 import org.sixback.omess.domain.apispecification.model.dto.ApiSummaryDto;
-import org.sixback.omess.domain.apispecification.model.dto.CreatePathVariableRequest;
-import org.sixback.omess.domain.apispecification.model.dto.CreateQueryParamRequest;
-import org.sixback.omess.domain.apispecification.model.dto.CreateRequestHeaderRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreatePathVariableRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateQueryParamRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateRequestHeaderRequest;
 import org.sixback.omess.domain.apispecification.model.dto.DomainWithApiSummaryDto;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
 import org.sixback.omess.domain.apispecification.model.entity.Api;

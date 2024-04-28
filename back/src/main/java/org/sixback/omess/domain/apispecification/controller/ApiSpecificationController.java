@@ -1,8 +1,8 @@
 package org.sixback.omess.domain.apispecification.controller;
 
-import org.sixback.omess.domain.apispecification.model.dto.CreateApiRequest;
-import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
-import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
