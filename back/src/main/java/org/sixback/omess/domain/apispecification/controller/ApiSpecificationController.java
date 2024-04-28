@@ -5,6 +5,7 @@ import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificatio
 import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApiSpecificationController {
     private final ApiSpecificationService apiSpecificationService;
+
+    @GetMapping("/{apiSpecificationId}")
+    public ResponseEntity<?> getApiSpecification(
+        @PathVariable Long apiSpecificationId,
+        HttpServletRequest httpServletRequest
+    ){
+        return ResponseEntity.ok().body(apiSpecificationService.getApiSpecification(apiSpecificationId, httpServletRequest.getRequestURI()));
+    }
 
     @PostMapping
     public ResponseEntity<Void> createApiSpecification(
