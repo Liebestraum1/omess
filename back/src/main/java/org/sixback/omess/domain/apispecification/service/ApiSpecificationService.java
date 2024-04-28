@@ -5,6 +5,7 @@ import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUti
 
 import java.util.Optional;
 
+import org.sixback.omess.domain.apispecification.exception.InvalidApiInputException;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
@@ -15,6 +16,7 @@ import org.sixback.omess.domain.apispecification.repository.ApiRepository;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
 import org.sixback.omess.domain.apispecification.repository.DomainRepository;
 import org.sixback.omess.domain.apispecification.util.ApiSpecificationMapper;
+import org.sixback.omess.domain.httpmethod.model.HttpMethod;
 import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
@@ -67,6 +69,10 @@ public class ApiSpecificationService {
 
     @Transactional
     public void createApi(Long domainId, CreateApiRequest createApiRequest, String uri) {
+        if(!HttpMethod.getMethodNames().contains(createApiRequest.getMethod())) {
+            throw new InvalidApiInputException(INVALID_HTTP_METHOD.getMessage());
+        }
+
         String estimatedParentPath = generateEstimatedParentPath(uri, domainId);
 
         Domain domain = domainRepository.findByPath(estimatedParentPath)
@@ -89,6 +95,7 @@ public class ApiSpecificationService {
         apiRepository.save(api);
         api.addPath(generatePath(uri, api.getId()));
 
+        //FIXME API 수정 방식에 따라 하위 테이블에 path 추가 여부 결정
         Optional.ofNullable(createApiRequest.getCreatePathVariableRequests())
             .ifPresent(requests -> requests.forEach(request ->
                 api.getPathVariables().add(ApiSpecificationMapper.toPathVariable(request, api))));
