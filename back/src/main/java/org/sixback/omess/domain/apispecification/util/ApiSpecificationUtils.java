@@ -2,7 +2,7 @@ package org.sixback.omess.domain.apispecification.util;
 
 import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.*;
 
-import org.sixback.omess.domain.apispecification.exception.InvalidJsonSchemaException;
+import org.sixback.omess.domain.apispecification.exception.InvalidApiInputException;
 import org.springframework.boot.json.GsonJsonParser;
 
 public class ApiSpecificationUtils {
@@ -40,7 +40,7 @@ public class ApiSpecificationUtils {
         try {
             parser.parseMap(schemaString);
         } catch (Exception e) {
-            throw new InvalidJsonSchemaException(INVALID_JSON.getMessage());
+            throw new InvalidApiInputException(INVALID_JSON.getMessage());
         }
     }
 }

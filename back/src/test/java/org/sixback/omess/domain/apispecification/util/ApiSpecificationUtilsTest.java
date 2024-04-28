@@ -6,7 +6,7 @@ import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUti
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sixback.omess.domain.apispecification.exception.InvalidJsonSchemaException;
+import org.sixback.omess.domain.apispecification.exception.InvalidApiInputException;
 
 class ApiSpecificationUtilsTest {
 	@Test
@@ -122,6 +122,6 @@ class ApiSpecificationUtilsTest {
 
 		//then
 		assertDoesNotThrow(() -> checkIsValidJsonSchema(validJsonSchema));
-		assertThrowsExactly(InvalidJsonSchemaException.class,() -> checkIsValidJsonSchema(invalidJson));
+		assertThrowsExactly(InvalidApiInputException.class,() -> checkIsValidJsonSchema(invalidJson));
 	}
 }
