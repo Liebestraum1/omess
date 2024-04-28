@@ -6,9 +6,13 @@ import org.sixback.omess.domain.apispecification.exception.InvalidApiInputExcept
 import org.springframework.boot.json.GsonJsonParser;
 
 public class ApiSpecificationUtils {
+    private static String removePrefix(String uri){
+        return uri.replace("/api/v1/", "");
+    }
+
     public static String generatePath(String uri, Long lastId){
         StringBuilder path = new StringBuilder();
-        uri = uri.replace("/api/v1/", "");
+        uri = removePrefix(uri);
         String[] split = uri.split("/");
 
         for (int i = 0; i < split.length; i++) {
@@ -20,6 +24,25 @@ public class ApiSpecificationUtils {
             }
         }
         path.append(lastId);
+
+        return path.toString();
+    }
+
+    public static String generateEstimatedCurrentPath(String uri){
+        StringBuilder path = new StringBuilder();
+        uri = removePrefix(uri);
+        String[] split = uri.split("/");
+
+        for (int i = 0; i < split.length; i++) {
+            if(i % 2 == 0){
+                path.append(Character.toUpperCase(split[i].charAt(0)));
+            }else{
+                path.append(split[i]);
+                if (i < split.length - 1){
+                    path.append("/");
+                }
+            }
+        }
 
         return path.toString();
     }
