@@ -124,8 +124,8 @@ CREATE TABLE `request_header` (
     `id`	BIGINT AUTO_INCREMENT PRIMARY KEY,
     `api_id`	bigint	NOT NULL,
     `path`	varchar(20)	NULL,
-    `key`	varchar(50)	NOT NULL,
-    `value`	varchar(100)	NOT NULL,
+    `header_key`	varchar(50)	NOT NULL,
+    `header_value`	varchar(100)	NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now(),
     FOREIGN KEY (api_id) REFERENCES api(id) ON DELETE CASCADE
@@ -137,7 +137,7 @@ CREATE TABLE `query_param` (
 	`api_id`	bigint	NOT NULL,
 	`path`	varchar(20)	NULL,
 	`name`	varchar(20)	NOT NULL,
-	`description`	varchar(5)	NULL,
+	`description`	varchar(50)	NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now(),
     FOREIGN KEY (api_id) REFERENCES api(id) ON DELETE CASCADE
