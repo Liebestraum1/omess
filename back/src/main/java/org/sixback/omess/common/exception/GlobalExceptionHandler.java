@@ -1,8 +1,13 @@
 package org.sixback.omess.common.exception;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import static org.sixback.omess.common.exception.ErrorType.*;
+import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.*;
+import static org.springframework.http.HttpStatus.*;
+
+import java.net.URI;
+import java.util.List;
+
+import org.sixback.omess.domain.apispecification.exception.InvalidJsonSchemaException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.validation.BindException;
@@ -13,11 +18,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
-import java.net.URI;
-import java.util.List;
-
-import static org.sixback.omess.common.exception.ErrorType.*;
-import static org.springframework.http.HttpStatus.*;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
@@ -98,6 +101,18 @@ public class GlobalExceptionHandler {
                 .title(NOT_FOUND_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
+    }
+
+    @ExceptionHandler(InvalidJsonSchemaException.class)
+    public ErrorResponse invalidJsonSchemaExceptionHandler(
+        HttpServletRequest request, InvalidJsonSchemaException exception
+    ) {
+        printException(exception);
+        return ErrorResponse.builder(exception, BAD_REQUEST, INVALID_JSON_SCHEMA.getMessage())
+            .type(URI.create(INVALID_JSON_SCHEMA.name()))
+            .title(INVALID_JSON_SCHEMA.getMessage())
+            .instance(URI.create(request.getRequestURI()))
+            .build();
     }
 
     @ExceptionHandler({NullPointerException.class, RuntimeException.class, Exception.class})
