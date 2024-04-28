@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.apispecification.controller;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.sixback.omess.domain.apispecification.util.ApiSpecificationMapper.*;
 import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -25,8 +26,10 @@ import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreatePathVariableRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateQueryParamRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateRequestHeaderRequest;
+import org.sixback.omess.domain.apispecification.model.entity.Api;
 import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
 import org.sixback.omess.domain.apispecification.model.entity.Domain;
+import org.sixback.omess.domain.apispecification.repository.ApiRepository;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
 import org.sixback.omess.domain.apispecification.repository.DomainRepository;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
@@ -66,9 +69,16 @@ class ApiSpecificationControllerTest {
     DomainRepository domainRepository;
 
     @Autowired
+    private ApiRepository apiRepository;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     private MockHttpSession mockitoSession;
+    private Project dummyProjectForSetUp;
+    private ApiSpecification dummyApiSpecificationForSetUp;
+    private Domain dummyDomainForSetUp;
+    private Api dummyApiForSetUp;
 
     @BeforeEach
     public void setUp(){
@@ -76,6 +86,8 @@ class ApiSpecificationControllerTest {
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
                 .build();
         mockitoSession = new MockHttpSession();
+        dummyProjectForSetUp = TestUtils.makeProject();
+        projectRepository.save(dummyProjectForSetUp);
     }
 
     @AfterEach
@@ -85,30 +97,78 @@ class ApiSpecificationControllerTest {
         projectRepository.deleteAll();
     }
 
-    private ApiSpecification apiSpecification(Project project) {
-        return ApiSpecification.builder()
+    private void setUpDummyApiSpecification(Project project) {
+        dummyApiSpecificationForSetUp = ApiSpecification.builder()
                 .moduleName("testModule")
                 .moduleCategory("testCategory")
                 .project(project)
                 .build();
+
+        apiSpecificationRepository.save(dummyApiSpecificationForSetUp);
+        dummyApiSpecificationForSetUp.addPath("P"+project.getId()+"/A"+ dummyApiSpecificationForSetUp.getId());
+        apiSpecificationRepository.save(dummyApiSpecificationForSetUp);
     }
 
-    private Domain domain(ApiSpecification apiSpecification) {
-        return new Domain("testDomain", apiSpecification);
+    private void setUpDummyDomain(ApiSpecification apiSpecification) {
+        dummyDomainForSetUp =  new Domain("testDomain", apiSpecification);
+        domainRepository.save(dummyDomainForSetUp);
+        dummyDomainForSetUp.addPath("P"+ dummyProjectForSetUp.getId()+"/A"+ dummyApiSpecificationForSetUp.getId() + "/D"+ dummyDomainForSetUp.getId());
+        domainRepository.save(dummyDomainForSetUp);
+    }
+
+    private void setUpDummyApi(Domain domain) {
+         dummyApiForSetUp = Api.builder()
+            .domain(domain)
+            .method("GET")
+            .name("testName1")
+            .description("This is a test description for GET")
+            .endpoint("/api/test1")
+            .statusCode((short) 200)
+            .requestSchema("{ \"testKey\": \"testValue\" }")
+            .responseSchema("{ \"testKey\": \"testValue\" }")
+            .build();
+
+        apiRepository.save(dummyApiForSetUp);
+        dummyApiForSetUp.addPath("P"+ dummyProjectForSetUp.getId()+"/A"+ dummyApiSpecificationForSetUp.getId() + "/D"+domain.getId() + "/A"+ dummyApiForSetUp.getId());
+
+        createDummyPathVariables().forEach(pathVariable -> dummyApiForSetUp.getPathVariables().add(toPathVariable(pathVariable,
+            dummyApiForSetUp)));
+        createDummyQueryParams().forEach(queryParam -> dummyApiForSetUp.getQueryParams().add(toQueryParam(queryParam,
+            dummyApiForSetUp)));
+        createDummyRequestHeaders().forEach(requestHeader -> dummyApiForSetUp.getRequestHeaders().add(toRequestHeader(requestHeader,
+            dummyApiForSetUp)));
+    }
+
+    @DisplayName("API 명세서 조회 테스트")
+    @Test
+    void getSetUpDummyApiSpecification() throws Exception {
+        //given
+        setUpDummyApiSpecification(dummyProjectForSetUp);
+        setUpDummyDomain(dummyApiSpecificationForSetUp);
+        setUpDummyApi(dummyDomainForSetUp);
+
+        //when
+
+        //then
+        mockMvc.perform(
+            get("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}", dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId())
+        ).andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.domains").isArray())
+            .andExpect(jsonPath("$.domains").isNotEmpty())
+            .andExpect(jsonPath("$.domains[0].apis").isArray())
+            .andDo(print());
     }
 
     @Test
     @DisplayName("API 명세서 생성 성공 테스트")
-    void createApiSpecificationSuccessTest() throws Exception {
+    void createSetUpDummyApiSpecificationSuccessTest() throws Exception {
         //given
         CreateApiSpecificationRequest request = new CreateApiSpecificationRequest("testName", "testCategory");
-        Project project = TestUtils.makeProject();
-
-        projectRepository.save(project);
 
         //when
         mockMvc.perform(
-                    post("/api/v1/projects/{projectId}/api-specifications", project.getId())
+                    post("/api/v1/projects/{projectId}/api-specifications", dummyProjectForSetUp.getId())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request))
                 ).andExpect(status().isOk())
@@ -117,7 +177,7 @@ class ApiSpecificationControllerTest {
         List<ApiSpecification> apiSpecifications = apiSpecificationRepository.findAll();
 
         //then
-        String uri = String.format("/api/v1/projects/%d/api-specifications", project.getId());
+        String uri = String.format("/api/v1/projects/%d/api-specifications", dummyProjectForSetUp.getId());
         String path = generatePath(uri, apiSpecifications.getFirst().getId());
 
         assertThat(apiSpecifications.size()).isEqualTo(1);
@@ -129,20 +189,14 @@ class ApiSpecificationControllerTest {
 
     @Test
     @DisplayName("도메인 생성 성공 테스트")
-    void createDomainSuccessTest() throws Exception {
+    void createSetUpDummyDomainSuccessTest() throws Exception {
         //given
         CreateDomainRequest request = new CreateDomainRequest("testName");
-        Project project = TestUtils.makeProject();
-        ApiSpecification apiSpecification = apiSpecification(project);
-
-        projectRepository.save(project);
-        apiSpecificationRepository.save(apiSpecification);
-        apiSpecification.addPath("P"+project.getId()+"/A"+apiSpecification.getId());
-        apiSpecificationRepository.save(apiSpecification);
+        setUpDummyApiSpecification(dummyProjectForSetUp);
 
         //when
         mockMvc.perform(
-                post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains", project.getId(), apiSpecification.getId()
+                post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains", dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId()
                 ).contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -152,7 +206,7 @@ class ApiSpecificationControllerTest {
         //then
         assertThat(domains.size()).isEqualTo(1);
 
-        String uri = String.format("/api/v1/projects/%d/api-specifications/%d/domains", project.getId(), apiSpecification.getId());
+        String uri = String.format("/api/v1/projects/%d/api-specifications/%d/domains", dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId());
         String path = generatePath(uri, domains.getFirst().getId());
 
         assertThat(domains.getFirst().getPath()).isEqualTo(path);
@@ -164,25 +218,18 @@ class ApiSpecificationControllerTest {
     @MethodSource("provideCreateApiRequest")
     void createApiSuccessTest(CreateApiRequest request) throws Exception {
         //given
-        Project project = TestUtils.makeProject();
-        ApiSpecification apiSpecification = apiSpecification(project);
-        Domain domain = domain(apiSpecification);
-
-
-        projectRepository.save(project);
-        apiSpecificationRepository.save(apiSpecification);
-        domainRepository.save(domain);
-        domain.addPath("P"+project.getId()+"/A"+apiSpecification.getId() + "/D"+domain.getId());
-        domainRepository.save(domain);
+        setUpDummyApiSpecification(dummyProjectForSetUp);
+        setUpDummyDomain(dummyApiSpecificationForSetUp);
 
         //when
         mockMvc.perform(
-                post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}/apis", project.getId(), apiSpecification.getId(), domain.getId()
+                post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}/apis", dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId()
                 ).contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andDo(print());
 
         //then
+        assertThat(apiSpecificationRepository.findAll()).hasSize(1);
     }
 
     private static Stream<CreateApiRequest> provideCreateApiRequest() {
