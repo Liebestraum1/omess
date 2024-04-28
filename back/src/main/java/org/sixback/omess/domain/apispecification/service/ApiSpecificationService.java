@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.apispecification.service;
 
 import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.*;
+import static org.sixback.omess.domain.apispecification.util.ApiSpecificationMapper.*;
 import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.*;
 
 import java.util.Optional;
@@ -9,20 +10,20 @@ import org.sixback.omess.domain.apispecification.exception.InvalidApiInputExcept
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
 import org.sixback.omess.domain.apispecification.model.entity.Api;
 import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
 import org.sixback.omess.domain.apispecification.model.entity.Domain;
 import org.sixback.omess.domain.apispecification.repository.ApiRepository;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
 import org.sixback.omess.domain.apispecification.repository.DomainRepository;
-import org.sixback.omess.domain.apispecification.util.ApiSpecificationMapper;
 import org.sixback.omess.domain.httpmethod.model.HttpMethod;
 import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,6 +33,16 @@ public class ApiSpecificationService {
     private final ProjectRepository projectRepository;
     private final DomainRepository domainRepository;
     private final ApiRepository apiRepository;
+
+    @Transactional(readOnly = true)
+    public GetApiSpecificationResponse getApiSpecification(Long apiSpecificationId, String uri) {
+        String estimatedCurrentPath = generateEstimatedCurrentPath(uri);
+
+        ApiSpecification apiSpecification = apiSpecificationRepository.findByPath(estimatedCurrentPath)
+            .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
+
+        return toGetApiSpecificationResponse(apiSpecification);
+    }
 
     @Transactional
     public void createApiSpecification(Long projectId, CreateApiSpecificationRequest createApiSpecificationRequest, String uri) {
@@ -98,15 +109,15 @@ public class ApiSpecificationService {
         //FIXME API 수정 방식에 따라 하위 테이블에 path 추가 여부 결정
         Optional.ofNullable(createApiRequest.getCreatePathVariableRequests())
             .ifPresent(requests -> requests.forEach(request ->
-                api.getPathVariables().add(ApiSpecificationMapper.toPathVariable(request, api))));
+                api.getPathVariables().add(toPathVariable(request, api))));
 
         Optional.ofNullable(createApiRequest.getCreateQueryParamRequests())
             .ifPresent(requests -> requests.forEach(request ->
-                api.getQueryParams().add(ApiSpecificationMapper.toQueryParam(request, api))));
+                api.getQueryParams().add(toQueryParam(request, api))));
 
         Optional.ofNullable(createApiRequest.getCreateRequestHeaderRequests())
             .ifPresent(requests -> requests.forEach(request ->
-                api.getRequestHeaders().add(ApiSpecificationMapper.toRequestHeader(request, api))));
+                api.getRequestHeaders().add(toRequestHeader(request, api))));
 
         apiRepository.save(api);
     }
