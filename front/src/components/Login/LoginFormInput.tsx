@@ -7,16 +7,18 @@ const DimClearIcon = styled(ClearIcon)({
     color: "grey",
 });
 
-const LoginFormInput = ({ label, helperText }: LoginFormInputProp) => {
+const LoginFormInput = ({ type, label, helperText, onFormData }: LoginFormInputProp) => {
     return (
         <TextField
-            id="input-with-icon-textfield-helperText"
+            id={"input-with-icon-textfield-helperText " + type}
             label={label}
             variant="standard"
             helperText={helperText}
             InputProps={{
                 endAdornment: <DimClearIcon />,
             }}
+            onChange={(e) => onFormData(e.target.value)}
+            type={type}
         />
     );
 };
