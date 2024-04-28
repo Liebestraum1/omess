@@ -1,14 +1,30 @@
 package org.sixback.omess.domain.apispecification.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.assertj.core.api.Assertions.*;
+import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.*;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sixback.omess.common.TestUtils;
+import org.sixback.omess.domain.apispecification.model.dto.CreateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.CreatePathVariableRequest;
+import org.sixback.omess.domain.apispecification.model.dto.CreateQueryParamRequest;
+import org.sixback.omess.domain.apispecification.model.dto.CreateRequestHeaderRequest;
 import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
 import org.sixback.omess.domain.apispecification.model.entity.Domain;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
@@ -25,14 +41,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.generatePath;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -84,16 +93,8 @@ class ApiSpecificationControllerTest {
                 .build();
     }
 
-    @Test
-    @DisplayName("")
-    void newTest(){
-        //given
-        String contextPath = "/api/v1/projects/1/api-specifications";
-        String path = generatePath(contextPath, 1L);
-        //when
-
-        //then
-        assertThat(path).isEqualTo("P1/A1");
+    private Domain domain(ApiSpecification apiSpecification) {
+        return new Domain("testDomain", apiSpecification);
     }
 
     @Test
@@ -139,7 +140,6 @@ class ApiSpecificationControllerTest {
         apiSpecification.addPath("P"+project.getId()+"/A"+apiSpecification.getId());
         apiSpecificationRepository.save(apiSpecification);
 
-
         //when
         mockMvc.perform(
                 post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains", project.getId(), apiSpecification.getId()
@@ -158,4 +158,73 @@ class ApiSpecificationControllerTest {
         assertThat(domains.getFirst().getPath()).isEqualTo(path);
         assertThat((domains.getFirst().getName())).isEqualTo(request.name());
     }
-}
+
+    @DisplayName("단일 API 생성 성공 테스트")
+    @ParameterizedTest
+    @MethodSource("provideCreateApiRequest")
+    void createApiSuccessTest(CreateApiRequest request) throws Exception {
+        //given
+        Project project = TestUtils.makeProject();
+        ApiSpecification apiSpecification = apiSpecification(project);
+        Domain domain = domain(apiSpecification);
+
+
+        projectRepository.save(project);
+        apiSpecificationRepository.save(apiSpecification);
+        domainRepository.save(domain);
+        domain.addPath("P"+project.getId()+"/A"+apiSpecification.getId() + "/D"+domain.getId());
+        domainRepository.save(domain);
+
+        //when
+        mockMvc.perform(
+                post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}/apis", project.getId(), apiSpecification.getId(), domain.getId()
+                ).contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andDo(print());
+
+        //then
+    }
+
+    private static Stream<CreateApiRequest> provideCreateApiRequest() {
+        return Stream.of(
+            CreateApiRequest.builder()
+                .method("GET")
+                .name("testName1")
+                .description("This is a test description for GET")
+                .endpoint("/api/test1")
+                .statusCode((short) 200)
+                .requestSchema("{ \"testKey\": \"testValue\" }")
+                .responseSchema("{ \"testKey\": \"testValue\" }")
+                .createRequestHeaderRequests(createDummyRequestHeaders())
+                .createQueryParamRequests(createDummyQueryParams())
+                .createPathVariableRequests(createDummyPathVariables())
+                .build(),
+            CreateApiRequest.builder()
+                .method("POST")
+                .name("testName2")
+                .endpoint("/api/test2")
+                .statusCode((short) 404)
+                .build()
+        );
+    }
+
+    private static List<CreateRequestHeaderRequest> createDummyRequestHeaders() {
+        return Arrays.asList(
+            new CreateRequestHeaderRequest("Content-Type", "application/json"),
+            new CreateRequestHeaderRequest("Accept", "application/json")
+        );
+    }
+
+    private static List<CreateQueryParamRequest> createDummyQueryParams() {
+        return Arrays.asList(
+            new CreateQueryParamRequest("page", "페이지 숫자입니다."),
+            new CreateQueryParamRequest("limit")
+        );
+    }
+
+    private static List<CreatePathVariableRequest> createDummyPathVariables() {
+        return Arrays.asList(
+            new CreatePathVariableRequest("userId", "This is a user ID"),
+            new CreatePathVariableRequest("testId")
+        );
+    }}
