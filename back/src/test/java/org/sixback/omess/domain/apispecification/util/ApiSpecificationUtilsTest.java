@@ -24,7 +24,7 @@ class ApiSpecificationUtilsTest {
 
 	@DisplayName("URI를 통한 상위 테이블의 추정 path 생성 테스트")
 	@Test
-	void generateEstimatedPatentPath() {
+	void generateEstimatedParentPathTest() {
 		//given
 		String uri = "/api/v1/projects/1/api-specifications/2/domains";
 
@@ -33,6 +33,19 @@ class ApiSpecificationUtilsTest {
 
 		//then
 		assertThat(estimatedParentPath).isEqualTo("P1/A2");
+	}
+
+	@DisplayName("URI를 통한 현재 테이블의 추정 path 생성 테스트")
+	@Test
+	void generateEstimatedCurrentPathTest() {
+		//given
+		String uri = "/api/v1/projects/1/api-specifications/3";
+
+		//when
+		String path = generateEstimatedCurrentPath(uri);
+
+		//then
+		assertThat(path).isEqualTo("P1/A3");
 	}
 
 	@DisplayName("JSON SCHEMA 유효성 검증 테스트")
