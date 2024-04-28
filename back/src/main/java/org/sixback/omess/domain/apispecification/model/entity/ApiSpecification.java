@@ -1,20 +1,22 @@
 package org.sixback.omess.domain.apispecification.model.entity;
 
+import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.FetchType.*;
+import static lombok.AccessLevel.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.annotations.BatchSize;
+import org.sixback.omess.domain.module.model.entity.Module;
+import org.sixback.omess.domain.project.model.entity.Project;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sixback.omess.domain.module.model.entity.Module;
-import org.sixback.omess.domain.project.model.entity.Project;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static jakarta.persistence.CascadeType.REMOVE;
-import static jakarta.persistence.FetchType.LAZY;
-import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter
@@ -24,6 +26,7 @@ public class ApiSpecification extends Module {
     private String path;
 
     @OneToMany(mappedBy = "apiSpecification", fetch = LAZY, cascade = REMOVE)
+    @BatchSize(size = 10)
     private List<Domain> domains = new ArrayList<>();
 
     @Builder

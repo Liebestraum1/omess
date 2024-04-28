@@ -1,18 +1,26 @@
 package org.sixback.omess.domain.apispecification.model.entity;
 
-import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.sixback.omess.common.BaseTimeEntity;
+import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static jakarta.persistence.CascadeType.REMOVE;
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
+import org.hibernate.annotations.BatchSize;
+import org.sixback.omess.common.BaseTimeEntity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -33,6 +41,7 @@ public class Domain extends BaseTimeEntity {
     ApiSpecification apiSpecification;
 
     @OneToMany(mappedBy = "domain", fetch = LAZY, cascade = REMOVE)
+    @BatchSize(size = 20)
     List<Api> apis = new ArrayList<>();
 
     @Builder
