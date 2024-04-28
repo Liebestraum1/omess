@@ -7,9 +7,9 @@ import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUti
 import java.util.Optional;
 
 import org.sixback.omess.domain.apispecification.exception.InvalidApiInputException;
-import org.sixback.omess.domain.apispecification.model.dto.CreateApiRequest;
-import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
-import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
 import org.sixback.omess.domain.apispecification.model.entity.Api;
 import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
