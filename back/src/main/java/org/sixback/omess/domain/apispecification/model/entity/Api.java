@@ -1,17 +1,25 @@
 package org.sixback.omess.domain.apispecification.model.entity;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.sixback.omess.common.BaseTimeEntity;
+import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+import static lombok.AccessLevel.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static jakarta.persistence.CascadeType.REMOVE;
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static lombok.AccessLevel.PROTECTED;
+import org.sixback.omess.common.BaseTimeEntity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -43,19 +51,35 @@ public class Api extends BaseTimeEntity {
     private String responseSchema;
 
     @Column(nullable = false)
-    Short status_code;
+    Short statusCode;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "domain_id")
     private Domain domain;
 
-    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = REMOVE)
+    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL)
     List<RequestHeader> requestHeaders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = REMOVE)
+    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL)
     List<QueryParam> queryParams = new ArrayList<>();
 
-    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = REMOVE)
+    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL)
     List<PathVariable> pathVariables = new ArrayList<>();
 
+    @Builder
+    public Api(String method, String name, String description, String endpoint, String requestSchema,
+        String responseSchema, Short statusCode, Domain domain) {
+        this.method = method;
+        this.name = name;
+        this.description = description;
+        this.endpoint = endpoint;
+        this.requestSchema = requestSchema;
+        this.responseSchema = responseSchema;
+        this.statusCode = statusCode;
+        this.domain = domain;
+    }
+
+    public void addPath(String path) {
+        this.path = path;
+    }
 }
