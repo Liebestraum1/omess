@@ -204,6 +204,15 @@ class ApiSpecificationControllerTest {
                 .name("testName2")
                 .endpoint("/api/test2")
                 .statusCode((short) 404)
+                .build(),
+            CreateApiRequest.builder()
+                .method("PUT")
+                .name("testName3")
+                .endpoint("/api/test3")
+                .statusCode((short) 200)
+                .requestSchema("{ \"testKey\": \"testValue\" }")
+                .createRequestHeaderRequests(createDummyRequestHeaders())
+                .createPathVariableRequests(createDummyPathVariables())
                 .build()
         );
     }
