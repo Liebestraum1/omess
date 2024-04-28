@@ -1,21 +1,27 @@
 package org.sixback.omess.domain.apispecification.service;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.*;
+import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.*;
+
+import java.util.Optional;
+
+import org.sixback.omess.domain.apispecification.model.dto.CreateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.entity.Api;
 import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
 import org.sixback.omess.domain.apispecification.model.entity.Domain;
+import org.sixback.omess.domain.apispecification.repository.ApiRepository;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
 import org.sixback.omess.domain.apispecification.repository.DomainRepository;
+import org.sixback.omess.domain.apispecification.util.ApiSpecificationMapper;
 import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
 
-import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.PATH_MISMATCH;
-import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.generateEstimatedParentPath;
-import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.generatePath;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +29,7 @@ public class ApiSpecificationService {
     private final ApiSpecificationRepository apiSpecificationRepository;
     private final ProjectRepository projectRepository;
     private final DomainRepository domainRepository;
+    private final ApiRepository apiRepository;
 
     @Transactional
     public void createApiSpecification(Long projectId, CreateApiSpecificationRequest createApiSpecificationRequest, String uri) {
@@ -58,4 +65,42 @@ public class ApiSpecificationService {
         domainRepository.save(domain);
     }
 
+    @Transactional
+    public void createApi(Long domainId, CreateApiRequest createApiRequest, String uri) {
+        String estimatedParentPath = generateEstimatedParentPath(uri, domainId);
+
+        Domain domain = domainRepository.findByPath(estimatedParentPath)
+            .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
+
+        checkIsValidJsonSchema(createApiRequest.getRequestSchema());
+        checkIsValidJsonSchema(createApiRequest.getResponseSchema());
+
+        Api api = Api.builder()
+            .domain(domain)
+            .method(createApiRequest.getMethod())
+            .name(createApiRequest.getName())
+            .description(createApiRequest.getDescription())
+            .endpoint(createApiRequest.getEndpoint())
+            .statusCode(createApiRequest.getStatusCode())
+            .requestSchema(createApiRequest.getRequestSchema())
+            .responseSchema(createApiRequest.getResponseSchema())
+            .build();
+
+        apiRepository.save(api);
+        api.addPath(generatePath(uri, api.getId()));
+
+        Optional.ofNullable(createApiRequest.getCreatePathVariableRequests())
+            .ifPresent(requests -> requests.forEach(request ->
+                api.getPathVariables().add(ApiSpecificationMapper.toPathVariable(request, api))));
+
+        Optional.ofNullable(createApiRequest.getCreateQueryParamRequests())
+            .ifPresent(requests -> requests.forEach(request ->
+                api.getQueryParams().add(ApiSpecificationMapper.toQueryParam(request, api))));
+
+        Optional.ofNullable(createApiRequest.getCreateRequestHeaderRequests())
+            .ifPresent(requests -> requests.forEach(request ->
+                api.getRequestHeaders().add(ApiSpecificationMapper.toRequestHeader(request, api))));
+
+        apiRepository.save(api);
+    }
 }
