@@ -34,6 +34,9 @@ import org.sixback.omess.domain.apispecification.model.entity.Domain;
 import org.sixback.omess.domain.apispecification.repository.ApiRepository;
 import org.sixback.omess.domain.apispecification.repository.ApiSpecificationRepository;
 import org.sixback.omess.domain.apispecification.repository.DomainRepository;
+import org.sixback.omess.domain.apispecification.repository.PathVariableRepository;
+import org.sixback.omess.domain.apispecification.repository.QueryParamRepository;
+import org.sixback.omess.domain.apispecification.repository.RequestHeaderRepository;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
@@ -74,6 +77,15 @@ class ApiSpecificationControllerTest {
     private ApiRepository apiRepository;
 
     @Autowired
+    private RequestHeaderRepository requestHeaderRepository;
+
+    @Autowired
+    private QueryParamRepository queryParamRepository;
+
+    @Autowired
+    private PathVariableRepository pathVariableRepository;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     private MockHttpSession mockitoSession;
@@ -94,6 +106,7 @@ class ApiSpecificationControllerTest {
 
     @AfterEach
     public void cleanUpRepository() {
+        apiRepository.deleteAll();
         domainRepository.deleteAll();
         apiSpecificationRepository.deleteAll();
         projectRepository.deleteAll();
@@ -139,6 +152,8 @@ class ApiSpecificationControllerTest {
             dummyApiForSetUp)));
         createDummyRequestHeaders().forEach(requestHeader -> dummyApiForSetUp.getRequestHeaders().add(toRequestHeader(requestHeader,
             dummyApiForSetUp)));
+
+        apiRepository.save(dummyApiForSetUp);
     }
 
     @DisplayName("API 명세서 조회 테스트")
@@ -306,6 +321,29 @@ class ApiSpecificationControllerTest {
         //then
         assertThat(apiRepository.findAll()).hasSize(0);
         assertThat(domainRepository.findAll()).hasSize(0);
+    }
+
+    @Test
+    @DisplayName("API 삭제 성공 테스트")
+    void deleteApiSuccessTest() throws Exception {
+        //given
+        setUpDummyApiSpecification(dummyProjectForSetUp);
+        setUpDummyDomain(dummyApiSpecificationForSetUp);
+        setUpDummyApi(dummyDomainForSetUp);
+
+        //when
+        mockMvc.perform(
+            delete("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}/apis/{apiId}", dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId(), dummyApiForSetUp.getId())
+        )
+            .andExpect(status().isOk())
+            .andDo(print());
+
+        //then
+        assertThat(domainRepository.findAll()).hasSize(1);
+        assertThat(apiRepository.findAll()).hasSize(0);
+        assertThat(pathVariableRepository.findAll()).hasSize(0);
+        assertThat(queryParamRepository.findAll()).hasSize(0);
+        assertThat(requestHeaderRepository.findAll()).hasSize(0);
     }
 
     private static Stream<CreateApiRequest> provideCreateApiRequest() {
