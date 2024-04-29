@@ -324,6 +324,39 @@ class ApiSpecificationControllerTest {
     }
 
     @Test
+    @DisplayName("API 조회 테스트")
+    void getApiTest() throws Exception {
+        //given
+        setUpDummyApiSpecification(dummyProjectForSetUp);
+        setUpDummyDomain(dummyApiSpecificationForSetUp);
+        setUpDummyApi(dummyDomainForSetUp);
+
+        //when
+
+        //then
+        mockMvc.perform(
+                get("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}/apis/{apiId}",
+                    dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId(), dummyApiForSetUp.getId())
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.apiId").value(dummyApiForSetUp.getId()))
+            .andExpect(jsonPath("$.method").value(dummyApiForSetUp.getMethod()))
+            .andExpect(jsonPath("$.name").value(dummyApiForSetUp.getName()))
+            .andExpect(jsonPath("$.description").value(dummyApiForSetUp.getDescription()))
+            .andExpect(jsonPath("$.endpoint").value(dummyApiForSetUp.getEndpoint()))
+            .andExpect(jsonPath("$.requestSchema").value(dummyApiForSetUp.getRequestSchema()))
+            .andExpect(jsonPath("$.responseSchema").value(dummyApiForSetUp.getResponseSchema()))
+            .andExpect(jsonPath("$.endpoint").value(dummyApiForSetUp.getEndpoint()))
+            .andExpect(jsonPath("$.requestHeaders").isArray())
+            .andExpect(jsonPath("$.requestHeaders").isNotEmpty())
+            .andExpect(jsonPath("$.queryParams").isArray())
+            .andExpect(jsonPath("$.queryParams").isNotEmpty())
+            .andExpect(jsonPath("$.pathVariables").isArray())
+            .andExpect(jsonPath("$.pathVariables").isNotEmpty())
+            .andDo(print());
+    }
+
+    @Test
     @DisplayName("API 삭제 성공 테스트")
     void deleteApiSuccessTest() throws Exception {
         //given
