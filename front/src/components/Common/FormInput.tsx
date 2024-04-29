@@ -1,13 +1,13 @@
 import TextField from "@mui/material/TextField";
 import ClearIcon from "@mui/icons-material/Clear";
 import { styled } from "@mui/material";
-import { LoginFormInputProp } from "../../types/Login/LoginProps";
+import { FormInputProp } from "../../types/common/FormProps";
 
 const DimClearIcon = styled(ClearIcon)({
     color: "grey",
 });
 
-const LoginFormInput = ({ type, label, helperText, onFormData }: LoginFormInputProp) => {
+const FormInput = ({ type, label, helperText, onFormData }: FormInputProp) => {
     return (
         <TextField
             id={"input-with-icon-textfield-helperText " + type}
@@ -23,4 +23,4 @@ const LoginFormInput = ({ type, label, helperText, onFormData }: LoginFormInputP
     );
 };
 
-export default LoginFormInput;
+export default FormInput;

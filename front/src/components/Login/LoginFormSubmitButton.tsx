@@ -2,7 +2,7 @@ import { Button } from "@mui/material";
 import { LoginStatusProps } from "../../types/Login/LoginProps";
 import { useCallback, useEffect, useState } from "react";
 
-const LoginButton = ({ loginStatus }: { loginStatus: LoginStatusProps }) => {
+const LoginFormSubmitButton = ({ loginStatus }: { loginStatus: LoginStatusProps }) => {
     const [buttonText, setButtonText] = useState<string>("");
 
     const updateButtonState = useCallback((loginStatus: LoginStatusProps) => {
@@ -31,4 +31,4 @@ const LoginButton = ({ loginStatus }: { loginStatus: LoginStatusProps }) => {
     );
 };
 
-export default LoginButton;
+export default LoginFormSubmitButton;

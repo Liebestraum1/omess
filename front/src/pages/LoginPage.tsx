@@ -1,4 +1,4 @@
-import { Box, Container, styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import Login from "../components/Login/Login";
 
 const LoginBox = styled(Box)({
@@ -7,11 +7,9 @@ const LoginBox = styled(Box)({
 
 const LoginPage = () => {
     return (
-        <Container>
-            <LoginBox>
-                <Login></Login>
-            </LoginBox>
-        </Container>
+        <LoginBox>
+            <Login></Login>
+        </LoginBox>
     );
 };
 

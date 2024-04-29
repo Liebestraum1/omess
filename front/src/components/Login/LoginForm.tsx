@@ -1,10 +1,12 @@
 import { Box, styled } from "@mui/material";
-import LoginButton from "./LoginButton";
-import LoginFormInput from "./LoginFormInput";
-import { LoginStatusProps, LoginFormInputProp } from "../../types/Login/LoginProps";
+import LoginFormSubmitButton from "./LoginFormSubmitButton";
+import { LoginStatusProps } from "../../types/Login/LoginProps";
 import { useEffect, useState } from "react";
 import { useLoginStore } from "../../stores/LoginStorage";
 import { useNavigate } from "react-router";
+import SignInButton from "../SiginIn/SignInButton";
+import FormInput from "../Common/FormInput";
+import { FormInputProp } from "../../types/common/FormProps";
 
 const LoginFormBox = styled(Box)({
     display: "flex",
@@ -16,7 +18,7 @@ const LoginForm = ({ loginStatus }: { loginStatus: LoginStatusProps }) => {
     const navigator = useNavigate();
     const { setServerLogin, setUserLogin } = useLoginStore();
 
-    const [loginFormInputProps, setLoginFormInputProps] = useState<LoginFormInputProp[]>([]);
+    const [loginFormInputProps, setLoginFormInputProps] = useState<FormInputProp[]>([]);
 
     const [serverUrl, setServerUrl] = useState<string>("");
     const [email, setEmail] = useState<string>("");
@@ -68,15 +70,16 @@ const LoginForm = ({ loginStatus }: { loginStatus: LoginStatusProps }) => {
             }}
         >
             {loginFormInputProps.map((loginFormInputProp) => (
-                <LoginFormInput
+                <FormInput
                     key={loginFormInputProp.label}
                     type={loginFormInputProp.type}
                     label={loginFormInputProp.label}
                     helperText={loginFormInputProp.helperText}
                     onFormData={loginFormInputProp.onFormData}
-                ></LoginFormInput>
+                ></FormInput>
             ))}
-            <LoginButton loginStatus={loginStatus}></LoginButton>
+            <LoginFormSubmitButton loginStatus={loginStatus}></LoginFormSubmitButton>
+            {loginStatus !== "none" ? <SignInButton /> : null}
         </LoginFormBox>
     );
 };
