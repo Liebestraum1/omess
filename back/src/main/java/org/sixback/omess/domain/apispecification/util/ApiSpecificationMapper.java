@@ -8,6 +8,9 @@ import org.sixback.omess.domain.apispecification.model.dto.DomainWithApiSummaryD
 import org.sixback.omess.domain.apispecification.model.dto.PathVariableDto;
 import org.sixback.omess.domain.apispecification.model.dto.QueryParamDto;
 import org.sixback.omess.domain.apispecification.model.dto.RequestHeaderDto;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreatePathVariableRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateQueryParamRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateRequestHeaderRequest;
@@ -23,6 +26,7 @@ import org.sixback.omess.domain.apispecification.model.entity.Domain;
 import org.sixback.omess.domain.apispecification.model.entity.PathVariable;
 import org.sixback.omess.domain.apispecification.model.entity.QueryParam;
 import org.sixback.omess.domain.apispecification.model.entity.RequestHeader;
+import org.sixback.omess.domain.project.model.entity.Project;
 
 public class ApiSpecificationMapper {
 	public static RequestHeader toRequestHeader(CreateRequestHeaderRequest request, Api api){
@@ -109,4 +113,26 @@ public static QueryParam toQueryParam(UpdateQueryParamRequest request, Api api){
 			api.getStatusCode(), requestHeaders, queryParams, pathVariables
 		);
 	}
+
+	public static Domain toDomain(CreateDomainRequest request, ApiSpecification apiSpecification){
+		return new Domain(request.name(), apiSpecification);
+	}
+
+	public static ApiSpecification toApiSpecification(CreateApiSpecificationRequest request, Project project){
+		return new ApiSpecification(request.name(), request.category(), project);
+	}
+
+	public static Api toApi(CreateApiRequest request, Domain domain){
+		return Api.builder()
+			.domain(domain)
+			.method(request.getMethod())
+			.name(request.getName())
+			.description(request.getDescription())
+			.endpoint(request.getEndpoint())
+			.statusCode(request.getStatusCode())
+			.requestSchema(request.getRequestSchema())
+			.responseSchema(request.getResponseSchema())
+			.build();
+	}
+
 }
