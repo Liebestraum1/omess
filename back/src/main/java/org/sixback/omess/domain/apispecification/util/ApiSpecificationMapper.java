@@ -3,10 +3,11 @@ package org.sixback.omess.domain.apispecification.util;
 import java.util.List;
 
 import org.sixback.omess.domain.apispecification.model.dto.ApiSummaryDto;
+import org.sixback.omess.domain.apispecification.model.dto.DomainDto;
+import org.sixback.omess.domain.apispecification.model.dto.DomainWithApiSummaryDto;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreatePathVariableRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateQueryParamRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateRequestHeaderRequest;
-import org.sixback.omess.domain.apispecification.model.dto.DomainWithApiSummaryDto;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.model.entity.Api;
@@ -30,12 +31,12 @@ public class ApiSpecificationMapper {
 	}
 
 	public static ApiSummaryDto toApiSummaryDto(Api api){
-		return new ApiSummaryDto(api.getMethod(), api.getName(), api.getEndpoint(), api.getStatusCode());
+		return new ApiSummaryDto(api.getId(), api.getMethod(), api.getName(), api.getEndpoint(), api.getStatusCode());
 	}
 
 	public static DomainWithApiSummaryDto toDomainWithApiSummaryDto(Domain domain){
 		List<ApiSummaryDto> apis = domain.getApis().stream().map(ApiSpecificationMapper::toApiSummaryDto).toList();
-		return new DomainWithApiSummaryDto(domain.getName(), apis);
+		return new DomainWithApiSummaryDto(domain.getId(), domain.getName(), apis);
 	}
 
 	public static GetApiSpecificationResponse toGetApiSpecificationResponse(ApiSpecification apiSpecification){
@@ -47,7 +48,11 @@ public class ApiSpecificationMapper {
 		return new GetApiSpecificationResponse(domains);
 	}
 
+	public static DomainDto toDomainDto(Domain domain){
+		return new DomainDto(domain.getId(), domain.getName());
+	}
+
 	public static GetDomainsResponse toGetDomainsResponse(List<Domain> domains){
-		 return new GetDomainsResponse(domains.stream().map(Domain::getName).toList());
+		 return new GetDomainsResponse(domains.stream().map(ApiSpecificationMapper::toDomainDto).toList());
 	}
 }
