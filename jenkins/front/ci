@@ -11,7 +11,7 @@ pipeline {
             }
             post {
                 always {
-                    sh 'docker image prune'
+                    sh 'docker image prune -f'
                 }
                 success {
                     echo 'Build success'
