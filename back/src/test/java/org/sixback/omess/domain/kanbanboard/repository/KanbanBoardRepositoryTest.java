@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Import;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sixback.omess.common.TestUtils.makeProjectMember;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 
@@ -54,7 +55,7 @@ public class KanbanBoardRepositoryTest {
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = makeProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
 

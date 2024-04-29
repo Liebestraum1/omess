@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
+import org.sixback.omess.common.TestUtils;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.UpdateIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.issue.WriteIssueRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.request.kanbanboard.WriteKanbanBoardRequest;
@@ -24,6 +25,7 @@ import org.sixback.omess.domain.module.model.entity.Module;
 import org.sixback.omess.domain.module.repository.ModuleRepository;
 import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.model.entity.ProjectMember;
+import org.sixback.omess.domain.project.model.enums.ProjectRole;
 import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sixback.omess.common.TestUtils.makeMember;
+import static org.sixback.omess.common.TestUtils.makeProjectMember;
+import static org.sixback.omess.domain.project.model.enums.ProjectRole.OWNER;
+import static org.sixback.omess.domain.project.model.enums.ProjectRole.USER;
 
 @SpringBootTest
 @Transactional
@@ -67,16 +73,14 @@ public class KanbanboardServiceTest {
     // 칸반보드 생성/삭제 테스트
     @Test
     public void creatKanbanBoardTest() {
-        Member member = new Member("bam", "wjs6265", "wb6265");
-
+        Member member = makeMember();
         memberRepository.save(member);
-
 
         Project project = new Project("프젝 1");
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = new ProjectMember(project, member, USER);
 
         projectMemberRepository.save(projectMember);
 
@@ -105,7 +109,7 @@ public class KanbanboardServiceTest {
 
     @Test
     public void getKanbanBoardTest() {
-        Member member = new Member("bam", "wjs6265", "wb6265");
+        Member member = makeMember();
 
         memberRepository.save(member);
 
@@ -114,7 +118,7 @@ public class KanbanboardServiceTest {
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = new ProjectMember(project, member, USER);
 
         projectMemberRepository.save(projectMember);
 
@@ -172,19 +176,18 @@ public class KanbanboardServiceTest {
 
     @Test
     public void createIssueTest(){
-        Member member = new Member("bam", "wjs6265", "wb6265");
-        Member member2 = new Member("su", "wjs3436", "wb3436");
+        Member member = makeMember();;
+        Member member2 = makeMember();;
 
         memberRepository.save(member);
         memberRepository.save(member2);
-
 
         Project project = new Project("프젝 1");
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
-        ProjectMember projectMember2 = new ProjectMember(project, member2);
+        ProjectMember projectMember = makeProjectMember(project, member);
+        ProjectMember projectMember2 = makeProjectMember(project, member2);
 
         projectMemberRepository.save(projectMember);
         projectMemberRepository.save(projectMember2);
@@ -214,8 +217,8 @@ public class KanbanboardServiceTest {
 
     @Test
     public void deleteIssueTest(){
-        Member member = new Member("bam", "wjs6265", "wb6265");
-        Member member2 = new Member("su", "wjs3436", "wb3436");
+        Member member = makeMember();;
+        Member member2 = makeMember();;
 
         memberRepository.save(member);
         memberRepository.save(member2);
@@ -225,8 +228,8 @@ public class KanbanboardServiceTest {
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
-        ProjectMember projectMember2 = new ProjectMember(project, member2);
+        ProjectMember projectMember = makeProjectMember(project, member);
+        ProjectMember projectMember2 = makeProjectMember(project, member2);
 
         projectMemberRepository.save(projectMember);
         projectMemberRepository.save(projectMember2);
@@ -289,7 +292,7 @@ public class KanbanboardServiceTest {
 
     @Test
     public void updateIssueTest(){
-        Member member = new Member("bam", "wjs6265", "wb6265");
+        Member member = makeMember();;
 
         memberRepository.save(member);
 
@@ -297,7 +300,7 @@ public class KanbanboardServiceTest {
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = makeProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
 
@@ -331,7 +334,7 @@ public class KanbanboardServiceTest {
 
     @Test
     public void updateIssueChargerTest(){
-        Member member = new Member("bam", "wjs6265", "wb6265");
+        Member member = makeMember();;
 
         memberRepository.save(member);
 
@@ -339,7 +342,7 @@ public class KanbanboardServiceTest {
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = makeProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
 
@@ -403,10 +406,10 @@ public class KanbanboardServiceTest {
     @Test
     public void getIssues(){
         // 멤버 생성
-        Member member = new Member("bam", "wjs6265", "wb6265");
+        Member member = makeMember();;
 
         memberRepository.save(member);
-        Member member2 = new Member("su", "su", "su");
+        Member member2 = makeMember();;
 
         memberRepository.save(member2);
 
@@ -418,7 +421,7 @@ public class KanbanboardServiceTest {
         projectRepository.save(project);
 
         // 프로젝트 멤버 생성
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = makeProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
 
@@ -501,10 +504,10 @@ public class KanbanboardServiceTest {
     @Test
     public void getIssueTest(){
         // 멤버 생성
-        Member member = new Member("bam", "wjs6265", "wb6265");
+        Member member = makeMember();;
 
         memberRepository.save(member);
-        Member member2 = new Member("su", "su", "su");
+        Member member2 = makeMember();
 
         memberRepository.save(member2);
 
@@ -516,7 +519,7 @@ public class KanbanboardServiceTest {
         projectRepository.save(project);
 
         // 프로젝트 멤버 생성
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = makeProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
 
@@ -592,7 +595,7 @@ public class KanbanboardServiceTest {
     @Test
     public void createLabelTest(){
         // 멤버 생성
-        Member member = new Member("bam", "wjs6265", "wb6265");
+        Member member = makeMember();;
 
         memberRepository.save(member);
 
@@ -602,7 +605,7 @@ public class KanbanboardServiceTest {
         projectRepository.save(project);
 
         // 프로젝트 멤버 생성
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = makeProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
 
