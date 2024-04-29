@@ -2,7 +2,14 @@ package org.sixback.omess.common;
 
 import net.bytebuddy.utility.RandomString;
 
+import java.util.stream.LongStream;
+
 public class RandomUtils {
+    public static Long generateNaturalNumber(int limit) {
+        if (limit <= 0) throw new IllegalArgumentException("limit는 0보다 커야한다");
+        return LongStream.generate(() -> (int) (Math.random() * limit)).limit(1).sum();
+    }
+
     public static String generateRandomString(int length) {
         return RandomString.make(length);
     }
