@@ -57,13 +57,13 @@ public class Api extends BaseTimeEntity {
     @JoinColumn(name = "domain_id")
     private Domain domain;
 
-    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL)
+    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL, orphanRemoval = true)
     List<RequestHeader> requestHeaders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL)
+    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL, orphanRemoval = true)
     List<QueryParam> queryParams = new ArrayList<>();
 
-    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL)
+    @OneToMany(mappedBy = "api", fetch = LAZY, cascade = ALL, orphanRemoval = true)
     List<PathVariable> pathVariables = new ArrayList<>();
 
     @Builder
@@ -81,5 +81,33 @@ public class Api extends BaseTimeEntity {
 
     public void addPath(String path) {
         this.path = path;
+    }
+
+    public void updateMethod(String method) {
+        this.method = method;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updateDescription(String description) {
+        this.description = description;
+    }
+
+    public void updateEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public void updateRequestSchema(String requestSchema) {
+        this.requestSchema = requestSchema;
+    }
+
+    public void updateResponseSchema(String responseSchema) {
+        this.responseSchema = responseSchema;
+    }
+
+    public void updateStatusCode(Short statusCode) {
+        this.statusCode = statusCode;
     }
 }

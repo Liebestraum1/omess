@@ -40,7 +40,7 @@ public class Domain extends BaseTimeEntity {
     @JoinColumn(name = "api_specification_id")
     ApiSpecification apiSpecification;
 
-    @OneToMany(mappedBy = "domain", fetch = LAZY, cascade = REMOVE)
+    @OneToMany(mappedBy = "domain", fetch = LAZY, cascade = REMOVE, orphanRemoval = true)
     @BatchSize(size = 20)
     List<Api> apis = new ArrayList<>();
 

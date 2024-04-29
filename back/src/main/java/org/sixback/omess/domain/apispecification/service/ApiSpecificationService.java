@@ -10,6 +10,7 @@ import org.sixback.omess.domain.apispecification.exception.InvalidApiInputExcept
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.UpdateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.UpdateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiResponse;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
@@ -129,7 +130,6 @@ public class ApiSpecificationService {
         apiRepository.save(api);
         api.addPath(generatePath(uri, api.getId()));
 
-        //FIXME API 수정 방식에 따라 하위 테이블에 path 추가 여부 결정
         Optional.ofNullable(createApiRequest.getCreatePathVariableRequests())
             .ifPresent(requests -> requests.forEach(request ->
                 api.getPathVariables().add(toPathVariable(request, api))));
@@ -154,6 +154,47 @@ public class ApiSpecificationService {
 
         domain.updateName(updateDomainRequest.name());
         domainRepository.save(domain);
+    }
+
+    @Transactional
+    public void updateApi(UpdateApiRequest updateApiRequest, String uri) {
+        if(!HttpMethod.getMethodNames().contains(updateApiRequest.getMethod())) {
+            throw new InvalidApiInputException(INVALID_HTTP_METHOD.getMessage());
+        }
+
+        checkIsValidJsonSchema(updateApiRequest.getRequestSchema());
+        checkIsValidJsonSchema(updateApiRequest.getResponseSchema());
+
+        String estimatedCurrentPath = generateEstimatedCurrentPath(uri);
+
+        Api api = apiRepository.findByPath(estimatedCurrentPath)
+            .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
+
+        api.updateMethod(updateApiRequest.getMethod());
+        api.updateName(updateApiRequest.getName());
+        api.updateDescription(updateApiRequest.getDescription());
+        api.updateEndpoint(updateApiRequest.getEndpoint());
+        api.updateStatusCode(updateApiRequest.getStatusCode());
+        api.updateRequestSchema(updateApiRequest.getRequestSchema());
+        api.updateResponseSchema(updateApiRequest.getResponseSchema());
+
+        api.getRequestHeaders().clear();
+        api.getQueryParams().clear();
+        api.getPathVariables().clear();
+
+        Optional.ofNullable(updateApiRequest.getUpdatePathVariableRequests())
+            .ifPresent(requests -> requests.forEach(request ->
+                api.getPathVariables().add(toPathVariable(request, api))));
+
+        Optional.ofNullable(updateApiRequest.getUpdateQueryParamRequests())
+            .ifPresent(requests -> requests.forEach(request ->
+                api.getQueryParams().add(toQueryParam(request, api))));
+
+        Optional.ofNullable(updateApiRequest.getUpdateRequestHeaderRequests())
+            .ifPresent(requests -> requests.forEach(request ->
+                api.getRequestHeaders().add(toRequestHeader(request, api))));
+
+        apiRepository.save(api);
     }
 
     @Transactional

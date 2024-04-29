@@ -25,7 +25,7 @@ public class ApiSpecification extends Module {
     @Column(length = 20)
     private String path;
 
-    @OneToMany(mappedBy = "apiSpecification", fetch = LAZY, cascade = REMOVE)
+    @OneToMany(mappedBy = "apiSpecification", fetch = LAZY, cascade = REMOVE, orphanRemoval = true)
     @BatchSize(size = 10)
     private List<Domain> domains = new ArrayList<>();
 
