@@ -232,6 +232,36 @@ class ApiSpecificationControllerTest {
         assertThat(apiSpecificationRepository.findAll()).hasSize(1);
     }
 
+    @Test
+    @DisplayName("도메인 목록 조회 테스트")
+    void getDomainsTest() throws Exception {
+        //given
+        setUpDummyApiSpecification(dummyProjectForSetUp);
+        setUpDummyDomain(dummyApiSpecificationForSetUp);
+        Domain dummyDomain2 = new Domain("dummyDomain2", dummyApiSpecificationForSetUp);
+        Domain dummyDomain3 = new Domain("dummyDomain3", dummyApiSpecificationForSetUp);
+        Domain dummyDomain4 = new Domain("dummyDomain4", dummyApiSpecificationForSetUp);
+
+        domainRepository.save(dummyDomain2);
+        domainRepository.save(dummyDomain3);
+        domainRepository.save(dummyDomain4);
+
+        //when
+        mockMvc.perform(
+            get("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains", dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId())
+        )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.domains").isArray())
+            .andExpect(jsonPath("$.domains").isNotEmpty())
+            .andExpect(jsonPath("$.domains[0]").value(dummyDomainForSetUp.getName()))
+            .andExpect(jsonPath("$.domains[1]").value(dummyDomain2.getName()))
+            .andExpect(jsonPath("$.domains[2]").value(dummyDomain3.getName()))
+            .andExpect(jsonPath("$.domains[3]").value(dummyDomain4.getName()))
+            .andDo(print());
+
+        //then
+    }
+
     private static Stream<CreateApiRequest> provideCreateApiRequest() {
         return Stream.of(
             CreateApiRequest.builder()
