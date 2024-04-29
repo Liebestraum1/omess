@@ -3,6 +3,7 @@ package org.sixback.omess.domain.apispecification.controller;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,14 @@ public class ApiSpecificationController {
         HttpServletRequest httpServletRequest
     ){
         return ResponseEntity.ok().body(apiSpecificationService.getApiSpecification(apiSpecificationId, httpServletRequest.getRequestURI()));
+    }
+
+    @GetMapping("/{apiSpecificationId}/domains")
+    public ResponseEntity<GetDomainsResponse> getDomains(
+        @PathVariable Long apiSpecificationId,
+        HttpServletRequest httpServletRequest
+    ){
+        return ResponseEntity.ok().body(apiSpecificationService.getDomains(apiSpecificationId, httpServletRequest.getRequestURI()));
     }
 
     @PostMapping

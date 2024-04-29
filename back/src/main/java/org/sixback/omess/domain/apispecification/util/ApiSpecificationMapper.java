@@ -8,6 +8,7 @@ import org.sixback.omess.domain.apispecification.model.dto.request.CreateQueryPa
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateRequestHeaderRequest;
 import org.sixback.omess.domain.apispecification.model.dto.DomainWithApiSummaryDto;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
+import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.model.entity.Api;
 import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
 import org.sixback.omess.domain.apispecification.model.entity.Domain;
@@ -44,5 +45,9 @@ public class ApiSpecificationMapper {
 			.toList();
 
 		return new GetApiSpecificationResponse(domains);
+	}
+
+	public static GetDomainsResponse toGetDomainsResponse(List<Domain> domains){
+		 return new GetDomainsResponse(domains.stream().map(Domain::getName).toList());
 	}
 }

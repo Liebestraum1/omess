@@ -11,6 +11,7 @@ import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequ
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
+import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.model.entity.Api;
 import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
 import org.sixback.omess.domain.apispecification.model.entity.Domain;
@@ -42,6 +43,16 @@ public class ApiSpecificationService {
             .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
 
         return toGetApiSpecificationResponse(apiSpecification);
+    }
+
+    @Transactional(readOnly = true)
+    public GetDomainsResponse getDomains(Long apiSpecificationId, String uri) {
+        String estimatedParentPath = generateEstimatedParentPath(uri, apiSpecificationId);
+
+        ApiSpecification apiSpecification = apiSpecificationRepository.findByPath(estimatedParentPath)
+            .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
+
+        return toGetDomainsResponse(apiSpecification.getDomains());
     }
 
     @Transactional
