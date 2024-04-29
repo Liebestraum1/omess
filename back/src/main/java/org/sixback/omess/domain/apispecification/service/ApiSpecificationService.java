@@ -11,6 +11,7 @@ import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequ
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.UpdateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.response.GetApiResponse;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.model.entity.Api;
@@ -37,7 +38,7 @@ public class ApiSpecificationService {
     private final ApiRepository apiRepository;
 
     @Transactional(readOnly = true)
-    public GetApiSpecificationResponse getApiSpecification(Long apiSpecificationId, String uri) {
+    public GetApiSpecificationResponse getApiSpecification(String uri) {
         String estimatedCurrentPath = generateEstimatedCurrentPath(uri);
 
         ApiSpecification apiSpecification = apiSpecificationRepository.findByPath(estimatedCurrentPath)
@@ -54,6 +55,16 @@ public class ApiSpecificationService {
             .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
 
         return toGetDomainsResponse(apiSpecification.getDomains());
+    }
+
+    @Transactional(readOnly = true)
+    public GetApiResponse getApi(String uri){
+        String estimatedCurrentPath = generateEstimatedCurrentPath(uri);
+
+        Api api = apiRepository.findByPath(estimatedCurrentPath)
+            .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
+
+        return toGetApiResponse(api);
     }
 
     @Transactional
