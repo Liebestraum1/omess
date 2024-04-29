@@ -7,6 +7,7 @@ import org.sixback.omess.domain.apispecification.model.dto.request.UpdateDomainR
 import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -79,6 +80,15 @@ public class ApiSpecificationController {
         HttpServletRequest httpServletRequest
     ){
         apiSpecificationService.updateDomain(updateDomainRequest ,httpServletRequest.getRequestURI());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{apiSpecificationId}/domains/{domainId}")
+    public ResponseEntity<Void> deleteDomain(
+        HttpServletRequest httpServletRequest
+    ){
+        apiSpecificationService.deleteDomain(httpServletRequest.getRequestURI());
 
         return ResponseEntity.ok().build();
     }

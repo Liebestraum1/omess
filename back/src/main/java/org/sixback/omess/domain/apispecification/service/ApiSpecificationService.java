@@ -144,4 +144,16 @@ public class ApiSpecificationService {
         domain.updateName(updateDomainRequest.name());
         domainRepository.save(domain);
     }
+
+    @Transactional
+    public void deleteDomain(String uri) {
+        String estimatedCurrentPath = generateEstimatedCurrentPath(uri);
+        boolean exists = domainRepository.existsByPath(estimatedCurrentPath);
+
+        if (!exists) {
+            throw new EntityNotFoundException(PATH_MISMATCH.getMessage());
+        }
+
+        domainRepository.deleteByPath(estimatedCurrentPath);
+    }
 }
