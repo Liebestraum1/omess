@@ -11,6 +11,9 @@ import org.sixback.omess.domain.apispecification.model.dto.RequestHeaderDto;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreatePathVariableRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateQueryParamRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateRequestHeaderRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.UpdatePathVariableRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.UpdateQueryParamRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.UpdateRequestHeaderRequest;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiResponse;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
@@ -31,6 +34,18 @@ public class ApiSpecificationMapper {
 	}
 
 	public static PathVariable toPathVariable(CreatePathVariableRequest request, Api api){
+		return new PathVariable(request.name(), request.description(), api);
+	}
+
+	public static RequestHeader toRequestHeader(UpdateRequestHeaderRequest request, Api api){
+		return new RequestHeader(request.headerKey(), request.headerValue(), api);
+	}
+
+public static QueryParam toQueryParam(UpdateQueryParamRequest request, Api api){
+		return new QueryParam(request.name(), request.description(), api);
+	}
+
+	public static PathVariable toPathVariable(UpdatePathVariableRequest request, Api api){
 		return new PathVariable(request.name(), request.description(), api);
 	}
 
