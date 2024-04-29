@@ -4,6 +4,8 @@ import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequ
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.UpdateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.response.GetApiResponse;
+import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +29,10 @@ public class ApiSpecificationController {
     private final ApiSpecificationService apiSpecificationService;
 
     @GetMapping("/{apiSpecificationId}")
-    public ResponseEntity<?> getApiSpecification(
-        @PathVariable Long apiSpecificationId,
+    public ResponseEntity<GetApiSpecificationResponse> getApiSpecification(
         HttpServletRequest httpServletRequest
     ){
-        return ResponseEntity.ok().body(apiSpecificationService.getApiSpecification(apiSpecificationId, httpServletRequest.getRequestURI()));
+        return ResponseEntity.ok().body(apiSpecificationService.getApiSpecification(httpServletRequest.getRequestURI()));
     }
 
     @GetMapping("/{apiSpecificationId}/domains")
@@ -40,6 +41,13 @@ public class ApiSpecificationController {
         HttpServletRequest httpServletRequest
     ){
         return ResponseEntity.ok().body(apiSpecificationService.getDomains(apiSpecificationId, httpServletRequest.getRequestURI()));
+    }
+
+    @GetMapping("/{apiSpecificationId}/domains/{domainId}/apis/{apiId}")
+    public ResponseEntity<GetApiResponse> getApi(
+        HttpServletRequest httpServletRequest
+    ){
+        return ResponseEntity.ok().body(apiSpecificationService.getApi(httpServletRequest.getRequestURI()));
     }
 
     @PostMapping
