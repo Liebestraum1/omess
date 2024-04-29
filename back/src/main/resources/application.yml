@@ -26,4 +26,4 @@ spring:
       password: ${MONGODB_PASSWORD}
 logging:
   level:
-    web: trace
+    web: debug
