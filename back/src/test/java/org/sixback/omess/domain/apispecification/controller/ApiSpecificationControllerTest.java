@@ -255,10 +255,10 @@ class ApiSpecificationControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.domains").isArray())
             .andExpect(jsonPath("$.domains").isNotEmpty())
-            .andExpect(jsonPath("$.domains[0]").value(dummyDomainForSetUp.getName()))
-            .andExpect(jsonPath("$.domains[1]").value(dummyDomain2.getName()))
-            .andExpect(jsonPath("$.domains[2]").value(dummyDomain3.getName()))
-            .andExpect(jsonPath("$.domains[3]").value(dummyDomain4.getName()))
+            .andExpect(jsonPath("$.domains[0].name").value(dummyDomainForSetUp.getName()))
+            .andExpect(jsonPath("$.domains[1].name").value(dummyDomain2.getName()))
+            .andExpect(jsonPath("$.domains[2].name").value(dummyDomain3.getName()))
+            .andExpect(jsonPath("$.domains[3].name").value(dummyDomain4.getName()))
             .andDo(print());
 
         //then
