@@ -21,3 +21,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  data:
+    mongodb:
+      host: ${TEST_MONGODB_HOST}
+      port: ${TEST_MONGODB_PORT}
+      database: ${TEST_MONGODB_DATABASE}
+      username: ${TEST_MONGODB_USERNAME}
+      password: ${TEST_MONGODB_PASSWORD}
+logging:
+  level:
+    web: trace
