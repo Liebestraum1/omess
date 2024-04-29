@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
@@ -26,6 +27,7 @@ import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainR
 import org.sixback.omess.domain.apispecification.model.dto.request.CreatePathVariableRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateQueryParamRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateRequestHeaderRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.UpdateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.entity.Api;
 import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
 import org.sixback.omess.domain.apispecification.model.entity.Domain;
@@ -260,6 +262,30 @@ class ApiSpecificationControllerTest {
             .andDo(print());
 
         //then
+    }
+
+    @Test
+    @DisplayName("도메인 수정 성공 테스트")
+    void updateDomainTest() throws Exception {
+        //given
+        setUpDummyApiSpecification(dummyProjectForSetUp);
+        setUpDummyDomain(dummyApiSpecificationForSetUp);
+
+        UpdateDomainRequest request = new UpdateDomainRequest("updatedName");
+
+        //when
+        mockMvc.perform(
+            patch("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}", dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId())
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        ).andExpect(status().isOk())
+            .andDo(print());
+
+        //then
+        String path = "P" + dummyProjectForSetUp.getId() + "/A" + dummyApiSpecificationForSetUp.getId() + "/D" + dummyDomainForSetUp.getId();
+        Optional<Domain> updatedDomain = domainRepository.findByPath(path);
+        assertThat(updatedDomain).isPresent();
+        assertThat(updatedDomain.get().getName()).isEqualTo(request.name());
     }
 
     private static Stream<CreateApiRequest> provideCreateApiRequest() {
