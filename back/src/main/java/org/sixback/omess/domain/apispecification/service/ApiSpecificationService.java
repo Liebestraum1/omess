@@ -73,11 +73,7 @@ public class ApiSpecificationService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 프로젝트입니다."));
 
-        ApiSpecification apiSpecification = ApiSpecification.builder()
-                .moduleName(createApiSpecificationRequest.name())
-                .moduleCategory(createApiSpecificationRequest.category())
-                .project(project)
-                .build();
+        ApiSpecification apiSpecification = toApiSpecification(createApiSpecificationRequest, project);
 
         apiSpecificationRepository.save(apiSpecification);
         apiSpecification.addPath(generatePath(uri, apiSpecification.getId()));
@@ -92,10 +88,7 @@ public class ApiSpecificationService {
         ApiSpecification apiSpecification = apiSpecificationRepository.findByPath(estimatedParentPath)
                 .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
 
-        Domain domain = Domain.builder()
-                .name(createDomainRequest.name())
-                .apiSpecification(apiSpecification)
-                .build();
+        Domain domain = toDomain(createDomainRequest, apiSpecification);
 
         domainRepository.save(domain);
         domain.addPath(generatePath(uri, domain.getId()));
@@ -116,16 +109,7 @@ public class ApiSpecificationService {
         checkIsValidJsonSchema(createApiRequest.getRequestSchema());
         checkIsValidJsonSchema(createApiRequest.getResponseSchema());
 
-        Api api = Api.builder()
-            .domain(domain)
-            .method(createApiRequest.getMethod())
-            .name(createApiRequest.getName())
-            .description(createApiRequest.getDescription())
-            .endpoint(createApiRequest.getEndpoint())
-            .statusCode(createApiRequest.getStatusCode())
-            .requestSchema(createApiRequest.getRequestSchema())
-            .responseSchema(createApiRequest.getResponseSchema())
-            .build();
+        Api api = toApi(createApiRequest, domain);
 
         apiRepository.save(api);
         api.addPath(generatePath(uri, api.getId()));
