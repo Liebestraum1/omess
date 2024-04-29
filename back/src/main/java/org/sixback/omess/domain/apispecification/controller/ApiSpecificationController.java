@@ -3,10 +3,12 @@ package org.sixback.omess.domain.apispecification.controller;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.UpdateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,6 +69,16 @@ public class ApiSpecificationController {
         HttpServletRequest httpServletRequest
     ){
         apiSpecificationService.createApi(domainId, createApiRequest, httpServletRequest.getRequestURI());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{apiSpecificationId}/domains/{domainId}")
+    public ResponseEntity<Void> updateDomain(
+        @Valid @RequestBody UpdateDomainRequest updateDomainRequest,
+        HttpServletRequest httpServletRequest
+    ){
+        apiSpecificationService.updateDomain(updateDomainRequest ,httpServletRequest.getRequestURI());
 
         return ResponseEntity.ok().build();
     }
