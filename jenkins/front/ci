@@ -5,19 +5,8 @@ pipeline {
         stage('Build stage') {
             steps {
                 dir('front') {
-                    script {
-                        echo 'Npm build...'
-                        try {
-                            docker.image('node:20.12.2').inside {
-                                sh 'npm install'
-                                sh 'npm run build'
-                            }
-                        } catch(Exception e) {
-                            echo "${e.getMessage()}"
-                            currentBuild.result = 'FAILURE'
-                            error('Build fail')
-                        }
-                    }
+                    echo 'Docker build...'
+                    sh 'docker build -f ../docker/front-docker -t frontend .'
                 }
             }
             post {
