@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sixback.omess.common.BaseTimeEntity;
 import org.sixback.omess.domain.member.model.entity.Member;
+import org.sixback.omess.domain.project.model.enums.ProjectRole;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -26,13 +27,17 @@ public class ProjectMember extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    public ProjectMember(Project project, Member member) {
+    @Enumerated(EnumType.STRING)
+    private ProjectRole projectRole;
+
+    public ProjectMember(Project project, Member member, ProjectRole projectRole) {
         this.project = project;
         this.member = member;
+        this.projectRole = projectRole;
     }
 
-    public ProjectMember(Long id, Project project, Member member) {
-        this(project, member);
+    public ProjectMember(Long id, Project project, Member member, ProjectRole projectRole) {
+        this(project, member, projectRole);
         this.id = id;
     }
 }

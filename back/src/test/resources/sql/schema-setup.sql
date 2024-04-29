@@ -21,6 +21,7 @@ CREATE TABLE `project_member`
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     member_id  BIGINT NOT NULL,
     project_id BIGINT NOT NULL,
+    project_role ENUM('OWNER', 'USER') NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now(),
     FOREIGN KEY (member_id) REFERENCES member(id) on DELETE CASCADE,
