@@ -8,7 +8,7 @@ type LoginStore = {
 };
 
 export const useLoginStore = create<LoginStore>((set) => ({
-    loginStatus: "none",
+    loginStatus: import.meta.env.VITE_APPLICATION_TYPE === "server" ? "server" : "none",
 
     setServerLogin: () =>
         set(() => ({
