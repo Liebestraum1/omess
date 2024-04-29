@@ -288,6 +288,26 @@ class ApiSpecificationControllerTest {
         assertThat(updatedDomain.get().getName()).isEqualTo(request.name());
     }
 
+    @Test
+    @DisplayName("도메인 삭제 성공 테스트")
+    void deleteDomainSuccessTest() throws Exception {
+        //given
+        setUpDummyApiSpecification(dummyProjectForSetUp);
+        setUpDummyDomain(dummyApiSpecificationForSetUp);
+        setUpDummyApi(dummyDomainForSetUp);
+
+        //when
+        mockMvc.perform(
+            delete("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}", dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId())
+        )
+            .andExpect(status().isOk())
+            .andDo(print());
+
+        //then
+        assertThat(apiRepository.findAll()).hasSize(0);
+        assertThat(domainRepository.findAll()).hasSize(0);
+    }
+
     private static Stream<CreateApiRequest> provideCreateApiRequest() {
         return Stream.of(
             CreateApiRequest.builder()
