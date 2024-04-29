@@ -156,4 +156,16 @@ public class ApiSpecificationService {
 
         domainRepository.deleteByPath(estimatedCurrentPath);
     }
+
+    @Transactional
+    public void deleteApi(String uri) {
+        String estimatedCurrentPath = generateEstimatedCurrentPath(uri);
+        boolean exists = apiRepository.existsByPath(estimatedCurrentPath);
+
+        if (!exists) {
+            throw new EntityNotFoundException(PATH_MISMATCH.getMessage());
+        }
+
+        apiRepository.deleteByPath(estimatedCurrentPath);
+    }
 }

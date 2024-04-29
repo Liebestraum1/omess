@@ -92,4 +92,13 @@ public class ApiSpecificationController {
 
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{apiSpecificationId}/domains/{domainId}/apis/{apiId}")
+    public ResponseEntity<Void> deleteApi(
+        HttpServletRequest httpServletRequest
+    ){
+        apiSpecificationService.deleteApi(httpServletRequest.getRequestURI());
+
+        return ResponseEntity.ok().build();
+    }
 }
