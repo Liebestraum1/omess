@@ -7,38 +7,39 @@ import org.sixback.omess.domain.chat.model.dto.response.ChatInfo;
 import org.sixback.omess.domain.chat.service.ChatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/chat/{projectId}")
+@CrossOrigin("*")
 @RequiredArgsConstructor
 public class ChatApiController {
 
     private final ChatService chatService;
 
     @GetMapping
-    public ResponseEntity<List<ChatInfo>> getMyChatList(@PathVariable Long projectId, @SessionAttribute Long memberId) {
-        return ResponseEntity.ok(chatService.loadChatListByProjectIdAndMemberId(projectId, memberId));
+    public Flux<ResponseEntity<ChatInfo>> getMyChatList(@PathVariable Long projectId, @SessionAttribute(required = false) Long memberId) {
+        if (memberId == null) memberId = 1L;
+        return chatService.loadChatListByProjectIdAndMemberId(projectId, memberId).map(ResponseEntity::ok);
     }
 
     @PostMapping
-    public ResponseEntity<Void> createChat(
+    public Mono<ResponseEntity<ChatInfo>> createChat(
             @PathVariable Long projectId,
             @SessionAttribute Long memberId,
             @RequestBody ChatCreateRequest request
     ) {
-        chatService.createChat(projectId, memberId, request.getEmails());
-        return ResponseEntity.ok().build();
+        return chatService.createChat(projectId, memberId, request.getName(), request.getEmails())
+                .map(ResponseEntity::ok);
     }
 
     @DeleteMapping("/{roomId}")
-    public ResponseEntity<Void> leaveChat(
-            @PathVariable Long projectId,
-            @PathVariable Long roomId,
+    public Mono<ResponseEntity<Void>> leaveChat(
+            @PathVariable String roomId,
             @SessionAttribute Long memberId
     ) {
-        chatService.leaveChat(projectId, roomId, memberId);
-        return ResponseEntity.ok().build();
+        return chatService.leaveChat(roomId, memberId)
+                .then(Mono.just(ResponseEntity.ok().build()));
     }
 }

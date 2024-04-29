@@ -24,7 +24,6 @@ public class Chat {
     @Setter
     private Content notice;
     private List<ChatMember> members;
-    private List<Content> messages = new ArrayList<>();
 
     protected Chat() {
     }

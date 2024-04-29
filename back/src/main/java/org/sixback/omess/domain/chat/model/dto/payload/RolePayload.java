@@ -10,7 +10,7 @@ import org.sixback.omess.domain.chat.model.entity.ChatRole;
 public class RolePayload {
 
     @NotBlank(message = "대상을 지정하세요.")
-    private String target;
+    private Long memberId;
     @NotNull(message = "변경할 권한을 지정하세요.")
     private ChatRole to;
 }

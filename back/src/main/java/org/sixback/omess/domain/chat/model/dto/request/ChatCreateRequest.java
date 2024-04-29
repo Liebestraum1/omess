@@ -14,4 +14,12 @@ public class ChatCreateRequest {
     @NotBlank
     @Size(min = 1)
     private String name;
+
+    public ChatCreateRequest() {
+    }
+
+    public ChatCreateRequest(List<String> emails, String name) {
+        this.emails = emails;
+        this.name = name;
+    }
 }
