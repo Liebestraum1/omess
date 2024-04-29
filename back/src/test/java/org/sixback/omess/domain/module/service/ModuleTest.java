@@ -22,6 +22,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 import java.util.Optional;
 
+import static org.sixback.omess.common.TestUtils.makeProjectMember;
+
 @SpringBootTest
 @Transactional
 public class ModuleTest {
@@ -58,7 +60,7 @@ public class ModuleTest {
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = makeProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
 
@@ -88,7 +90,7 @@ public class ModuleTest {
 
         projectRepository.save(project);
 
-        ProjectMember projectMember = new ProjectMember(project, member);
+        ProjectMember projectMember = makeProjectMember(project, member);
 
         projectMemberRepository.save(projectMember);
 
@@ -98,7 +100,7 @@ public class ModuleTest {
 
         Optional<Module> findModule = moduleRepository.findById(kanbanBoard.getId());
 
-        if(findModule.isPresent()){
+        if (findModule.isPresent()) {
             Module module = findModule.get();
 
             UpdateMouleRequest updateMouleRequest = new UpdateMouleRequest();
