@@ -10,6 +10,7 @@ import org.sixback.omess.domain.apispecification.exception.InvalidApiInputExcept
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateApiSpecificationRequest;
 import org.sixback.omess.domain.apispecification.model.dto.request.CreateDomainRequest;
+import org.sixback.omess.domain.apispecification.model.dto.request.UpdateDomainRequest;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetApiSpecificationResponse;
 import org.sixback.omess.domain.apispecification.model.dto.response.GetDomainsResponse;
 import org.sixback.omess.domain.apispecification.model.entity.Api;
@@ -131,5 +132,16 @@ public class ApiSpecificationService {
                 api.getRequestHeaders().add(toRequestHeader(request, api))));
 
         apiRepository.save(api);
+    }
+
+    @Transactional
+    public void updateDomain(UpdateDomainRequest updateDomainRequest, String uri) {
+        String estimatedCurrentPath = generateEstimatedCurrentPath(uri);
+
+        Domain domain = domainRepository.findByPath(estimatedCurrentPath)
+            .orElseThrow(() -> new EntityNotFoundException(PATH_MISMATCH.getMessage()));
+
+        domain.updateName(updateDomainRequest.name());
+        domainRepository.save(domain);
     }
 }

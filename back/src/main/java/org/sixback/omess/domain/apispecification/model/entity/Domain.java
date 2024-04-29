@@ -53,4 +53,8 @@ public class Domain extends BaseTimeEntity {
     public void addPath(String path){
         this.path = path;
     }
+
+    public void updateName(String name){
+        this.name = name;
+    }
 }
