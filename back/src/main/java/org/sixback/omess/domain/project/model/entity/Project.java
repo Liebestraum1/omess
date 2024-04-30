@@ -30,4 +30,8 @@ public class Project extends BaseTimeEntity {
         this(name);
         this.name = name;
     }
+
+    public void updateProject(String name) {
+        this.name = name;
+    }
 }

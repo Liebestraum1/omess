@@ -2,6 +2,7 @@ package org.sixback.omess.domain.project.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
+import org.sixback.omess.domain.project.model.dto.request.UpdateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.response.CreateProjectResponse;
 import org.sixback.omess.domain.project.service.ProjectService;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,18 @@ public class ProjectController {
         System.out.println("createProjectRequest = " + createProjectRequest);
         CreateProjectResponse createProjectResponse = projectService.createProject(createProjectRequest, memberId);
         return new ResponseEntity<>(createProjectResponse, CREATED);
+    }
+
+    @PatchMapping("/{projectId}")
+    public ResponseEntity<Void> updateProject(
+            @Validated
+            @RequestBody
+            UpdateProjectRequest updateProjectRequest,
+            @PathVariable(name = "projectId") Long projectId,
+            @SessionAttribute(name = "memberId") Long memberId
+    ) {
+        projectService.updateProject(projectId, updateProjectRequest);
+        return ResponseEntity.ok().build();
     }
 
 }
