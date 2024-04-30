@@ -17,14 +17,13 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class ProjectController {
     private final ProjectService projectService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(
-            @RequestBody
             @Validated
+            @RequestBody
             CreateProjectRequest createProjectRequest,
             @SessionAttribute(name = "memberId") Long memberId
     ) {
-        System.out.println("createProjectRequest = " + createProjectRequest);
         CreateProjectResponse createProjectResponse = projectService.createProject(createProjectRequest, memberId);
         return new ResponseEntity<>(createProjectResponse, CREATED);
     }
