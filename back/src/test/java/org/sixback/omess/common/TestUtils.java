@@ -9,6 +9,8 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +59,10 @@ public class TestUtils {
         authorities.add(new SimpleGrantedAuthority(ROLE));
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(memberId, null, authorities);
-        session.setAttribute("SPRING_SECURITY_CONTEXT_KEY", authentication);
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(authentication);
+
+        session.setAttribute("SPRING_SECURITY_CONTEXT_KEY", context);
         session.setAttribute("memberId", memberId);
         return session;
     }
