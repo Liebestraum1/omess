@@ -1,22 +1,35 @@
 package org.sixback.omess.common.config;
 
 import lombok.RequiredArgsConstructor;
+import org.sixback.omess.common.security.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.NEVER;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
+                .securityMatcher("/api/**")
+                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
+                    authorizationManagerRequestMatcherRegistry
+                            .requestMatchers("/api/v1/member/check-email", "/api/v1/member/check-nickname",
+                                    "/api/v1/members/signup", "/api/v1/members/signin",
+                                    "/api/v1/http-metadata/methods", "/api/v1/http-metadata/headers"
+                            ).permitAll();
+                    authorizationManagerRequestMatcherRegistry.anyRequest().authenticated();
+                })
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -24,10 +37,13 @@ public class SecurityConfig {
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement((configurer -> {
-                    configurer.sessionCreationPolicy((SessionCreationPolicy.NEVER));
+                    configurer.sessionCreationPolicy((NEVER));
                     configurer.sessionFixation().migrateSession();
                 }))
                 .requestCache(configurer -> configurer.requestCache(new NullRequestCache()))
+                .exceptionHandling(exceptionHandlingConfigurer ->
+                        exceptionHandlingConfigurer.authenticationEntryPoint(customAuthenticationEntryPoint)
+                )
                 .build()
                 ;
     }
