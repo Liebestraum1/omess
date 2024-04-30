@@ -1,14 +1,14 @@
 package org.sixback.omess.domain.project.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.sixback.omess.domain.member.model.dto.response.GetMemberResponse;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.service.MemberService;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
+import org.sixback.omess.domain.project.model.dto.request.UpdateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.response.CreateProjectResponse;
 import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.model.entity.ProjectMember;
-import org.sixback.omess.domain.project.model.enums.ProjectRole;
 import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
@@ -27,11 +27,23 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CreateProjectResponse createProject(CreateProjectRequest createProjectRequest, Long memberId) {
         Member foundMember = toMember(memberService.getMember(memberId));
         Project createdProject = projectRepository.save(toProject(createProjectRequest));
         projectMemberRepository.save(new ProjectMember(createdProject, foundMember, OWNER));
         return toCreateProjectResponse(createdProject);
+    }
+
+    @Transactional
+    public void updateProject(Long projectId, UpdateProjectRequest updateProjectRequest) {
+        Project project = getProjectEntity(projectId);
+        project.updateProject(updateProjectRequest.getName());
+    }
+
+    @Transactional(readOnly = true)
+    protected Project getProjectEntity(Long id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("")); //TODO
     }
 }
