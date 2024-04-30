@@ -1,12 +1,12 @@
 import { Box, Modal } from "@mui/material";
-import SignIn from "./SignIn";
+import SignUp from "./SignUp";
 
-type SingInFormModalProp = {
+type SignUpFormModalProp = {
     open: boolean;
     onClose: () => void;
 };
 
-const SignInFormModal = ({ open, onClose }: SingInFormModalProp) => {
+const SignUpFormModal = ({ open, onClose }: SignUpFormModalProp) => {
     return (
         <Modal
             open={open}
@@ -19,10 +19,10 @@ const SignInFormModal = ({ open, onClose }: SingInFormModalProp) => {
             }}
         >
             <Box>
-                <SignIn></SignIn>
+                <SignUp></SignUp>
             </Box>
         </Modal>
     );
 };
 
-export default SignInFormModal;
+export default SignUpFormModal;

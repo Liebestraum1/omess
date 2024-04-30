@@ -1,12 +1,12 @@
 import { Button } from "@mui/material";
-import { LoginStatusProps } from "../../types/Login/LoginProps";
+import { SignInStatus } from "../../types/SignIn/SignIn";
 import { useCallback, useEffect, useState } from "react";
 
-const LoginFormSubmitButton = ({ loginStatus }: { loginStatus: LoginStatusProps }) => {
+const SignInFormSubmitButton = ({ signInStatus }: { signInStatus: SignInStatus }) => {
     const [buttonText, setButtonText] = useState<string>("");
 
-    const updateButtonState = useCallback((loginStatus: LoginStatusProps) => {
-        if (loginStatus === "none") {
+    const updateButtonState = useCallback((signInStatus: SignInStatus) => {
+        if (signInStatus === "none") {
             setButtonText("서버 접속");
         } else {
             setButtonText("로그인");
@@ -14,8 +14,8 @@ const LoginFormSubmitButton = ({ loginStatus }: { loginStatus: LoginStatusProps 
     }, []);
 
     useEffect(() => {
-        updateButtonState(loginStatus);
-    }, [loginStatus, updateButtonState]);
+        updateButtonState(signInStatus);
+    }, [signInStatus, updateButtonState]);
 
     return (
         <Button
@@ -31,4 +31,4 @@ const LoginFormSubmitButton = ({ loginStatus }: { loginStatus: LoginStatusProps 
     );
 };
 
-export default LoginFormSubmitButton;
+export default SignInFormSubmitButton;

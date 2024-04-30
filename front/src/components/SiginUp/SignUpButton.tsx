@@ -1,11 +1,11 @@
 import { Box, Button } from "@mui/material";
 import { useState } from "react";
-import SignInFormModal from "./SignInFormModal";
+import SignUpFormModal from "./SignUpFormModal";
 
-const SignInButton = () => {
+const SignUpButton = () => {
     const [open, setOpen] = useState(false);
-    const openSinginForm = () => setOpen(true);
-    const closeSigninForm = () => setOpen(false);
+    const openSignUpForm = () => setOpen(true);
+    const closeSignUpForm = () => setOpen(false);
 
     return (
         <Box display={"flex"} flexDirection={"column"}>
@@ -15,13 +15,13 @@ const SignInButton = () => {
                     fontSize: 16,
                 }}
                 variant="contained"
-                onClick={openSinginForm}
+                onClick={openSignUpForm}
             >
                 서버 가입
             </Button>
-            <SignInFormModal open={open} onClose={closeSigninForm} />
+            <SignUpFormModal open={open} onClose={closeSignUpForm} />
         </Box>
     );
 };
 
-export default SignInButton;
+export default SignUpButton;

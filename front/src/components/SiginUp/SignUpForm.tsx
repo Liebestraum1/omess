@@ -1,8 +1,8 @@
 import { Alert, AlertColor, AlertTitle, Box, Button, Snackbar, styled } from "@mui/material";
 import { useState } from "react";
 import FormInput from "../Common/FormInput";
-import SignInFormSubmitButton from "./SignInFormSubmitButton";
-import { SignInRequest, signInApi } from "../../services/Login/LoginApi";
+import SignUpFormSubmitButton from "./SignUpFormSubmitButton";
+import { SignUpRequest, SignUpApi } from "../../services/SignUp/SignUpApi";
 
 type AlertContent = {
     severity: AlertColor | undefined;
@@ -10,7 +10,7 @@ type AlertContent = {
     content: string;
 };
 
-const SignInFormBox = styled(Box)({
+const SignUpFormBox = styled(Box)({
     display: "flex",
     flexDirection: "column",
     component: "form",
@@ -20,7 +20,7 @@ const alertButton = (action: () => void) => {
     return <Button onClick={action}>확인</Button>;
 };
 
-const SignInForm = () => {
+const SignUpForm = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [nickname, setNickname] = useState<string>("");
@@ -32,14 +32,14 @@ const SignInForm = () => {
         content: "",
     });
 
-    const signInFormSubmitFunction = () => {
-        const signInRequest: SignInRequest = {
+    const SignUpFormSubmitFunction = () => {
+        const signUpRequest: SignUpRequest = {
             email: email,
             password: password,
             nickname: nickname,
         };
 
-        signInApi(signInRequest)
+        SignUpApi(signUpRequest)
             .then(() => {
                 setAlertContent({
                     severity: "success",
@@ -59,30 +59,30 @@ const SignInForm = () => {
             });
     };
 
-    const singInFormInputProps = [
+    const signUpFormInputProps = [
         { type: "email", label: "EMAIL", helperText: "이메일을 입력하세요.", onFormData: setEmail },
         { type: "password", label: "PASSWORD", helperText: "비밀번호를 입력하세요.", onFormData: setPassword },
         { type: "nickname", label: "NICKNAME", helperText: "닉네임을 입력하세요.", onFormData: setNickname },
     ];
 
     return (
-        <SignInFormBox
+        <SignUpFormBox
             component={"form"}
             onSubmit={(e) => {
                 e.preventDefault();
-                signInFormSubmitFunction();
+                SignUpFormSubmitFunction();
             }}
         >
-            {singInFormInputProps.map((signFormInputProp) => (
+            {signUpFormInputProps.map((signUpFormInputProp) => (
                 <FormInput
-                    key={signFormInputProp.label}
-                    type={signFormInputProp.type}
-                    label={signFormInputProp.label}
-                    helperText={signFormInputProp.helperText}
-                    onFormData={signFormInputProp.onFormData}
+                    key={signUpFormInputProp.label}
+                    type={signUpFormInputProp.type}
+                    label={signUpFormInputProp.label}
+                    helperText={signUpFormInputProp.helperText}
+                    onFormData={signUpFormInputProp.onFormData}
                 ></FormInput>
             ))}
-            <SignInFormSubmitButton></SignInFormSubmitButton>
+            <SignUpFormSubmitButton></SignUpFormSubmitButton>
 
             <Snackbar
                 open={openSnackbar}
@@ -94,8 +94,8 @@ const SignInForm = () => {
                     {alertContent.content}
                 </Alert>
             </Snackbar>
-        </SignInFormBox>
+        </SignUpFormBox>
     );
 };
 
-export default SignInForm;
+export default SignUpForm;

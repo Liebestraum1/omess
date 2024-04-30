@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-const SignInFormSubmitButton = () => {
+const SignUpFormSubmitButton = () => {
     return (
         <Button
             sx={{
@@ -15,4 +15,4 @@ const SignInFormSubmitButton = () => {
     );
 };
 
-export default SignInFormSubmitButton;
+export default SignUpFormSubmitButton;
