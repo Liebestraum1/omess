@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
 import { Fragment } from "react/jsx-runtime";
 
-const SignInTitle = () => {
+const SignUpTitle = () => {
     return (
         <Fragment>
             <Typography
@@ -16,4 +16,4 @@ const SignInTitle = () => {
     );
 };
 
-export default SignInTitle;
+export default SignUpTitle;
