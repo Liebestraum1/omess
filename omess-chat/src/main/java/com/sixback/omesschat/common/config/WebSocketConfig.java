@@ -16,9 +16,12 @@ public class WebSocketConfig {
 
     private final WebSocketHandler handler;
 
+    /**
+     * 웹소켓 매핑 설정
+     */
     @Bean
     public HandlerMapping handlerMapping() {
-        Map<String, WebSocketHandler> handlerMap = Map.of("/chat", handler);
+        Map<String, WebSocketHandler> handlerMap = Map.of("/chat/*", handler);
         return new SimpleUrlHandlerMapping(handlerMap, Ordered.HIGHEST_PRECEDENCE);
     }
 
