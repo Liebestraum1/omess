@@ -1,0 +1,23 @@
+server:
+  port: 8081
+spring:
+  config:
+    import:
+      - optional:file:env/.env[.properties]
+
+  r2dbc:
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
+  data:
+    mongodb:
+      host: ${MONGODB_HOST}
+      port: ${MONGODB_PORT}
+      database: ${MONGODB_DATABASE}
+      username: ${MONGODB_USERNAME}
+      password: ${MONGODB_PASSWORD}
+
+logging:
+  level:
+    web: debug
