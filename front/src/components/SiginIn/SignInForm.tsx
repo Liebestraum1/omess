@@ -1,6 +1,14 @@
-import { Box, styled } from "@mui/material";
+import { Alert, AlertColor, AlertTitle, Box, Button, Snackbar, styled } from "@mui/material";
 import { useState } from "react";
 import FormInput from "../Common/FormInput";
+import SignInFormSubmitButton from "./SignInFormSubmitButton";
+import { SignInRequest, signInApi } from "../../services/Login/LoginApi";
+
+type AlertContent = {
+    severity: AlertColor | undefined;
+    title: string;
+    content: string;
+};
 
 const SignInFormBox = styled(Box)({
     display: "flex",
@@ -8,16 +16,47 @@ const SignInFormBox = styled(Box)({
     component: "form",
 });
 
+const alertButton = (action: () => void) => {
+    return <Button onClick={action}>확인</Button>;
+};
+
 const SignInForm = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [nickname, setNickname] = useState("");
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [nickname, setNickname] = useState<string>("");
+
+    const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+    const [alertContent, setAlertContent] = useState<AlertContent>({
+        severity: undefined,
+        title: "",
+        content: "",
+    });
 
     const signInFormSubmitFunction = () => {
-        const loginFormData = new FormData();
-        loginFormData.append("email", email);
-        loginFormData.append("password", password);
-        loginFormData.append("nickname", nickname);
+        const signInRequest: SignInRequest = {
+            email: email,
+            password: password,
+            nickname: nickname,
+        };
+
+        signInApi(signInRequest)
+            .then(() => {
+                setAlertContent({
+                    severity: "success",
+                    title: "서버 가입 성공!",
+                    content: "서버 가입에 성공했습니다.",
+                });
+            })
+            .catch(() => {
+                setAlertContent({
+                    severity: "error",
+                    title: "서버 가입 실패!",
+                    content: "서버 가입에 실패했습니다.",
+                });
+            })
+            .finally(() => {
+                setOpenSnackbar(true);
+            });
     };
 
     const singInFormInputProps = [
@@ -28,6 +67,7 @@ const SignInForm = () => {
 
     return (
         <SignInFormBox
+            component={"form"}
             onSubmit={(e) => {
                 e.preventDefault();
                 signInFormSubmitFunction();
@@ -42,6 +82,18 @@ const SignInForm = () => {
                     onFormData={signFormInputProp.onFormData}
                 ></FormInput>
             ))}
+            <SignInFormSubmitButton></SignInFormSubmitButton>
+
+            <Snackbar
+                open={openSnackbar}
+                onClose={() => setOpenSnackbar(false)}
+                anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
+            >
+                <Alert severity={alertContent.severity} action={alertButton(() => setOpenSnackbar(false))}>
+                    <AlertTitle>{alertContent.title}</AlertTitle>
+                    {alertContent.content}
+                </Alert>
+            </Snackbar>
         </SignInFormBox>
     );
 };

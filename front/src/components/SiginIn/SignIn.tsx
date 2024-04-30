@@ -1,5 +1,4 @@
 import { Box, styled } from "@mui/material";
-import SignInFormSubmitButton from "./SignInFormSubmitButton";
 import SignInTitle from "./SignInTItle";
 import SignInForm from "./SignInForm";
 
@@ -19,7 +18,6 @@ const SignIn = () => {
         <SignInBox>
             <SignInTitle></SignInTitle>
             <SignInForm></SignInForm>
-            <SignInFormSubmitButton></SignInFormSubmitButton>
         </SignInBox>
     );
 };

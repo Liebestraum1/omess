@@ -6,7 +6,6 @@ const LoginLogoBox = styled(Box)({
     width: "100%",
     display: "flex",
     justifyContent: "center",
-    marginTop: "5%",
 });
 
 const LoginLogo = () => {
