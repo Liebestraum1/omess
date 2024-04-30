@@ -3,7 +3,7 @@ import SignIn from "./SignIn";
 
 type SingInFormModalProp = {
     open: boolean;
-    onClose: () => any;
+    onClose: () => void;
 };
 
 const SignInFormModal = ({ open, onClose }: SingInFormModalProp) => {

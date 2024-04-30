@@ -1,12 +1,12 @@
+import { Fragment, useEffect, useState } from "react";
 import { Box, styled } from "@mui/material";
-import LoginFormSubmitButton from "./LoginFormSubmitButton";
-import { LoginStatusProps } from "../../types/Login/LoginProps";
-import { useEffect, useState } from "react";
-import { useLoginStore } from "../../stores/LoginStorage";
 import { useNavigate } from "react-router";
+import { useLoginStore } from "../../stores/LoginStorage";
+import { FormInputProp } from "../../types/common/FormProps";
+import { LoginStatusProps } from "../../types/Login/LoginProps";
+import LoginFormSubmitButton from "./LoginFormSubmitButton";
 import SignInButton from "../SiginIn/SignInButton";
 import FormInput from "../Common/FormInput";
-import { FormInputProp } from "../../types/common/FormProps";
 
 const LoginFormBox = styled(Box)({
     display: "flex",
@@ -62,25 +62,31 @@ const LoginForm = ({ loginStatus }: { loginStatus: LoginStatusProps }) => {
     }, [loginStatus]);
 
     return (
-        <LoginFormBox
-            component={"form"}
-            onSubmit={(e) => {
-                e.preventDefault();
-                loginFormSubmitFuction();
-            }}
-        >
-            {loginFormInputProps.map((loginFormInputProp) => (
-                <FormInput
-                    key={loginFormInputProp.label}
-                    type={loginFormInputProp.type}
-                    label={loginFormInputProp.label}
-                    helperText={loginFormInputProp.helperText}
-                    onFormData={loginFormInputProp.onFormData}
-                ></FormInput>
-            ))}
-            <LoginFormSubmitButton loginStatus={loginStatus}></LoginFormSubmitButton>
-            {loginStatus !== "none" ? <SignInButton /> : null}
-        </LoginFormBox>
+        <Fragment>
+            <LoginFormBox
+                component={"form"}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    loginFormSubmitFuction();
+                }}
+            >
+                {loginFormInputProps.map((loginFormInputProp) => (
+                    <FormInput
+                        key={loginFormInputProp.label}
+                        type={loginFormInputProp.type}
+                        label={loginFormInputProp.label}
+                        helperText={loginFormInputProp.helperText}
+                        onFormData={loginFormInputProp.onFormData}
+                    ></FormInput>
+                ))}
+                <LoginFormSubmitButton key="login" loginStatus={loginStatus}></LoginFormSubmitButton>
+            </LoginFormBox>
+            {loginStatus !== "none" ? (
+                <Box width={"33%"}>
+                    <SignInButton />
+                </Box>
+            ) : null}
+        </Fragment>
     );
 };
 
