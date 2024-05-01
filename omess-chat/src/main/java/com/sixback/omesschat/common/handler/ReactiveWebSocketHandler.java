@@ -50,8 +50,14 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
         log.info("request processing... - {}", session.getId());
         RequestType type = requestMessage.getType();
         return switch (type) {
-            case ENTER -> sessionService
-                    .enter(session, MessageParser.parseMessage(message.getData(), EnterMessage.class));
+            case ENTER -> {
+                EnterRequestMessage enterRequestMessage = MessageParser.parseMessage(requestMessage.getData(),
+                        EnterRequestMessage.class);
+                yield sessionService
+                        .enter(session, enterRequestMessage)
+                        .thenMany(chatService.loadChatHistory(enterRequestMessage.getChatId(),
+                                enterRequestMessage.getMemberId(), 0));
+            }
             case SEND -> {
                 SendRequestMessage sendRequestMessage = MessageParser.parseMessage(requestMessage.getData(),
                         SendRequestMessage.class);
@@ -68,9 +74,12 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
     /**
      * 처리가 완료된 데이터 사용자에게 응답
      */
-    private Mono<Void> after(WebSocketSession session, Object data) {
-        if (data instanceof ChatMessageDto) {
-            return sessionService.send(session, (ChatMessageDto) data);
+    private Mono<Void> after(WebSocketSession session, ResponseMessage message) {
+        if (message.getType() == MESSAGE) {
+            return sessionService.send(session, message);
+        } else if (message.getType() == HISTORY) {
+            log.info("response message type : {}", message.getType());
+            return sessionService.sendToUser(session, message);
         }
         throw new ClassCastException();
     }
