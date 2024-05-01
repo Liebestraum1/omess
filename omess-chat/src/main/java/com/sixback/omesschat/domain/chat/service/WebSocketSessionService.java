@@ -59,12 +59,13 @@ public class WebSocketSessionService {
             throw new IllegalArgumentException();
         }
 
-
         ChatRoom chatRoom = users.get(chatUser);
         chatRoom.remove(chatUser)
                 .doOnNext(aBoolean -> {
                     users.remove(chatUser);
-                    rooms.remove(chatRoom.getChatId());
+                    if (aBoolean) {
+                        rooms.remove(chatRoom.getChatId());
+                    }
                 }).subscribe();
     }
 
