@@ -2,16 +2,16 @@ package com.sixback.omesschat.domain.chat.service;
 
 import com.sixback.omesschat.domain.chat.model.context.ChatRoom;
 import com.sixback.omesschat.domain.chat.model.context.ChatUser;
-import com.sixback.omesschat.domain.chat.model.dto.ChatMessageDto;
-import com.sixback.omesschat.domain.chat.model.message.EnterMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.EnterRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
 import com.sixback.omesschat.domain.chat.parser.MessageParser;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.socket.WebSocketSession;
-import reactor.core.publisher.Mono;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.socket.WebSocketMessage;
+import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -24,7 +24,8 @@ public class WebSocketSessionService {
         this.users = new ConcurrentHashMap<>();
     }
 
-    public Mono<Void> enter(WebSocketSession session, EnterMessage message) {
+    public Mono<Void> enter(WebSocketSession session, EnterRequestMessage message) {
+        log.info("유저 입장... {}", session.getId());
         String chatId = message.getChatId();
 
         ChatRoom chatRoom = rooms.getOrDefault(chatId, ChatRoom.of(chatId));
@@ -36,14 +37,14 @@ public class WebSocketSessionService {
         return Mono.empty();
     }
 
-    public Mono<Void> send(WebSocketSession session, ChatMessageDto messageDto) {
+    public Mono<Void> send(WebSocketSession session, ResponseMessage message) {
         ChatUser chatUser = ChatUser.of(session);
         if (!users.containsKey(chatUser)) {
             throw new IllegalArgumentException();
         }
         ChatRoom chatRoom = users.get(chatUser);
 
-        String response = MessageParser.valueToString(messageDto);
+        String response = MessageParser.valueToString(message);
         return chatRoom.notify(response);
     }
 
