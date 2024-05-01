@@ -21,6 +21,7 @@ import reactor.core.publisher.Flux;
 @RequiredArgsConstructor
 public class ChatService {
 
+    private static final int PAGE_SIZE = 10;
     private final MemberService memberService;
     private final ChatMessageRepository chatMessageRepository;
 
@@ -38,5 +39,21 @@ public class ChatService {
                 .doOnError(throwable -> log.error("에러 발생 - {} : {}", throwable.getCause(), throwable.getMessage()))
                 .map(chatMessageDto -> ResponseMessage.ok(MESSAGE, chatMessageDto))
                 .flux();
+    }
+
+    /**
+     * 채팅 내역을 불러오는 기능
+     */
+    public Flux<ResponseMessage> loadChatHistory(String chatId, Long memberId, int offset) {
+        log.info("채팅 내역 불러오기...");
+        return chatMessageRepository.findAllByChatIdAndWriter(chatId, memberId)
+                .sort((o1, o2) -> o2.getCreateAt().compareTo(o1.getCreateAt()))
+                .skip(offset)
+                .take(PAGE_SIZE)
+                .flatMap(chatMessage -> memberService
+                        .findById(chatMessage.getWriter())
+                        .map(memberInfo -> ChatMessageMapper.toResponse(chatMessage, memberInfo))
+                ).map(chatMessageDto -> ResponseMessage.ok(HISTORY, chatMessageDto))
+                .doOnComplete(() -> log.info("채팅 내역 불러오기 성공 !!!"));
     }
 }
