@@ -1,4 +1,4 @@
-package org.sixback.omess.domain.kanbanboard.model.dto.response.kanbanboard;
+package org.sixback.omess.domain.kanbanboard.model.dto.response.label;
 
 import lombok.Builder;
 
