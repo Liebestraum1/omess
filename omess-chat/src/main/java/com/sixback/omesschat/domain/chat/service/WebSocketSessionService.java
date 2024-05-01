@@ -47,6 +47,12 @@ public class WebSocketSessionService {
         return chatRoom.notify(response);
     }
 
+    public Mono<Void> sendToUser(WebSocketSession session, ResponseMessage message) {
+        String response = MessageParser.valueToString(message);
+        Mono<WebSocketMessage> webSocketMessage = Mono.just(session.textMessage(response));
+        return session.send(webSocketMessage);
+    }
+
     public void leave(WebSocketSession session) {
         ChatUser chatUser = ChatUser.of(session);
         if (!users.containsKey(chatUser)) {
