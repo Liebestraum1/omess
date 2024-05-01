@@ -1,6 +1,6 @@
 package com.sixback.omesschat.domain.chat.mapper;
 
-import com.sixback.omesschat.domain.chat.model.dto.ChatMessageDto;
+import com.sixback.omesschat.domain.chat.model.dto.response.ChatMessageDto;
 import com.sixback.omesschat.domain.chat.model.entity.ChatMessage;
 import com.sixback.omesschat.domain.member.model.dto.MemberInfo;
 
