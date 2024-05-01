@@ -1,10 +1,13 @@
 package com.sixback.omesschat.common.handler;
 
-import com.sixback.omesschat.domain.chat.model.dto.ChatMessageDto;
-import com.sixback.omesschat.domain.chat.model.message.EnterMessage;
-import com.sixback.omesschat.domain.chat.model.message.Message;
-import com.sixback.omesschat.domain.chat.model.message.MessageType;
-import com.sixback.omesschat.domain.chat.model.message.SendMessage;
+import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.HISTORY;
+import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.MESSAGE;
+
+import com.sixback.omesschat.domain.chat.model.dto.request.EnterRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.RequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.RequestType;
+import com.sixback.omesschat.domain.chat.model.dto.request.SendRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
 import com.sixback.omesschat.domain.chat.parser.MessageParser;
 import com.sixback.omesschat.domain.chat.service.ChatService;
 import com.sixback.omesschat.domain.chat.service.WebSocketSessionService;
@@ -33,12 +36,9 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
         Flux<WebSocketMessage> receive = session.receive();
         return receive.doOnSubscribe(message -> log.info("WebSocket 연결"))
                 .map(message -> MessageParser.parseMessage(message.getPayloadAsText()))
-                .flatMap(message -> process(session, message))
+                .flatMap(requestMessage -> process(session, requestMessage))
                 .flatMap(o -> after(session, o))
-                .doOnError((error) -> {
-                    error.printStackTrace();
-                    log.error("에러 발생 : {} - {}", error.getCause(), error.getMessage());
-                })
+                .doOnError((error) -> error.printStackTrace())
                 .doFinally(type -> sessionService.leave(session))
                 .then();
     }
@@ -46,25 +46,27 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
     /**
      * 메시지 처리
      */
-    private Mono<?> process(WebSocketSession session, Message message) {
-        MessageType type = message.getType();
+    private Flux<ResponseMessage> process(WebSocketSession session, RequestMessage requestMessage) {
+        log.info("request processing... - {}", session.getId());
+        RequestType type = requestMessage.getType();
         return switch (type) {
             case ENTER -> sessionService
                     .enter(session, MessageParser.parseMessage(message.getData(), EnterMessage.class));
             case SEND -> {
-                SendMessage sendMessage = MessageParser.parseMessage(message.getData(), SendMessage.class);
+                SendRequestMessage sendRequestMessage = MessageParser.parseMessage(requestMessage.getData(),
+                        SendRequestMessage.class);
 
                 String chatId = sessionService.findChatId(session);
                 Long memberId = sessionService.findMemberId(session);
 
-                yield chatService.saveChatMessage(chatId, memberId, sendMessage);
+                yield chatService.saveChatMessage(chatId, memberId, sendRequestMessage);
             }
             default -> throw new TypeNotPresentException(type.name(), new Throwable("Not Present MessageType"));
         };
     }
 
     /**
-     * 처리가 완료된 데이터 사용자에게 송신
+     * 처리가 완료된 데이터 사용자에게 응답
      */
     private Mono<Void> after(WebSocketSession session, Object data) {
         if (data instanceof ChatMessageDto) {
