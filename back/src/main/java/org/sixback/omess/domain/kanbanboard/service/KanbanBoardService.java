@@ -9,7 +9,8 @@ import org.sixback.omess.domain.kanbanboard.model.dto.request.label.WriteLabelRe
 import org.sixback.omess.domain.kanbanboard.model.dto.response.issue.GetIssueDetailResponse;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.issue.GetIssueResponse;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.kanbanboard.GetKanbanBoardResponse;
-import org.sixback.omess.domain.kanbanboard.model.dto.response.kanbanboard.GetLabelResponse;
+import org.sixback.omess.domain.kanbanboard.model.dto.response.label.GetLabelResponse;
+import org.sixback.omess.domain.kanbanboard.model.dto.response.label.GetLabelResponses;
 import org.sixback.omess.domain.kanbanboard.model.entity.Issue;
 import org.sixback.omess.domain.kanbanboard.model.entity.KanbanBoard;
 import org.sixback.omess.domain.kanbanboard.model.entity.Label;
@@ -226,6 +227,27 @@ public class KanbanBoardService {
             issueRepository.updateIssues(labelId);
             labelRepository.delete(findLabel.get());
         } else {
+            throw new EntityNotFoundException("잘못된 요청입니다");
+        }
+    }
+
+    @Transactional
+    public GetLabelResponses getLabels(Long memberId, Long projectId, Long moduleId) {
+        Optional<KanbanBoard> findKanban = kanbanBoardRepository.findById(moduleId);
+        String kPath = makeKanbanBoardPath(projectId, moduleId);
+
+        if (findKanban.isPresent() && findKanban.get().getPath().equals(kPath)) {
+            List<Label> labels = labelRepository.findAllByPath(kPath + "%");
+
+            return GetLabelResponses.builder()
+                    .labels(labels.stream()
+                            .map(label -> GetLabelResponse.builder()
+                                    .labelId(label.getId())
+                                    .name(label.getName())
+                                    .build()).toList()
+                    )
+                    .build();
+        }else {
             throw new EntityNotFoundException("잘못된 요청입니다");
         }
     }

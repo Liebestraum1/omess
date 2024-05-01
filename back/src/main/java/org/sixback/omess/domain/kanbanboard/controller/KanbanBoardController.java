@@ -177,4 +177,12 @@ public class KanbanBoardController {
 
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/{module_id}/label")
+    public ResponseEntity<?> getLabels(@SessionAttribute(name = "memberId") Long memberId,
+                                       @PathVariable("project_id") Long project_id,
+                                       @PathVariable("module_id") Long module_id){
+        return ResponseEntity.ok().body(kanbanBoardService.getLabels(memberId, project_id, module_id));
+    }
+
 }
