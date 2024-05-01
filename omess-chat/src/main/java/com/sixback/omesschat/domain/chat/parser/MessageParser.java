@@ -3,7 +3,7 @@ package com.sixback.omesschat.domain.chat.parser;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sixback.omesschat.domain.chat.model.message.Message;
+import com.sixback.omesschat.domain.chat.model.dto.request.RequestMessage;
 
 import java.util.Map;
 
@@ -14,9 +14,9 @@ public class MessageParser {
         return mapper.convertValue(data, target);
     }
 
-    public static Message parseMessage(String data) {
+    public static RequestMessage parseMessage(String data) {
         try {
-            return mapper.readValue(data, Message.class);
+            return mapper.readValue(data, RequestMessage.class);
         } catch (JacksonException e) {
             e.printStackTrace();
             throw new IllegalArgumentException();
