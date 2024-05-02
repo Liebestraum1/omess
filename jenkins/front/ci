@@ -2,6 +2,16 @@ pipeline {
     agent any
 
     stages{
+        stage('Copy env') {
+            steps {
+                withCredentials([file(credentialsId: 'frontend_env', variable: 'env')]) {
+                    script {
+                        sh 'chmod 755 $env'
+                        sh 'cp -f -R $env front/.env'
+                    }
+                }
+            }
+        }
         stage('Build stage') {
             steps {
                 dir('front') {
