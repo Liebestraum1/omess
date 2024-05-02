@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.sixback.omess.domain.member.exception.MemberErrorMessage;
 import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
 import org.sixback.omess.domain.member.model.entity.Member;
@@ -230,6 +231,29 @@ class MemberControllerTest {
                     ).andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.type").value(INCOMPLETE_REQUEST_BODY_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/members/signup"))
+                    .andDo(print())
+            ;
+        }
+
+        @Test
+        @DisplayName("회원가입 - 실패")
+        void test() throws Exception {
+            // given
+            Member havingExistEmailMember = makeMember("nickname", "email@naver.com", "password123");
+            memberRepository.save(havingExistEmailMember);
+
+            String signupMemberRequest = objectMapper.writeValueAsString(new SignupMemberRequest(
+                    "nickname", "email@naver.com", "password"));
+
+            // when
+            mockMvc.perform(post("/api/v1/members/signup")
+                            .contentType(APPLICATION_JSON)
+                            .content(signupMemberRequest))
+                    //then
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.title").value(MemberErrorMessage.DUPLICATE_EMAIL.getMessage()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/signup"))
                     .andDo(print())
