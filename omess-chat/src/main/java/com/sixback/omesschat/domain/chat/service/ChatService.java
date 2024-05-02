@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.*;
 
@@ -63,16 +62,15 @@ public class ChatService {
     public Flux<ResponseMessage> updateChatMessage(Long memberId, String messageId, String message) {
         log.info("채팅 메시지 업데이트");
         return chatMessageRepository.findById(messageId)
-                .flatMap(m -> {
-                    m.update(message);
-                    Long writer = m.getWriter();
-                    if (!memberId.equals(writer)) {
-                        return Mono.error(new IllegalArgumentException());
+                .doOnNext(m -> {
+                    if (!memberId.equals(m.getWriter())) {
+                        throw new IllegalArgumentException();
                     }
-                    return memberService.findById(memberId)
-                            .map(memberInfo ->
-                                    ResponseMessage.ok(UPDATE, ChatMessageMapper.toResponse(m, memberInfo))
-                            );
-                }).flux();
+                }).map(m -> m.update(message)).flatMap(chatMessageRepository::save)
+                .flatMap(m -> memberService
+                        .findById(memberId)
+                        .map(memberInfo -> ChatMessageMapper.toResponse(m, memberInfo))
+                ).map(m -> ResponseMessage.ok(UPDATE, m))
+                .flux();
     }
 }
