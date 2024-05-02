@@ -4,8 +4,11 @@ CREATE TABLE `member`
     nickname   VARCHAR(30)  NOT NULL,
     email      VARCHAR(50)  NOT NULL,
     password   VARCHAR(100) NOT NULL,
+    CONSTRAINT EMAIL_UNIQUE UNIQUE KEY (email),
+    CONSTRAINT NICKNAME_UNIQUE UNIQUE KEY (nickname),
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
+
 );
 
 CREATE TABLE `project`
@@ -16,19 +19,6 @@ CREATE TABLE `project`
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
 );
 
-CREATE TABLE `project_member`
-(
-    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    member_id  BIGINT NOT NULL,
-    project_id BIGINT NOT NULL,
-    project_role ENUM('OWNER', 'USER') NOT NULL,
-    created_at TIMESTAMP DEFAULT now(),
-    updated_at TIMESTAMP DEFAULT now() ON UPDATE now(),
-    FOREIGN KEY (member_id) REFERENCES member(id) on DELETE CASCADE,
-    FOREIGN KEY (project_id) REFERENCES project(id) on DELETE CASCADE
-);
-
-
 CREATE TABLE `module`
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -38,6 +28,19 @@ CREATE TABLE `module`
     CONSTRAINT FK_MODULE_PROJECT_ID FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now() ON UPDATE now()
+);
+
+
+CREATE TABLE `project_member`
+(
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    member_id  BIGINT NOT NULL,
+    project_id BIGINT NOT NULL,
+    project_role ENUM('OWNER', 'USER') NOT NULL,
+    created_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now() ON UPDATE now(),
+    CONSTRAINT FK_MEMBER_ID FOREIGN KEY (member_id) REFERENCES member(id) on DELETE CASCADE,
+    CONSTRAINT FK_PROJECT_ID FOREIGN KEY (project_id) REFERENCES project(id) on DELETE CASCADE
 );
 
 CREATE TABLE `kanbanboard`
