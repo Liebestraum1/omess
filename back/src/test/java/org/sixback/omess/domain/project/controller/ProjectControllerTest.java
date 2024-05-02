@@ -212,7 +212,7 @@ class ProjectControllerTest {
     @DisplayName("get Projects test")
     class UpdateProject {
         @Test
-        @DisplayName("프로젝트 생성 - 성공")
+        @DisplayName("프로젝트 업데이트 - 성공")
         void updateProject_success() throws Exception {
             // given
             Member member = makeMember();
@@ -230,14 +230,14 @@ class ProjectControllerTest {
                             .session(session))
                     // then
                     .andExpect(status().isOk())
+                    .andDo(print())
             ;
 
             Assertions.assertThat(project.getName()).isEqualTo("pName");
         }
 
-        // TODO
         @Test
-        @DisplayName("프로젝트 생성 - 로그인 안된 사용자 실패")
+        @DisplayName("프로젝트 업데이트 - 로그인 안된 사용자 실패")
         void updateProject_fail_notSignIn() throws Exception {
             // given
             Member member = makeMember();
@@ -257,11 +257,12 @@ class ProjectControllerTest {
                     .andExpect(jsonPath("$.status").value(401))
                     .andExpect(jsonPath("$.detail").value(NEED_AUTHENTICATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
             ;
         }
 
         @Test
-        @DisplayName("프로젝트 생성 - 빈 바디 실패")
+        @DisplayName("프로젝트 업데이트 - 빈 바디 실패")
         void updateProject_fail_noBody() throws Exception {
             // given
             Member member = makeMember();
@@ -280,12 +281,13 @@ class ProjectControllerTest {
                     .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
             ;
         }
 
         @CsvSource(value = {" :USER", "pName: "}, delimiter = ':')
         @ParameterizedTest
-        @DisplayName("프로젝트 생성 - 값 검증으로 인한 실패")
+        @DisplayName("프로젝트 업데이트 - 값 검증으로 인한 실패")
         void updateProject_fail_validation(String name, String projectRole) throws Exception {
             // given
             Member member = makeMember();
@@ -307,6 +309,7 @@ class ProjectControllerTest {
                     .andExpect(jsonPath("$.title").value(VALIDATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
             ;
         }
     }
