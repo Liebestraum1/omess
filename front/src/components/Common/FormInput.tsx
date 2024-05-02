@@ -1,7 +1,13 @@
 import TextField from "@mui/material/TextField";
 import ClearIcon from "@mui/icons-material/Clear";
 import { styled } from "@mui/material";
-import { FormInputProp } from "../../types/common/FormProps";
+
+export type FormInputProp = {
+    type: string;
+    label: string;
+    helperText: string;
+    onFormData: (formData: string) => void;
+};
 
 const DimClearIcon = styled(ClearIcon)({
     color: "grey",
@@ -17,7 +23,10 @@ const FormInput = ({ type, label, helperText, onFormData }: FormInputProp) => {
             InputProps={{
                 endAdornment: <DimClearIcon />,
             }}
-            onChange={(e) => onFormData(e.target.value)}
+            onChange={(e) => {
+                onFormData(e.target.value);
+                console.log(e.target.value);
+            }}
             type={type}
         />
     );

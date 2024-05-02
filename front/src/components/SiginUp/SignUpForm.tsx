@@ -2,7 +2,7 @@ import { Alert, AlertColor, AlertTitle, Box, Button, Snackbar, styled } from "@m
 import { useState } from "react";
 import FormInput from "../Common/FormInput";
 import SignUpFormSubmitButton from "./SignUpFormSubmitButton";
-import { SignUpRequest, SignUpApi } from "../../services/SignUp/SignUpApi";
+import { SignUpRequest, signUpApi } from "../../services/SignUp/SignUpApi";
 
 type AlertContent = {
     severity: AlertColor | undefined;
@@ -39,7 +39,7 @@ const SignUpForm = () => {
             nickname: nickname,
         };
 
-        SignUpApi(signUpRequest)
+        signUpApi(signUpRequest)
             .then(() => {
                 setAlertContent({
                     severity: "success",

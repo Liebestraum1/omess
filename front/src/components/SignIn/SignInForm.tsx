@@ -2,11 +2,12 @@ import { Fragment, useEffect, useState } from "react";
 import { Box, styled } from "@mui/material";
 import { useNavigate } from "react-router";
 import { useSignInStore } from "../../stores/SignInStorage";
-import { FormInputProp } from "../../types/common/FormProps";
 import { SignInStatus } from "../../types/SignIn/SignIn";
 import SignInFormSubmitButton from "./SignInFormSubmitButton";
 import SignUpButton from "../SiginUp/SignUpButton";
-import FormInput from "../Common/FormInput";
+import { SignInRequest, SignInResponse, signInApi } from "../../services/SignIn/SignInApi";
+import FormInput, { FormInputProp } from "../Common/FormInput";
+import SignSnackBar, { AlertProp } from "../Common/SignSnackbar";
 
 const SignInFormBox = styled(Box)({
     display: "flex",
@@ -16,27 +17,46 @@ const SignInFormBox = styled(Box)({
 
 const SignInForm = ({ signInStatus }: { signInStatus: SignInStatus }) => {
     const navigator = useNavigate();
-    const { setServerSignIn, setUserSignIn } = useSignInStore();
+    const { setServerSignIn, setMemberSignIn } = useSignInStore();
 
     const [signInFormInputProps, setSignInFormInputProps] = useState<FormInputProp[]>([]);
 
     const [serverUrl, setServerUrl] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [SignInFormSubmitFuction, setSignInFormSubmitFuction] = useState<() => void>(() => {});
 
-    const serverSignInFormHandler = () => {
-        const signInFormData = new FormData();
-        signInFormData.append("url", serverUrl);
-        setServerSignIn();
-    };
+    const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+    const [alertProp, setAlertProp] = useState<AlertProp>({
+        severity: undefined,
+        title: "",
+        content: "",
+    });
 
-    const userSignInFormHandler = () => {
-        const signInFormData = new FormData();
-        signInFormData.append("email", email);
-        signInFormData.append("password", password);
-        setUserSignIn();
-        navigator("/main");
+    const signInFormHandler = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (signInStatus == "none") {
+            console.log(serverUrl);
+            setServerSignIn();
+        } else {
+            const signInRequest: SignInRequest = {
+                email: email,
+                password: password,
+            };
+
+            signInApi(signInRequest)
+                .then((signInResponse: SignInResponse) => {
+                    setMemberSignIn(signInResponse.memberId, signInResponse.nickname);
+                    navigator("/main");
+                })
+                .catch(() => {
+                    setAlertProp({
+                        severity: "error",
+                        title: "로그인 실패!",
+                        content: "로그인에 실패했습니다.",
+                    });
+                    setOpenSnackbar(true);
+                });
+        }
     };
 
     useEffect(() => {
@@ -49,15 +69,11 @@ const SignInForm = ({ signInStatus }: { signInStatus: SignInStatus }) => {
                     onFormData: setServerUrl,
                 },
             ]);
-
-            setSignInFormSubmitFuction(() => () => serverSignInFormHandler());
         } else {
             setSignInFormInputProps([
                 { type: "email", label: "EMAIL", helperText: "이메일을 입력하세요.", onFormData: setEmail },
                 { type: "password", label: "PASSWORD", helperText: "비밀번호를 입력하세요.", onFormData: setPassword },
             ]);
-
-            setSignInFormSubmitFuction(() => () => userSignInFormHandler());
         }
     }, [signInStatus]);
 
@@ -66,8 +82,7 @@ const SignInForm = ({ signInStatus }: { signInStatus: SignInStatus }) => {
             <SignInFormBox
                 component={"form"}
                 onSubmit={(e) => {
-                    e.preventDefault();
-                    SignInFormSubmitFuction();
+                    signInFormHandler(e);
                 }}
             >
                 {signInFormInputProps.map((signInFormInputProp) => (
@@ -86,6 +101,11 @@ const SignInForm = ({ signInStatus }: { signInStatus: SignInStatus }) => {
                     <SignUpButton />
                 </Box>
             ) : null}
+            <SignSnackBar
+                open={openSnackbar}
+                alertProp={alertProp}
+                onClose={() => setOpenSnackbar(false)}
+            ></SignSnackBar>
         </Fragment>
     );
 };
