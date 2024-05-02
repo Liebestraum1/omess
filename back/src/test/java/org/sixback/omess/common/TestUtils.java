@@ -36,6 +36,29 @@ public class TestUtils {
         return new Project(name);
     }
 
+    public static List<Project> makeProjects() {
+        return makeProjects(3);
+    }
+
+    public static List<Project> makeProjects(int size) {
+        List<Project> list = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            list.add(makeProject());
+        }
+        return list;
+    }
+
+    public static ProjectMemberResult makeProjectMembers() {
+        Member member = makeMember();
+        List<Project> projects = makeProjects();
+
+        List<ProjectMember> projectMembers = new ArrayList<>();
+        for (Project project : projects) {
+            projectMembers.add(makeProjectMember(project, member));
+        }
+        return new ProjectMemberResult(member, projects, projectMembers);
+    }
+
     public static ProjectMember makeProjectMember(Project project, Member member) {
         return new ProjectMember(project, member, USER);
     }
@@ -66,5 +89,4 @@ public class TestUtils {
         session.setAttribute("memberId", memberId);
         return session;
     }
-
 }
