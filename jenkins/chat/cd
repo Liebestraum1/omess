@@ -1,0 +1,172 @@
+def oldChat
+def newChat
+
+def removeDockerContents(String name) {
+    sh script: """
+    if [ \$(docker ps -a -q -f name=${name}) ]; then
+        docker stop ${name}
+    fi
+    if [ \$(docker ps -aq -f status=exited -f name=${name}) ]; then
+        docker rm ${name}
+    fi
+    docker image prune -f
+    """, label: 'Removing Docker contents'
+}
+
+pipeline {
+    agent any
+
+     tools {
+        jdk "jdk 21"
+    }
+    
+    environment {
+        JAVA_HOME = "tool jdk 21"
+    }
+
+    stages {
+        stage('Get current chat') {
+            steps {
+                script {
+                    echo 'Get current chat...'
+                    oldChat = sh(script: """docker exec nginx grep "set \$current_chat" /etc/nginx/conf.d/custom.conf | awk '{print \$3}' | tr -d ';'""", returnStdout: true).trim()
+                    
+                    if(oldChat == 'chat-blue') {
+                        newChat = 'chat-green'
+                    } else if(oldChat == 'chat-green') {
+                        newChat = 'chat-blue'
+                    } else {
+                        currentBuild.result = 'FAILURE'
+                        error('Get current chat fail')
+                    }
+                }
+            }
+
+            post {
+                always {
+                    echo "Current Chat: ${oldChat}"
+                }
+                success {
+                    echo "Get chat success"
+                    updateGitlabCommitStatus name: 'check', state: 'success'
+                }
+                failure {
+                    echo "Get chat failed"
+                    updateGitlabCommitStatus name: 'check', state: 'failed'
+                }
+            }
+        }
+
+        stage('Copy env') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'chat_yml', variable: 'application')]) {
+                        script {
+                            sh 'chmod 755 $application'
+                            sh 'cp -f -R $application omess-chat/src/main/resources/application.yml'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    echo 'Build gradle...'
+                    dir('omess-chat') {
+                        sh "chmod +x ./gradlew"
+                        sh "./gradlew clean build -x check --parallel"
+                    }
+
+                    echo 'Docker build...'
+                    sh "docker build --build-arg JAR_FILE=omess-chat/build/libs/omess-chat-0.0.1-SNAPSHOT.jar -f ./docker/chat-docker -t ${newChat} ."
+                }
+            }
+
+            post {
+                success {
+                    echo "Build success"
+                    updateGitlabCommitStatus name: 'build', state: 'success'
+                }
+                failure {
+                    echo "Build failed"
+                    updateGitlabCommitStatus name: 'build', state: 'failed'
+                }
+            }
+        }
+
+        stage('Run') {
+            steps {
+                script {
+                    echo 'Docker run...'
+		            sh "docker run -d --net omess --name ${newChat} ${newChat}"
+                }
+            }
+
+            post {
+                success {
+                    echo "Run success"
+                    updateGitlabCommitStatus name: 'run', state: 'success'
+                }
+                failure {
+                    echo "Run failed"
+                    updateGitlabCommitStatus name: 'run', state: 'failed'
+                }
+            }
+        }
+
+        stage('Health check') {
+            steps{
+                script {
+                    sleep 10
+                    def status = sh(script: "curl -s -o /dev/null -I -w \"%{http_code}\" http://${newChat}:8081/actuator/health", returnStdout: true).trim()
+
+                    if(status != '200') {
+                        currentBuild.result = 'FAILURE'
+                        error('Health check fail')
+                    }
+                }
+            }
+
+            post {
+                success {
+                    echo "Health check success"
+                    updateGitlabCommitStatus name: 'healthcheck', state: 'success'
+                }
+                failure {
+                    echo "Health check failed"
+
+                    removeDockerContents(newChat)
+
+                    updateGitlabCommitStatus name: 'healthcheck', state: 'failed'
+                }
+            }
+        }
+
+        stage('Update chat') {
+            steps{
+                script {
+                    echo 'Update nginx conf...'
+
+                    sh "docker exec nginx sed -i 's/set \$current_chat ${oldChat};/set \$current_backend ${newChat};/g' /etc/nginx/conf.d/custom.conf"
+                    sh 'docker exec nginx nginx -s reload'
+                
+                    removeDockerContents(oldChat)
+                }
+            }
+
+            post {
+                success {
+                    echo "Update success"
+                    updateGitlabCommitStatus name: 'update', state: 'success'
+                }
+                failure {
+                    echo "Update failed"
+                    removeDockerContents(newChat)
+                    updateGitlabCommitStatus name: '', state: 'failed'
+                }
+            }
+        }
+    }
+}
