@@ -12,7 +12,7 @@ export type SignUpResponse = {
     responseStatusText: string;
 };
 
-export const SignUpApi = async (signUpRequest: SignUpRequest): Promise<SignUpResponse> => {
+export const signUpApi = async (signUpRequest: SignUpRequest): Promise<SignUpResponse> => {
     const response = await axios.post("/api/v1/members/signup", signUpRequest);
     return {
         responseData: response.data,
