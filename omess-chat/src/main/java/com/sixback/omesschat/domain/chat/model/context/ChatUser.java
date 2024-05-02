@@ -1,6 +1,7 @@
 package com.sixback.omesschat.domain.chat.model.context;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
@@ -8,6 +9,7 @@ import reactor.core.publisher.Mono;
 import java.util.Objects;
 
 @Getter
+@ToString
 public class ChatUser {
     private Long memberId;
 
@@ -33,8 +35,7 @@ public class ChatUser {
 
     public Mono<Void> update(String message) {
         Mono<WebSocketMessage> webSocketMessage = Mono.just(session.textMessage(message));
-        return session.send(webSocketMessage)
-                .doOnSuccess(unused -> System.out.println("메시지 보내기 성공"));
+        return session.send(webSocketMessage);
     }
 
     @Override

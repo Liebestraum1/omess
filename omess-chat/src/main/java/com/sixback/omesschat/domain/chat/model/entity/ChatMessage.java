@@ -22,18 +22,22 @@ public class ChatMessage {
     private Long writer;
     private LocalDateTime createAt = LocalDateTime.now();
 
-    @Setter
     private String message;
-    @Setter
     private LocalDateTime updateAt;
+    private boolean isUpdated = false;
+
     @Setter
     private boolean isDeleted = false;
-    @Setter
-    private boolean isUpdated = false;
 
     public ChatMessage(String chatId, Long writer, String message) {
         this.chatId = chatId;
         this.writer = writer;
         this.message = message;
+    }
+
+    public void update(String message) {
+        this.message = message;
+        this.isUpdated = true;
+        this.updateAt = LocalDateTime.now();
     }
 }
