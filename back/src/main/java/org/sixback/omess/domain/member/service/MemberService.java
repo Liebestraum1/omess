@@ -2,6 +2,9 @@ package org.sixback.omess.domain.member.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sixback.omess.domain.member.exception.DuplicateEmailException;
+import org.sixback.omess.domain.member.exception.DuplicateNicknameException;
 import org.sixback.omess.domain.member.exception.MemberErrorMessage;
 import org.sixback.omess.domain.member.model.dto.request.MemberNicknameCheckResponse;
 import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
@@ -17,10 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.sixback.omess.common.utils.PasswordUtils.isNotValidPassword;
-import static org.sixback.omess.domain.member.exception.MemberErrorMessage.MEMBER_NOT_FOUND;
+import static org.sixback.omess.domain.member.exception.MemberErrorMessage.*;
 import static org.sixback.omess.domain.member.mapper.MemberMapper.*;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -49,6 +52,7 @@ public class MemberService {
 
     @Transactional
     public SignupMemberResponse signup(SignupMemberRequest signupMemberRequest) {
+        validateDuplicated(signupMemberRequest.getEmail(), signupMemberRequest.getNickname());
         return toSignupMemberResponse(memberRepository.save(toMember(signupMemberRequest)));
     }
 
@@ -70,6 +74,18 @@ public class MemberService {
                 .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND.getMessage()));
     }
 
+    @Transactional
+    protected void validateDuplicated(String email, String nickname) {
+        if (isExistEmail(email).isExist()) {
+            throw new DuplicateEmailException(DUPLICATE_EMAIL.getMessage());
+        }
+
+        if (isExistNickname(nickname).isExist()) {
+            throw new DuplicateNicknameException(DUPLICATE_NICKNAME.getMessage());
+        }
+    }
+
+    @Transactional
     protected Member checkValidSignin(SignInMemberRequest signInMemberRequest) {
         Member foundMember;
         try {

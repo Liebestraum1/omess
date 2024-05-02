@@ -5,7 +5,10 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.Length;
+import org.sixback.omess.domain.member.exception.DuplicateEmailException;
+import org.sixback.omess.domain.member.exception.DuplicateNicknameException;
 import org.sixback.omess.domain.member.model.dto.request.MemberNicknameCheckResponse;
 import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
@@ -20,13 +23,17 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
@@ -89,5 +96,16 @@ public class MemberController {
         session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         return ResponseEntity.ok()
                 .body(signinMemberResponse);
+    }
+
+    @ExceptionHandler({DuplicateEmailException.class, DuplicateNicknameException.class})
+    public ErrorResponse DuplicateExceptionHandler(
+            HttpServletRequest request, RuntimeException exception
+    ) {
+        log.error("{} 발생: {}", exception.getClass(), exception.getMessage());
+        return ErrorResponse.builder(exception, BAD_REQUEST, exception.getMessage())
+                .title(exception.getMessage())
+                .instance(URI.create(request.getRequestURI()))
+                .build();
     }
 }
