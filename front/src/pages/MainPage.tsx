@@ -11,7 +11,6 @@ const MainPage = () => {
     const { memberNickname } = useSignInStore();
     const navigate = useNavigate();
 
-    console.log(memberNickname);
     useEffect(() => {
         if (memberNickname === undefined) {
             navigate("/");
