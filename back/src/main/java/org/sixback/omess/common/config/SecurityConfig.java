@@ -1,13 +1,16 @@
 package org.sixback.omess.common.config;
 
 import lombok.RequiredArgsConstructor;
+import org.sixback.omess.common.security.CustomAccessDeniedHandler;
 import org.sixback.omess.common.security.CustomAuthenticationEntryPoint;
+import org.sixback.omess.common.security.ProjectPermissionFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.NEVER;
@@ -16,7 +19,9 @@ import static org.springframework.security.config.http.SessionCreationPolicy.NEV
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final ProjectPermissionFilter projectPermissionFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -36,14 +41,16 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
+                .addFilterAfter(projectPermissionFilter, AuthorizationFilter.class)
                 .sessionManagement((configurer -> {
                     configurer.sessionCreationPolicy((NEVER));
                     configurer.sessionFixation().migrateSession();
                 }))
                 .requestCache(configurer -> configurer.requestCache(new NullRequestCache()))
-                .exceptionHandling(exceptionHandlingConfigurer ->
-                        exceptionHandlingConfigurer.authenticationEntryPoint(customAuthenticationEntryPoint)
-                )
+                .exceptionHandling(exceptionHandlingConfigurer -> {
+                    exceptionHandlingConfigurer.authenticationEntryPoint(authenticationEntryPoint);
+                    exceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler);
+                })
                 .build()
                 ;
     }
