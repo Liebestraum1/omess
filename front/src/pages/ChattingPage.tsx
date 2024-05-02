@@ -4,10 +4,10 @@ import ChatHistoryComponent from "../components/chat/ChatHistoryComponent.tsx";
 import ChatEditorComponent from "../components/chat/ChatEditorComponent.tsx";
 import {Box} from "@mui/material";
 import {ChatInfo} from "../types/chat/chat.ts";
-import {useChatStorage} from "../stores/ChatStorage.tsx";
+import {useChatStorage} from "../stores/chatStorage.tsx";
 
 const ChattingPage = ({chat}: { chat: ChatInfo }) => {
-    const {init, sendMessage} = useChatStorage();
+    const {init} = useChatStorage();
 
     useEffect(() => {
         init(chat);

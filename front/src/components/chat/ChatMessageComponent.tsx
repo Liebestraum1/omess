@@ -1,7 +1,7 @@
 import {Box, Button} from "@mui/material";
 import {ChatMessage} from "../../types/chat/chat.ts";
 import {useEffect, useRef, useState} from "react";
-import {useChatStorage} from "../../stores/ChatStorage.tsx";
+import {useChatStorage} from "../../stores/chatStorage.tsx";
 
 const ChatMessageComponent = (message: ChatMessage) => {
     const {sendMessage} = useChatStorage();

@@ -51,15 +51,15 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         set({messages: deleteMessages});
     }
 
-    const addMember = (writer: Writer) => {
-        const members = get().members;
-        if (members == null) {
-            set({members: [writer]})
-        } else {
-            get().members!.push(writer)
-            set({members: members})
-        }
-    };
+    // const addMember = (writer: Writer) => {
+    //     const members = get().members;
+    //     if (members == null) {
+    //         set({members: [writer]})
+    //     } else {
+    //         get().members!.push(writer)
+    //         set({members: members})
+    //     }
+    // };
 
     return {
         serverUrl: 'ws://localhost:8081/chat/v1',
