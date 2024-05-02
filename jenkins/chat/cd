@@ -29,7 +29,7 @@ pipeline {
             steps {
                 script {
                     echo 'Get current chat...'
-                    oldChat = sh(script: """docker exec nginx grep "set \$current_chat" /etc/nginx/conf.d/custom.conf | awk -F '[ \\t]+' '{print \$4}' | tr -d ';'""", returnStdout: true).trim()
+                    oldChat = sh(script: """docker exec nginx grep "set \\\$current_chat" /etc/nginx/conf.d/custom.conf | awk -F '[ \\t]+' '{print \$4}' | tr -d ';'""", returnStdout: true).trim()
                     
                     if(oldChat == 'chat-blue') {
                         newChat = 'chat-green'
