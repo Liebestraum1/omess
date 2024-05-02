@@ -82,6 +82,7 @@ class ProjectControllerTest {
                     .andExpect(jsonPath("$.projectId").isNumber())
                     .andExpect(jsonPath("$.name").value("pName"))
                     .andExpect(jsonPath("$.projectRole").value("OWNER"))
+                    .andDo(print())
             ;
         }
 
@@ -102,12 +103,13 @@ class ProjectControllerTest {
                     .andExpect(jsonPath("$.status").value(401))
                     .andExpect(jsonPath("$.detail").value(NEED_AUTHENTICATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects"))
+                    .andDo(print())
             ;
         }
 
         @Test
         @DisplayName("프로젝트 생성 - 빈 바디 실패")
-        void createProject_fail_noBody() throws Exception {
+        void createProject_fail_noRequestBody() throws Exception {
             // given
             Member member = makeMember();
             memberRepository.save(member);
@@ -123,6 +125,7 @@ class ProjectControllerTest {
                     .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects"))
+                    .andDo(print())
             ;
         }
 
@@ -148,6 +151,7 @@ class ProjectControllerTest {
                     .andExpect(jsonPath("$.title").value("유효한 요청이 아닙니다."))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects"))
+                    .andDo(print())
             ;
         }
     }
