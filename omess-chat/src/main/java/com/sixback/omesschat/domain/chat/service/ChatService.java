@@ -73,4 +73,22 @@ public class ChatService {
                 ).map(m -> ResponseMessage.ok(UPDATE, m))
                 .flux();
     }
+
+    /**
+     * 채팅 메시지 삭제 기능
+     */
+    public Flux<ResponseMessage> deleteChatMessage(Long memberId, String messageId) {
+        log.info("채팅 메시지 삭제");
+        return chatMessageRepository.findById(messageId)
+                .doOnNext(m -> {
+                    if (!memberId.equals(m.getWriter())) {
+                        throw new IllegalArgumentException();
+                    }
+                }).map(ChatMessage::delete).flatMap(chatMessageRepository::save)
+                .flatMap(m -> memberService
+                        .findById(memberId)
+                        .map(memberInfo -> ChatMessageMapper.toResponse(m, memberInfo))
+                ).map(m -> ResponseMessage.ok(DELETE, m))
+                .flux();
+    }
 }
