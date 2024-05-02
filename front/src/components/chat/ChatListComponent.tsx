@@ -1,7 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import {Avatar, Box, Divider, IconButton, Link} from "@mui/material";
 import {useEffect, useState} from "react";
-import {loadChatList} from "../../services/chat/ChatApiRequest.ts";
 import {ChatInfo} from "../../types/chat/chat.ts";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 
@@ -10,8 +9,8 @@ const ChatListComponent = ({projectId}: { projectId: number }) => {
 
     useEffect(() => {
         (async () => {
-            const data = await loadChatList(projectId).then(d => d.map(r => r.body));
-            setChatList([...data]);
+            // const data = await loadChatList(projectId).then(d => d.map(r => r.body));
+            // setChatList([...data]);
         })()
     }, [projectId]);
 
