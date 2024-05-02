@@ -47,10 +47,7 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
             case ENTER -> {
                 EnterRequestMessage enter = MessageParser.parseMessage(requestMessage.getData(),
                         EnterRequestMessage.class);
-                yield sessionService
-                        .enter(session, enter)
-                        .thenMany(chatService.loadChatHistory(enter.getChatId(),
-                                enter.getMemberId(), 0));
+                yield sessionService.enter(session, enter);
             }
             case SEND -> {
                 SendRequestMessage send = MessageParser.parseMessage(requestMessage.getData(),
@@ -77,6 +74,15 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
 
                 yield chatService.deleteChatMessage(memberId, delete.getMessageId());
             }
+            case LOAD -> {
+                LoadRequestMessage load = MessageParser.parseMessage(requestMessage.getData(),
+                        LoadRequestMessage.class);
+
+                String chatId = sessionService.findChatId(session);
+                Long memberId = sessionService.findMemberId(session);
+
+                yield chatService.loadChatHistory(chatId, memberId, load.getOffset());
+            }
             default -> throw new TypeNotPresentException(type.name(), new Throwable("Not Present MessageType"));
         };
     }
@@ -86,7 +92,7 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
      */
     private Mono<Void> after(WebSocketSession session, ResponseMessage message) {
         return switch (message.getType()) {
-            case MESSAGE, UPDATE, DELETE -> sessionService.send(session, message);
+            case MESSAGE, UPDATE, DELETE, SUCCESS -> sessionService.send(session, message);
             case HISTORY -> sessionService.sendToUser(session, message);
             default -> Mono.error(new ClassCastException());
         };

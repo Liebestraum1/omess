@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +26,7 @@ public class WebSocketSessionService {
         this.users = new ConcurrentHashMap<>();
     }
 
-    public Mono<Void> enter(WebSocketSession session, EnterRequestMessage message) {
+    public Flux<ResponseMessage> enter(WebSocketSession session, EnterRequestMessage message) {
         log.info("유저 입장... {}", session.getId());
         String chatId = message.getChatId();
 
@@ -36,7 +37,7 @@ public class WebSocketSessionService {
         chatRoom.register(chatUser);
         rooms.put(chatId, chatRoom);
         users.put(chatUser, chatRoom);
-        return Mono.empty();
+        return Flux.just(ResponseMessage.empty());
     }
 
     public Mono<Void> send(WebSocketSession session, ResponseMessage message) {
