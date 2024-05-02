@@ -68,7 +68,7 @@ public static QueryParam toQueryParam(UpdateQueryParamRequest request, Api api){
 			.map(ApiSpecificationMapper::toDomainWithApiSummaryDto)
 			.toList();
 
-		return new GetApiSpecificationResponse(domains);
+		return new GetApiSpecificationResponse(apiSpecification.getId(), domains);
 	}
 
 	public static DomainDto toDomainDto(Domain domain){
