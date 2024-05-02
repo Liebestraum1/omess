@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
                     authorizationManagerRequestMatcherRegistry
-                            .requestMatchers("/api/v1/member/check-email", "/api/v1/member/check-nickname",
+                            .requestMatchers("/api/v1/members/check-email**", "/api/v1/members/check-nickname**",
                                     "/api/v1/members/signup", "/api/v1/members/signin",
                                     "/api/v1/http-metadata/methods", "/api/v1/http-metadata/headers"
                             ).permitAll();
