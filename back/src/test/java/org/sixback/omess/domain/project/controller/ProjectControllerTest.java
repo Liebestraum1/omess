@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sixback.omess.common.ProjectMemberResult;
 import org.sixback.omess.domain.member.model.entity.Member;
@@ -15,6 +14,7 @@ import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.UpdateProjectRequest;
 import org.sixback.omess.domain.project.model.entity.Project;
+import org.sixback.omess.domain.project.model.entity.ProjectMember;
 import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.sixback.omess.common.TestUtils.*;
 import static org.sixback.omess.common.exception.ErrorType.*;
+import static org.sixback.omess.domain.project.model.enums.ProjectRole.USER;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -215,10 +216,12 @@ class ProjectControllerTest {
         @DisplayName("프로젝트 업데이트 - 성공")
         void updateProject_success() throws Exception {
             // given
-            Member member = makeMember();
-            Project project = makeProject("name");
+            ProjectMemberResult projectMemberResult = makeProjectMembers();
+            Member member = projectMemberResult.getMember();
+            Project project = projectMemberResult.getProjects().getFirst();
             memberRepository.save(member);
-            projectRepository.save(project);
+            projectRepository.saveAll(projectMemberResult.getProjects());
+            projectMemberRepository.save(projectMemberResult.getProjectMembers().getFirst());
             MockHttpSession session = makeMockSession(member.getId());
 
             String updateProjectRequest = objectMapper.writeValueAsString(new UpdateProjectRequest("pName"));
@@ -265,10 +268,12 @@ class ProjectControllerTest {
         @DisplayName("프로젝트 업데이트 - 빈 바디 실패")
         void updateProject_fail_noBody() throws Exception {
             // given
-            Member member = makeMember();
-            Project project = makeProject("name");
+            ProjectMemberResult projectMemberResult = makeProjectMembers();
+            Member member = projectMemberResult.getMember();
+            Project project = projectMemberResult.getProjects().getFirst();
             memberRepository.save(member);
-            projectRepository.save(project);
+            projectRepository.saveAll(projectMemberResult.getProjects());
+            projectMemberRepository.save(projectMemberResult.getProjectMembers().getFirst());
             MockHttpSession session = makeMockSession(member.getId());
 
             // when
@@ -285,18 +290,21 @@ class ProjectControllerTest {
             ;
         }
 
-        @CsvSource(value = {" :USER", "pName: "}, delimiter = ':')
+        @ValueSource(strings = {" ", "01234567890_"})
         @ParameterizedTest
         @DisplayName("프로젝트 업데이트 - 값 검증으로 인한 실패")
-        void updateProject_fail_validation(String name, String projectRole) throws Exception {
+        void updateProject_fail_validation(String name) throws Exception {
             // given
             Member member = makeMember();
             Project project = makeProject("name");
             memberRepository.save(member);
             projectRepository.save(project);
+            projectMemberRepository.save(new ProjectMember(project, member, USER));
             MockHttpSession session = makeMockSession(member.getId());
 
-            String updateProjectRequest = objectMapper.writeValueAsString(new UpdateProjectRequest(""));
+            String updateProjectRequest = "{ "
+                    + "\"name\":" + "\"" + name + "\""
+                    + "}";
 
             // when
             mockMvc.perform(patch("/api/v1/projects/" + project.getId())
