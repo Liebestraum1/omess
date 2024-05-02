@@ -149,7 +149,7 @@ pipeline {
                 script {
                     echo 'Update nginx conf...'
 
-                    sh "docker exec nginx sed -i 's/set \$current_chat ${oldChat};/set \$current_backend ${newChat};/g' /etc/nginx/conf.d/custom.conf"
+                    sh "docker exec nginx sed -i 's/set \$current_chat ${oldChat};/set \$current_chat ${newChat};/g' /etc/nginx/conf.d/custom.conf"
                     sh 'docker exec nginx nginx -s reload'
                 
                     removeDockerContents(oldChat)
