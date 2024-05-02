@@ -13,7 +13,7 @@ public class ChatMessageMapper {
                 message.getId(),
                 message.getMessage(),
                 message.getCreateAt().toString(),
-                message.isUpdated() ? message.getUpdateAt().toString() : null
+                message.isUpdated()
         );
     }
 
