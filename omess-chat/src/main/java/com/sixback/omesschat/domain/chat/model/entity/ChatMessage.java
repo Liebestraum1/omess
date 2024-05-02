@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Document
 @Getter
@@ -19,10 +20,10 @@ public class ChatMessage {
 
     private String chatId;
     private Long writer;
-    private LocalDateTime createAt = LocalDateTime.now();
+    private String createAt = time();
 
     private String message;
-    private LocalDateTime updateAt;
+    private String updateAt;
     private boolean isUpdated = false;
     private boolean isDeleted = false;
 
@@ -35,12 +36,18 @@ public class ChatMessage {
     public ChatMessage update(String message) {
         this.message = message;
         this.isUpdated = true;
-        this.updateAt = LocalDateTime.now();
+        this.updateAt = time();
         return this;
     }
 
     public ChatMessage delete() {
         this.isDeleted = true;
         return this;
+    }
+
+    public String time() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        return now.format(formatter);
     }
 }

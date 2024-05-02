@@ -9,16 +9,16 @@ public class ChatMessageDto {
     private String id;
     private String message;
     private String createAt;
-    private String updateAt;
+    private Boolean isUpdated;
 
     private ChatMessageDto() {
     }
 
-    public ChatMessageDto(MemberInfo member, String id, String message, String createAt, String updateAt) {
+    public ChatMessageDto(MemberInfo member, String id, String message, String createAt, Boolean isUpdated) {
         this.member = member;
         this.id = id;
         this.message = message;
         this.createAt = createAt;
-        this.updateAt = updateAt;
+        this.isUpdated = isUpdated;
     }
 }

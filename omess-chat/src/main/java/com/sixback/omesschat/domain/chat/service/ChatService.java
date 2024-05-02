@@ -20,7 +20,7 @@ import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.
 @RequiredArgsConstructor
 public class ChatService {
 
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 20;
     private final MemberService memberService;
     private final ChatMessageRepository chatMessageRepository;
 
