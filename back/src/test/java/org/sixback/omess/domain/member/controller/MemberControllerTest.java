@@ -54,14 +54,6 @@ class MemberControllerTest {
     @Autowired
     MemberRepository memberRepository;
 
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .addFilter(new CharacterEncodingFilter("UTF-8", true))
-                .alwaysDo(print())
-                .build();
-    }
-
     @Nested
     @DisplayName("checkEmail Test")
     @Transactional
