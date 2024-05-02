@@ -1,5 +1,5 @@
 package com.sixback.omesschat.domain.chat.model.dto.response;
 
 public enum ResponseType {
-    HISTORY, MESSAGE, UPDATE
+    HISTORY, MESSAGE, UPDATE, DELETE
 }

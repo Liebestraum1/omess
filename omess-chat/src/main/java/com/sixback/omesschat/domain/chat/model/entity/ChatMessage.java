@@ -4,7 +4,6 @@ package com.sixback.omesschat.domain.chat.model.entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -25,8 +24,6 @@ public class ChatMessage {
     private String message;
     private LocalDateTime updateAt;
     private boolean isUpdated = false;
-
-    @Setter
     private boolean isDeleted = false;
 
     public ChatMessage(String chatId, Long writer, String message) {
@@ -35,9 +32,15 @@ public class ChatMessage {
         this.message = message;
     }
 
-    public void update(String message) {
+    public ChatMessage update(String message) {
         this.message = message;
         this.isUpdated = true;
         this.updateAt = LocalDateTime.now();
+        return this;
+    }
+
+    public ChatMessage delete() {
+        this.isDeleted = true;
+        return this;
     }
 }
