@@ -120,7 +120,7 @@ pipeline {
             steps{
                 script {
                     sleep 10
-                    def status = sh(script: "curl -s -o /dev/null -I -w \"%{http_code}\" http://${newChat}:8081/actuator/health", returnStdout: true).trim()
+                    def status = sh(script: "curl -s -o /dev/null -I -w \"%{http_code}\" http://${newChat}:8080/actuator/health", returnStdout: true).trim()
 
                     if(status != '200') {
                         currentBuild.result = 'FAILURE'
