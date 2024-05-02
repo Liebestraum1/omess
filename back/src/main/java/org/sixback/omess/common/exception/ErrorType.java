@@ -8,6 +8,7 @@ public enum ErrorType {
     VALIDATION_ERROR("유효한 요청이 아닙니다."),
     UNAUTHENTICATED_ERROR("인증에 실패하였습니다."),
     NEED_AUTHENTICATION_ERROR("인증된 사용자여야 합니다."),
+    UNAUTHORIZED_ERROR("요청에 대한 권한이 없습니다."),
     UNKNOWN_ERROR("서버에 알 수 없는 에러가 발생하였습니다."),
     NOT_FOUND_ERROR("요청하신 data를 찾을 수 없습니다.");
 
