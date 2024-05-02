@@ -6,6 +6,6 @@ import lombok.Builder;
 public record GetModuleResponse(
         Long id,
         String title,
-        String categoty
+        String category
 ) {
 }
