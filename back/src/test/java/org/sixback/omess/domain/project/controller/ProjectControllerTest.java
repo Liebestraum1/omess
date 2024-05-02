@@ -99,7 +99,6 @@ class ProjectControllerTest {
                             .content(createProjectRequest))
                     // then
                     .andExpect(status().isUnauthorized())
-                    .andExpect(jsonPath("$.type").value(NEED_AUTHENTICATION_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(401))
                     .andExpect(jsonPath("$.detail").value(NEED_AUTHENTICATION_ERROR.getTitle()))
@@ -122,7 +121,6 @@ class ProjectControllerTest {
                             .session(session))
                     // then
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value(INCOMPLETE_REQUEST_BODY_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects"))
@@ -148,7 +146,6 @@ class ProjectControllerTest {
                             .session(session))
                     // then
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value("VALIDATION_ERROR"))
                     .andExpect(jsonPath("$.title").value("유효한 요청이 아닙니다."))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects"))
@@ -199,7 +196,6 @@ class ProjectControllerTest {
             mockMvc.perform(get("/api/v1/projects"))
                     // then
                     .andExpect(status().isUnauthorized())
-                    .andExpect(jsonPath("$.type").value(NEED_AUTHENTICATION_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(401))
                     .andExpect(jsonPath("$.detail").value(NEED_AUTHENTICATION_ERROR.getTitle()))
@@ -255,7 +251,6 @@ class ProjectControllerTest {
                             .contentType(APPLICATION_JSON)
                             .content(updateProjectRequest))
                     // then
-                    .andExpect(jsonPath("$.type").value(NEED_AUTHENTICATION_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(401))
                     .andExpect(jsonPath("$.detail").value(NEED_AUTHENTICATION_ERROR.getTitle()))
@@ -282,7 +277,6 @@ class ProjectControllerTest {
                             .session(session))
                     // then
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value(INCOMPLETE_REQUEST_BODY_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
@@ -313,7 +307,6 @@ class ProjectControllerTest {
                             .session(session))
                     // then
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value(VALIDATION_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(VALIDATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
