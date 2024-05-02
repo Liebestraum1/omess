@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { SignInStatus } from "../types/SignIn/SignIn";
+import { persist } from "zustand/middleware";
 
 type SignInStore = {
     signInStatus: SignInStatus;
@@ -9,21 +10,29 @@ type SignInStore = {
     setMemberSignIn: (memberId: number, memberNickname: string) => void;
 };
 
-export const useSignInStore = create<SignInStore>((set) => ({
-    signInStatus: import.meta.env.VITE_APPLICATION_TYPE === "server" ? "server" : "none",
-    memberNickname: undefined,
-    memberId: undefined,
+// TODO: LocalStorage 저장시 암호화 적용
+export const useSignInStore = create(
+    persist<SignInStore>(
+        (set) => ({
+            signInStatus: import.meta.env.VITE_APPLICATION_TYPE === "server" ? "server" : "none",
+            memberNickname: undefined,
+            memberId: undefined,
 
-    setServerSignIn: () =>
-        set(() => ({
-            signInStatus: "server",
-        })),
+            setServerSignIn: () =>
+                set(() => ({
+                    signInStatus: "server",
+                })),
 
-    setMemberSignIn: (memberId: number, memberNickname: string) => {
-        set(() => ({
-            signInStatus: "user",
-            memberId: memberId,
-            memberNickname: memberNickname,
-        }));
-    },
-}));
+            setMemberSignIn: (memberId: number, memberNickname: string) => {
+                set(() => ({
+                    signInStatus: "member",
+                    memberId: memberId,
+                    memberNickname: memberNickname,
+                }));
+            },
+        }),
+        {
+            name: "login-storage",
+        }
+    )
+);

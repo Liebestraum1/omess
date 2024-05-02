@@ -3,8 +3,21 @@ import ModuleSidebar from "../components/ModuleSidebar/ModuleSidebar";
 import ModuleContent from "../components/ModuleContent/ModuleContent";
 import NavBar from "../components/NavBar/NavBar";
 import Box from "@mui/material/Box";
+import { useEffect } from "react";
+import { useSignInStore } from "../stores/SignInStorage";
+import { useNavigate } from "react-router-dom";
 
 const MainPage = () => {
+    const { memberNickname } = useSignInStore();
+    const navigate = useNavigate();
+
+    console.log(memberNickname);
+    useEffect(() => {
+        if (memberNickname === undefined) {
+            navigate("/");
+        }
+    }, [memberNickname]);
+
     return (
         <Box sx={{ width: "100%", height: "100vh", display: "flex", flexDirection: "column" }}>
             <Box sx={{ height: "32px" }}>

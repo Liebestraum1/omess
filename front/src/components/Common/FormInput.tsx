@@ -25,7 +25,6 @@ const FormInput = ({ type, label, helperText, onFormData }: FormInputProp) => {
             }}
             onChange={(e) => {
                 onFormData(e.target.value);
-                console.log(e.target.value);
             }}
             type={type}
         />

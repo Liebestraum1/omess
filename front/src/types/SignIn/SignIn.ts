@@ -1,1 +1,1 @@
-export type SignInStatus = "none" | "server" | "user";
+export type SignInStatus = "none" | "server" | "member";
