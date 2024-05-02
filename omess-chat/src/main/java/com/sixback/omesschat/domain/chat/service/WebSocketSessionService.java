@@ -5,13 +5,14 @@ import com.sixback.omesschat.domain.chat.model.context.ChatUser;
 import com.sixback.omesschat.domain.chat.model.dto.request.EnterRequestMessage;
 import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
 import com.sixback.omesschat.domain.chat.parser.MessageParser;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Slf4j
 @Service
@@ -30,6 +31,7 @@ public class WebSocketSessionService {
 
         ChatRoom chatRoom = rooms.getOrDefault(chatId, ChatRoom.of(chatId));
         ChatUser chatUser = ChatUser.of(session, message.getMemberId());
+        log.info("chatRoom: {}, chatUser: {}", chatRoom.toString(), chatUser.toString());
 
         chatRoom.register(chatUser);
         rooms.put(chatId, chatRoom);
@@ -55,6 +57,7 @@ public class WebSocketSessionService {
     }
 
     public void leave(WebSocketSession session) {
+        log.info("연결 종료");
         ChatUser chatUser = ChatUser.of(session);
         if (!users.containsKey(chatUser)) {
             throw new IllegalArgumentException();

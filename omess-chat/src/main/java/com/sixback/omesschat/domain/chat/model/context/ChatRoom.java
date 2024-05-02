@@ -1,6 +1,7 @@
 package com.sixback.omesschat.domain.chat.model.context;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
+@ToString
 public class ChatRoom {
 
     private String chatId;

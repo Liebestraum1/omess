@@ -1,12 +1,6 @@
 package com.sixback.omesschat.common.handler;
 
-import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.HISTORY;
-import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.MESSAGE;
-
-import com.sixback.omesschat.domain.chat.model.dto.request.EnterRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.RequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.RequestType;
-import com.sixback.omesschat.domain.chat.model.dto.request.SendRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.*;
 import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
 import com.sixback.omesschat.domain.chat.parser.MessageParser;
 import com.sixback.omesschat.domain.chat.service.ChatService;
@@ -51,21 +45,29 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
         RequestType type = requestMessage.getType();
         return switch (type) {
             case ENTER -> {
-                EnterRequestMessage enterRequestMessage = MessageParser.parseMessage(requestMessage.getData(),
+                EnterRequestMessage enter = MessageParser.parseMessage(requestMessage.getData(),
                         EnterRequestMessage.class);
                 yield sessionService
-                        .enter(session, enterRequestMessage)
-                        .thenMany(chatService.loadChatHistory(enterRequestMessage.getChatId(),
-                                enterRequestMessage.getMemberId(), 0));
+                        .enter(session, enter)
+                        .thenMany(chatService.loadChatHistory(enter.getChatId(),
+                                enter.getMemberId(), 0));
             }
             case SEND -> {
-                SendRequestMessage sendRequestMessage = MessageParser.parseMessage(requestMessage.getData(),
+                SendRequestMessage send = MessageParser.parseMessage(requestMessage.getData(),
                         SendRequestMessage.class);
 
                 String chatId = sessionService.findChatId(session);
                 Long memberId = sessionService.findMemberId(session);
 
-                yield chatService.saveChatMessage(chatId, memberId, sendRequestMessage);
+                yield chatService.saveChatMessage(chatId, memberId, send);
+            }
+            case UPDATE -> {
+                UpdateRequestMessage update = MessageParser.parseMessage(requestMessage.getData(),
+                        UpdateRequestMessage.class);
+
+                Long memberId = sessionService.findMemberId(session);
+
+                yield chatService.updateChatMessage(memberId, update.getMessageId(), update.getMessage());
             }
             default -> throw new TypeNotPresentException(type.name(), new Throwable("Not Present MessageType"));
         };
@@ -75,12 +77,10 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
      * 처리가 완료된 데이터 사용자에게 응답
      */
     private Mono<Void> after(WebSocketSession session, ResponseMessage message) {
-        if (message.getType() == MESSAGE) {
-            return sessionService.send(session, message);
-        } else if (message.getType() == HISTORY) {
-            log.info("response message type : {}", message.getType());
-            return sessionService.sendToUser(session, message);
-        }
-        throw new ClassCastException();
+        return switch (message.getType()) {
+            case MESSAGE, UPDATE -> sessionService.send(session, message);
+            case HISTORY -> sessionService.sendToUser(session, message);
+            default -> Mono.error(new ClassCastException());
+        };
     }
 }

@@ -1,8 +1,5 @@
 package com.sixback.omesschat.domain.chat.service;
 
-import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.HISTORY;
-import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.MESSAGE;
-
 import com.sixback.omesschat.domain.chat.mapper.ChatMessageMapper;
 import com.sixback.omesschat.domain.chat.model.dto.request.SendRequestMessage;
 import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
@@ -14,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.*;
 
 @Slf4j
 @Service
@@ -55,5 +55,24 @@ public class ChatService {
                         .map(memberInfo -> ChatMessageMapper.toResponse(chatMessage, memberInfo))
                 ).map(chatMessageDto -> ResponseMessage.ok(HISTORY, chatMessageDto))
                 .doOnComplete(() -> log.info("채팅 내역 불러오기 성공 !!!"));
+    }
+
+    /**
+     * 채팅 메시지를 업데이트 하는 기능
+     */
+    public Flux<ResponseMessage> updateChatMessage(Long memberId, String messageId, String message) {
+        log.info("채팅 메시지 업데이트");
+        return chatMessageRepository.findById(messageId)
+                .flatMap(m -> {
+                    m.update(message);
+                    Long writer = m.getWriter();
+                    if (!memberId.equals(writer)) {
+                        return Mono.error(new IllegalArgumentException());
+                    }
+                    return memberService.findById(memberId)
+                            .map(memberInfo ->
+                                    ResponseMessage.ok(UPDATE, ChatMessageMapper.toResponse(m, memberInfo))
+                            );
+                }).flux();
     }
 }
