@@ -1,12 +1,8 @@
 package org.sixback.omess.common.exception;
 
-import static org.sixback.omess.common.exception.ErrorType.*;
-import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.*;
-import static org.springframework.http.HttpStatus.*;
-
-import java.net.URI;
-import java.util.List;
-
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.sixback.omess.domain.apispecification.exception.InvalidApiInputException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -18,9 +14,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
+import java.util.List;
+
+import static org.sixback.omess.common.exception.ErrorType.*;
+import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.INVALID_JSON_SCHEMA;
+import static org.springframework.http.HttpStatus.*;
 
 
 @Slf4j
@@ -32,7 +31,6 @@ public class GlobalExceptionHandler {
     ) {
         printException(exception);
         return ErrorResponse.builder(exception, BAD_REQUEST, INCOMPLETE_REQUEST_BODY_ERROR.getTitle())
-                .type(URI.create(INCOMPLETE_REQUEST_BODY_ERROR.name()))
                 .title(INCOMPLETE_REQUEST_BODY_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
@@ -44,7 +42,6 @@ public class GlobalExceptionHandler {
     ) {
         printException(exception);
         return ErrorResponse.builder(exception, BAD_REQUEST, "parameter: " + exception.getParameterName() + " 은 필수 값입니다.")
-                .type(URI.create(VALIDATION_ERROR.name()))
                 .title(VALIDATION_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
@@ -57,7 +54,6 @@ public class GlobalExceptionHandler {
         printException(exception);
         String detail = exception.getAllValidationResults().toString();
         return ErrorResponse.builder(exception, BAD_REQUEST, detail)
-                .type(URI.create(VALIDATION_ERROR.name()))
                 .title(VALIDATION_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
@@ -73,7 +69,6 @@ public class GlobalExceptionHandler {
                 .stream().map(FieldErrorMessage::new)
                 .toList();
         return ErrorResponse.builder(exception, BAD_REQUEST, detail.toString())
-                .type(URI.create(VALIDATION_ERROR.name()))
                 .title(VALIDATION_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
@@ -85,7 +80,6 @@ public class GlobalExceptionHandler {
     ) {
         printException(exception);
         return ErrorResponse.builder(exception, UNAUTHORIZED, UNAUTHENTICATED_ERROR.getTitle())
-                .type(URI.create(UNAUTHENTICATED_ERROR.name()))
                 .title(UNAUTHENTICATED_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
@@ -97,7 +91,6 @@ public class GlobalExceptionHandler {
     ) {
         printException(exception);
         return ErrorResponse.builder(exception, NOT_FOUND, NOT_FOUND_ERROR.getTitle())
-                .type(URI.create(NOT_FOUND_ERROR.name()))
                 .title(NOT_FOUND_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
@@ -105,14 +98,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidApiInputException.class)
     public ErrorResponse invalidJsonSchemaExceptionHandler(
-        HttpServletRequest request, InvalidApiInputException exception
+            HttpServletRequest request, InvalidApiInputException exception
     ) {
         printException(exception);
         return ErrorResponse.builder(exception, BAD_REQUEST, INVALID_JSON_SCHEMA.getMessage())
-            .type(URI.create(INVALID_JSON_SCHEMA.name()))
-            .title(INVALID_JSON_SCHEMA.getMessage())
-            .instance(URI.create(request.getRequestURI()))
-            .build();
+                .title(INVALID_JSON_SCHEMA.getMessage())
+                .instance(URI.create(request.getRequestURI()))
+                .build();
     }
 
     @ExceptionHandler({NullPointerException.class, RuntimeException.class, Exception.class})
@@ -121,7 +113,6 @@ public class GlobalExceptionHandler {
     ) {
         printException(exception);
         return ErrorResponse.builder(exception, INTERNAL_SERVER_ERROR, "서버에 알 수 없는 에러가 발생여였습니다.")
-                .type(URI.create(UNKNOWN_ERROR.name()))
                 .title(UNKNOWN_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();

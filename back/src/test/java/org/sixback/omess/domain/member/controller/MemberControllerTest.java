@@ -1,7 +1,6 @@
 package org.sixback.omess.domain.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,10 +18,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -75,8 +72,8 @@ class MemberControllerTest {
             Member savdMember = memberRepository.save(makeMember());
 
             mockMvc.perform(get("/api/v1/members/check-email")
-                            .param("email", savdMember.getEmail())
-                    ).andExpect(status().isOk())
+                            .param("email", savdMember.getEmail()))
+                    .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isExist").value(("true")))
                     .andDo(print())
             ;
@@ -86,8 +83,8 @@ class MemberControllerTest {
         @DisplayName("해당하는 email을 가진 member가 있는지 조회 성공 - 존재하지 않음")
         void isExistEmail_success_NotExist() throws Exception {
             mockMvc.perform(get("/api/v1/members/check-email")
-                            .param("email", "test@email.com")
-                    ).andExpect(status().isOk())
+                            .param("email", "test@email.com"))
+                    .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isExist").value(("false")))
                     .andDo(print())
             ;
@@ -96,9 +93,8 @@ class MemberControllerTest {
         @Test
         @DisplayName("해당하는 email을 가진 member가 있는지 조회 실패 - 존재하지 않음")
         void isExistEmail_fail_noEmail() throws Exception {
-            mockMvc.perform(get("/api/v1/members/check-email")
-                    ).andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value("VALIDATION_ERROR"))
+            mockMvc.perform(get("/api/v1/members/check-email"))
+                    .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.title").value("유효한 요청이 아닙니다."))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/check-email"))
@@ -111,9 +107,8 @@ class MemberControllerTest {
         @ParameterizedTest
         void isExistEmail_fail_nickname_validation(String email) throws Exception {
             mockMvc.perform(get("/api/v1/members/check-email")
-                            .param("email", email)
-                    ).andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value("VALIDATION_ERROR"))
+                            .param("email", email))
+                    .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.title").value("유효한 요청이 아닙니다."))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/check-email"))
@@ -133,8 +128,8 @@ class MemberControllerTest {
             memberRepository.save(savedMember);
 
             mockMvc.perform(get("/api/v1/members/check-nickname")
-                            .param("nickname", savedMember.getNickname())
-                    ).andExpect(status().isOk())
+                            .param("nickname", savedMember.getNickname()))
+                    .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isExist").value(("true")))
                     .andDo(print())
             ;
@@ -144,8 +139,8 @@ class MemberControllerTest {
         @DisplayName("해당하는 nickname을 가진 member가 있는지 조회 성공 - 존재하지 않음")
         void isExistNickname_success_notExist() throws Exception {
             mockMvc.perform(get("/api/v1/members/check-nickname")
-                            .param("nickname", "noNick")
-                    ).andExpect(status().isOk())
+                            .param("nickname", "noNick"))
+                    .andExpect(status().isOk())
                     .andDo(print())
             ;
         }
@@ -153,9 +148,8 @@ class MemberControllerTest {
         @Test
         @DisplayName("해당하는 nickname을 가진 member가 있는지 조회 실패 - nickname 없음")
         void isExistNickname_fail_noNickname() throws Exception {
-            mockMvc.perform(get("/api/v1/members/check-nickname")
-                    ).andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value("VALIDATION_ERROR"))
+            mockMvc.perform(get("/api/v1/members/check-nickname"))
+                    .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.title").value("유효한 요청이 아닙니다."))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/check-nickname"))
@@ -168,9 +162,8 @@ class MemberControllerTest {
         @ParameterizedTest
         void isExistNickname_fail_validation(String nickname) throws Exception {
             mockMvc.perform(get("/api/v1/members/check-nickname")
-                            .param("nickname", nickname)
-                    ).andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value("VALIDATION_ERROR"))
+                            .param("nickname", nickname))
+                    .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.title").value("유효한 요청이 아닙니다."))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/check-nickname"))
@@ -214,7 +207,6 @@ class MemberControllerTest {
                             .contentType(APPLICATION_JSON)
                             .content(signupMemberRequest)
                     ).andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value(VALIDATION_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(VALIDATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.detail").isString())
@@ -229,7 +221,6 @@ class MemberControllerTest {
             mockMvc.perform(post("/api/v1/members/signup")
                             .contentType(APPLICATION_JSON)
                     ).andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value(INCOMPLETE_REQUEST_BODY_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/signup"))
@@ -297,7 +288,6 @@ class MemberControllerTest {
                             .contentType(APPLICATION_JSON))
                     //then
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.type").value(INCOMPLETE_REQUEST_BODY_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/signin"))
@@ -327,7 +317,6 @@ class MemberControllerTest {
                             //then
                     )
                     .andExpect(status().isUnauthorized())
-                    .andExpect(jsonPath("$.type").value(UNAUTHENTICATED_ERROR.name()))
                     .andExpect(jsonPath("$.title").value(UNAUTHENTICATED_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(UNAUTHORIZED.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/signin"))
