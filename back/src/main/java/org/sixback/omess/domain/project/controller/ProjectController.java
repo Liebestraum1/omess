@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.project.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.sixback.omess.domain.project.dto.response.GetProjectMembersResponse;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.UpdateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.response.CreateProjectResponse;
@@ -28,6 +29,14 @@ public class ProjectController {
         return new ResponseEntity<>(createProjectResponse, CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<GetProjectMembersResponse> getProjects(
+            @SessionAttribute(name = "memberId") Long memberId
+    ) {
+        GetProjectMembersResponse getProjectMembersResponse = projectService.getProjects(memberId);
+        return ResponseEntity.ok(getProjectMembersResponse);
+    }
+
     @PatchMapping("/{projectId}")
     public ResponseEntity<Void> updateProject(
             @Validated
@@ -39,5 +48,4 @@ public class ProjectController {
         projectService.updateProject(projectId, updateProjectRequest);
         return ResponseEntity.ok().build();
     }
-
 }
