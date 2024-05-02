@@ -7,26 +7,16 @@ export type ChatInfo = {
     messageCount: number
 }
 
-export type ChatSubscriber = {
+export type Writer = {
+    id: number,
     email: string,
     nickname: string,
-    profile: string
 }
 
 export type ChatMessage = {
-    messageId: string,
-    messageType: string,
-    writer: ChatSubscriber,
+    member: Writer,
+    id: string,
     message: string,
-    time: string,
-    isModified: boolean
-}
-
-export type DeletedMessage = {
-    messageId: string
-}
-
-export type RoleChange = {
-    target: ChatSubscriber,
-    to: string
+    createAt: string,
+    isUpdated: boolean
 }
