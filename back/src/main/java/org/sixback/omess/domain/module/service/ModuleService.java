@@ -1,7 +1,7 @@
 package org.sixback.omess.domain.module.service;
 
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.sixback.omess.domain.module.model.dto.request.UpdateMouleRequest;
 import org.sixback.omess.domain.module.model.dto.response.GetModuleCategoryResponse;
 import org.sixback.omess.domain.module.model.dto.response.GetModuleResponse;
@@ -13,7 +13,8 @@ import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class ModuleService {
                 module -> GetModuleResponse.builder()
                         .id(module.getId())
                         .title(module.getTitle())
-                        .categoty(module.getCategory())
+                        .category(module.getCategory())
                         .build()
         ).toList();
     }
