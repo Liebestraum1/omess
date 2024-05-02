@@ -120,6 +120,6 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
             } else {
                 get().client!.send(data)
             }
-        }
+        },
     }
 });
