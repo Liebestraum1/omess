@@ -7,6 +7,7 @@ import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 const ChatListComponent = ({projectId}: { projectId: number }) => {
     const [chatList, setChatList] = useState<ChatInfo[] | null>(null);
 
+    console.log(setChatList)
     useEffect(() => {
         (async () => {
             // const data = await loadChatList(projectId).then(d => d.map(r => r.body));

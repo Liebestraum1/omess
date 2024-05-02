@@ -1,8 +1,8 @@
 import {Box} from "@mui/material";
-import {useChatStorage} from "../../stores/ChatStorage.tsx";
 import ChatMessageComponent from "./ChatMessageComponent.tsx";
 import {useInView} from "react-intersection-observer";
 import {useEffect, useRef} from "react";
+import {useChatStorage} from "../../stores/chatStorage.tsx";
 
 const ChatHistoryComponent = () => {
     const {messages, sendMessage} = useChatStorage();
@@ -39,7 +39,7 @@ const ChatHistoryComponent = () => {
         >
             {messages ? messages!.map((message) => (
                 <ChatMessageComponent key={message.id} {...message} />
-            )) : null }
+            )) : null}
             <div ref={ref}></div>
         </Box>
     );

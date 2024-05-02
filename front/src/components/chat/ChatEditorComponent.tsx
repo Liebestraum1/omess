@@ -1,9 +1,9 @@
 import {Box} from "@mui/material";
 import {useRef} from "react";
-import {useChatStorage} from "../../stores/ChatStorage.tsx";
+import {useChatStorage} from "../../stores/chatStorage.tsx";
 
 const ChatEditorComponent = () => {
-    const { sendMessage } = useChatStorage();
+    const {sendMessage} = useChatStorage();
     const message = useRef<HTMLInputElement>(null);
 
     const send = () => {
