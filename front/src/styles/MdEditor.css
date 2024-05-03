@@ -1,0 +1,65 @@
+.w-md-editor-toolbar {
+    border: 0
+}
+.w-md-editor-toolbar.bottom {
+    border: 0
+}
+
+.w-md-editor-toolbar .send-btn {
+    background-color: #4F378B
+}
+
+.w-md-editor-toolbar .send-btn:hover {
+    background-color: #E8DEF8
+}
+
+.w-md-editor-toolbar .send-btn .send-icon{
+    color: white
+}
+
+.w-md-editor-toolbar .send-btn:hover .send-icon{
+    cursor: pointer;
+    color: #4F378B
+}
+
+.w-md-editor-toolbar .file-btn {
+    background-color: #fff;
+    box-shadow: none;
+    padding: 0;
+}
+
+.w-md-editor-toolbar .file-btn:hover {
+    background-color: #fff;
+    box-shadow: none;
+}
+.w-md-editor-toolbar .file-btn:hover svg {
+    color: black
+}
+
+.w-md-editor-toolbar .file-btn > svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+
+.w-md-editor-toolbar svg {
+    width: 1rem;
+    height: 1em;
+    color: darkgray;
+    margin: 0 6px
+}
+
+.markdown-view {
+    background-color: #fff;
+    color: #000
+}
+
+.markdown-view {
+    background-color: #fff;
+    color: #000;
+    font-weight: lighter;
+}
+
+.view-box:hover .markdown-view{
+    background-color: #F5F5F5
+}

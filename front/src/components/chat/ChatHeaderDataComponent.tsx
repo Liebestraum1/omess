@@ -1,6 +1,8 @@
 import {Button} from "@mui/material";
 import {useState} from "react";
 import ChatHeaderModifyModal from "./ChatHeaderModifyModal.tsx";
+import MDEditor from '@uiw/react-md-editor';
+import '../../styles/MdEditor.css'
 
 
 const ChatHeaderDataComponent = ({header}: { header: string | undefined }) => {
@@ -9,7 +11,10 @@ const ChatHeaderDataComponent = ({header}: { header: string | undefined }) => {
     return (
         <>
             {header ?
-                <span>{header}</span>
+                <MDEditor.Markdown
+                    className='markdown-view'
+                    source={header}
+                />
                 :
                 <Button color="secondary"
                         onClick={() => handleOpen()}

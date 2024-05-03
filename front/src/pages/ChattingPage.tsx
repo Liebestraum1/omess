@@ -26,12 +26,10 @@ const ChattingPage = ({chat}: { chat: ChatInfo }) => {
             </Box>
 
             {/* Body */}
-            <ChatHistoryComponent />
+            <ChatHistoryComponent/>
 
             {/* Footer */}
-            <Box flex="1">
-                <ChatEditorComponent />
-            </Box>
+            <ChatEditorComponent/>
         </Box>
     );
 }
