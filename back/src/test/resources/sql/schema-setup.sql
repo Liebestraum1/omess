@@ -161,8 +161,6 @@ CREATE TABLE `path_variable`
     FOREIGN KEY (api_id) REFERENCES api (id) ON DELETE CASCADE
 );
 
-
-### ###
 CREATE TABLE IF NOT EXISTS SPRING_SESSION
 (
     PRIMARY_ID            CHAR(36) NOT NULL,
