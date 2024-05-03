@@ -2,7 +2,8 @@ import { Alert, AlertColor, AlertTitle, Box, Button, Snackbar, styled } from "@m
 import { useState } from "react";
 import FormInput from "../Common/FormInput";
 import SignUpFormSubmitButton from "./SignUpFormSubmitButton";
-import { SignUpRequest, signUpApi } from "../../services/SignUp/SignUpApi";
+import { SignUpRequest, emailValidationApi, nicknameValidationApi, signUpApi } from "../../services/SignUp/SignUpApi";
+import useFormListener from "../../hooks/FormListener";
 
 type AlertContent = {
     severity: AlertColor | undefined;
@@ -14,6 +15,7 @@ const SignUpFormBox = styled(Box)({
     display: "flex",
     flexDirection: "column",
     component: "form",
+    width: "60%",
 });
 
 const alertButton = (action: () => void) => {
@@ -25,12 +27,73 @@ const SignUpForm = () => {
     const [password, setPassword] = useState<string>("");
     const [nickname, setNickname] = useState<string>("");
 
+    const [emailHelperText, setEmailHelperText] = useState<string>("");
+    const [passwordHelperText, setPasswordHelperText] = useState<string>("");
+    const [nicknameHelperText, setNicknameHelperText] = useState<string>("");
+
     const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
     const [alertContent, setAlertContent] = useState<AlertContent>({
         severity: undefined,
         title: "",
         content: "",
     });
+
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+(\.[^\s@]+)*$/;
+
+    useFormListener(
+        email,
+        () => {
+            if (regex.test(email)) {
+                emailValidationApi(email)
+                    .then((response: any) => {
+                        if (response["isExist"]) {
+                            setEmailHelperText("이미 존재하는 이메일 주소입니다.");
+                        } else {
+                            setEmailHelperText("사용할 수 있는 이메일 주소입니다.");
+                        }
+                    })
+                    .catch(() => {
+                        setEmailHelperText("올바른 이메일 주소를 입력하세요.");
+                    });
+            } else {
+                setEmailHelperText("이메일 주소를 입력하세요.");
+            }
+        },
+        () => setEmailHelperText("이메일 주소를 입력하세요."),
+        200
+    );
+
+    useFormListener(
+        password,
+        () => {
+            if (password.length < 8 || password.length > 20) {
+                setPasswordHelperText("비밀번호를 8자 이상, 20자 이하로 입력해 주세요.");
+            } else {
+                setPasswordHelperText("올바른 비밀번호입니다.");
+            }
+        },
+        () => setPasswordHelperText("비밀번호를 입력하세요."),
+        200
+    );
+
+    useFormListener(
+        nickname,
+        () => {
+            nicknameValidationApi(nickname)
+                .then((response: any) => {
+                    if (response["isExist"]) {
+                        setNicknameHelperText("이미 존재하는 닉네임입니다.");
+                    } else {
+                        setNicknameHelperText("사용할 수 있는 닉네임입니다.");
+                    }
+                })
+                .catch(() => {
+                    setNicknameHelperText("닉네임의 길이를 30자 이하로 입력해주세요.");
+                });
+        },
+        () => setNicknameHelperText("닉네임을 입력하세요."),
+        200
+    );
 
     const SignUpFormSubmitFunction = () => {
         const signUpRequest: SignUpRequest = {
@@ -60,9 +123,9 @@ const SignUpForm = () => {
     };
 
     const signUpFormInputProps = [
-        { type: "email", label: "EMAIL", helperText: "이메일을 입력하세요.", onFormData: setEmail },
-        { type: "password", label: "PASSWORD", helperText: "비밀번호를 입력하세요.", onFormData: setPassword },
-        { type: "nickname", label: "NICKNAME", helperText: "닉네임을 입력하세요.", onFormData: setNickname },
+        { type: "email", label: "EMAIL", helperText: emailHelperText, onFormData: setEmail },
+        { type: "password", label: "PASSWORD", helperText: passwordHelperText, onFormData: setPassword },
+        { type: "nickname", label: "NICKNAME", helperText: nicknameHelperText, onFormData: setNickname },
     ];
 
     return (
