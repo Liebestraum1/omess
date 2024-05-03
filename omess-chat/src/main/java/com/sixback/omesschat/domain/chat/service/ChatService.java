@@ -1,10 +1,13 @@
 package com.sixback.omesschat.domain.chat.service;
 
+import com.sixback.omesschat.domain.chat.mapper.ChatMapper;
 import com.sixback.omesschat.domain.chat.mapper.ChatMessageMapper;
 import com.sixback.omesschat.domain.chat.model.dto.request.SendRequestMessage;
 import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
 import com.sixback.omesschat.domain.chat.model.entity.ChatMessage;
+import com.sixback.omesschat.domain.chat.model.entity.Content;
 import com.sixback.omesschat.domain.chat.repository.ChatMessageRepository;
+import com.sixback.omesschat.domain.chat.repository.ChatRepository;
 import com.sixback.omesschat.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +25,14 @@ public class ChatService {
 
     private static final int PAGE_SIZE = 20;
     private final MemberService memberService;
+    private final ChatRepository chatRepository;
     private final ChatMessageRepository chatMessageRepository;
 
     /**
      * 채팅 메시지를 DB에 저장하는 기능
      */
     public Flux<ResponseMessage> saveChatMessage(String chatId, Long memberId, SendRequestMessage message) {
-        ChatMessage chatMessage = ChatMessageMapper.to(chatId, memberId, message.getMessage());
+        ChatMessage chatMessage = ChatMessageMapper.toUserMessage(chatId, memberId, message.getMessage());
         return chatMessageRepository.save(chatMessage)
                 .flatMap(c -> memberService
                         .findById(memberId)
@@ -92,6 +96,9 @@ public class ChatService {
                 .flux();
     }
 
+    /**
+     * 채팅 핀 기능
+     */
     public Flux<ResponseMessage> pinChatMessage(Long memberId, String messageId) {
         log.info("채팅 핀 기능");
         return chatMessageRepository.findById(messageId)
@@ -101,6 +108,26 @@ public class ChatService {
                         .findById(memberId)
                         .map(memberInfo -> ChatMessageMapper.toResponse(m, memberInfo))
                 ).map(m -> ResponseMessage.ok(PIN, m))
+                .flux();
+    }
+
+    /**
+     * 헤더 등록
+     */
+    public Flux<ResponseMessage> registerHeader(String chatId, Long memberId, String detail) {
+        log.info("헤더 등록 {}", detail);
+        Content header = ChatMapper.toContent(memberId, detail);
+        return chatRepository.findById(chatId)
+                .map(chat -> chat.update(header))
+                .flatMap(chatRepository::save)
+                .map(chat -> ChatMessageMapper.toSystemMessage(chatId, memberId, header.getDetail()))
+                .flatMap(chatMessageRepository::save)
+                .flatMap(m -> memberService
+                        .findById(memberId)
+                        .map(memberInfo -> ChatMessageMapper.toResponse(m, memberInfo))
+                )
+                .map(chatMessageDto -> ChatMapper.toHeaderResponse(chatMessageDto, header))
+                .map(m -> ResponseMessage.ok(HEADER, m))
                 .flux();
     }
 }
