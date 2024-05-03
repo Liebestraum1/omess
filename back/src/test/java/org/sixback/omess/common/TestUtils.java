@@ -48,6 +48,17 @@ public class TestUtils {
         return list;
     }
 
+    public static ProjectMemberResult makeProjectMembers(String nickname, String email, String password) {
+        Member member = makeMember(nickname, email, password);
+        List<Project> projects = makeProjects();
+
+        List<ProjectMember> projectMembers = new ArrayList<>();
+        for (Project project : projects) {
+            projectMembers.add(makeProjectMember(project, member));
+        }
+        return new ProjectMemberResult(member, projects, projectMembers);
+    }
+
     public static ProjectMemberResult makeProjectMembers() {
         Member member = makeMember();
         List<Project> projects = makeProjects();

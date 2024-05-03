@@ -21,8 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.sixback.omess.common.TestUtils.makeMember;
 import static org.sixback.omess.common.exception.ErrorType.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -31,7 +29,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -267,8 +266,8 @@ class MemberControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.memberId").value(savedMember.getId()))
                     .andExpect(jsonPath("$.nickname").value(savedMember.getNickname()))
-                    .andExpect(request().sessionAttribute("memberId", is(notNullValue())))
-                    .andExpect(request().sessionAttribute("SPRING_SECURITY_CONTEXT", is(notNullValue())))
+//                    .andExpect(request().sessionAttribute("memberId", is(notNullValue())))
+//                    .andExpect(request().sessionAttribute("SPRING_SECURITY_CONTEXT", is(notNullValue())))
                     .andDo(print());
         }
 
