@@ -6,6 +6,8 @@ import ChatEditingButton from "./ChatEditingButton.tsx";
 import TextField from "@mui/material/TextField";
 import {useChatStorage} from "../../stores/chatStorage.tsx";
 import {useSignInStore} from "../../stores/SignInStorage.tsx";
+import MDEditor from '@uiw/react-md-editor';
+import '../../styles/MdEditor.css'
 
 const ChatMessageComponent = (message: ChatMessage) => {
     const {sendMessage} = useChatStorage();
@@ -17,8 +19,6 @@ const ChatMessageComponent = (message: ChatMessage) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [inputValue, setInputValue] = useState<string>(message.message)
 
-
-    console.log(memberId, message.member.id);
 
     function transTime(t: string[]) {
         const str = (parseInt(t[0]) / 12) < 1 ? '오전 ' : '오후 ';
@@ -103,6 +103,7 @@ const ChatMessageComponent = (message: ChatMessage) => {
             justifyContent="space-between"
             gap={3}
             padding={2}
+            className='view-box'
             sx={{
                 '&:hover': {
                     backgroundColor: 'grey.100',
@@ -125,7 +126,12 @@ const ChatMessageComponent = (message: ChatMessage) => {
                             <span>{message.isUpdated ? '(수정됨)' : null}</span>
                             <span style={{fontSize: '12px'}}>{message.classify !== 'USER' ? '(시스템 메시지)' : null}</span>
                         </Box>
-                        <Box>{message.message}</Box>
+                        <Box>
+                            <MDEditor.Markdown
+                                className='markdown-view'
+                                source={message.message}
+                            />
+                        </Box>
                     </Box> :
                     <TextField
                         ref={inputRef}
