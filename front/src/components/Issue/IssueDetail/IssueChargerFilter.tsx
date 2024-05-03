@@ -8,7 +8,7 @@ import {
     Typography
 } from "@mui/material";
 import Box from "@mui/material/Box";
-import {useKanbanBoardStore} from "../../stores/KanbanBoardStorage.tsx";
+import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
 import {useEffect, useState} from "react";
 
 type ChargerFilterPros = {
@@ -25,7 +25,7 @@ const ChargerFilter = ({id}  : ChargerFilterPros) => {
 
     useEffect(() => {
         setSelectedMember(id.toString());
-    }, [setSelectedMember]); // 의존성 배열에 추가
+    }, [setSelectedMember]);
 
 
     return (
@@ -43,7 +43,7 @@ const ChargerFilter = ({id}  : ChargerFilterPros) => {
                         [`&.${outlinedInputClasses.focused} .${outlinedInputClasses.notchedOutline}`]: {border: 'none'}, // 포커스 시 테두리 제거
                     }}
                 >
-                    <MenuItem>
+                    <MenuItem value="">
                         <Box display={"flex"} justifyContent="space-between" alignItems="center" width={90}
                              height={32}>
                             <Typography> 선택해 주세요 </Typography>
