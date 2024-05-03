@@ -26,6 +26,7 @@ public class ChatMessage {
     private String updateAt;
     private boolean isUpdated = false;
     private boolean isDeleted = false;
+    private boolean isPined = false;
 
     public ChatMessage(String chatId, Long writer, String message) {
         this.chatId = chatId;
@@ -42,6 +43,11 @@ public class ChatMessage {
 
     public ChatMessage delete() {
         this.isDeleted = true;
+        return this;
+    }
+
+    public ChatMessage pin() {
+        isPined = !isPined;
         return this;
     }
 

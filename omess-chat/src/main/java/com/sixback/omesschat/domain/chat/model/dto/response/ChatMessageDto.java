@@ -10,15 +10,17 @@ public class ChatMessageDto {
     private String message;
     private String createAt;
     private Boolean isUpdated;
+    private Boolean isPined;
 
     private ChatMessageDto() {
     }
 
-    public ChatMessageDto(MemberInfo member, String id, String message, String createAt, Boolean isUpdated) {
+    public ChatMessageDto(MemberInfo member, String id, String message, String createAt, Boolean isUpdated, Boolean isPined) {
         this.member = member;
         this.id = id;
         this.message = message;
         this.createAt = createAt;
         this.isUpdated = isUpdated;
+        this.isPined = isPined;
     }
 }
