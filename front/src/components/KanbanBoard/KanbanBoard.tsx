@@ -1,13 +1,23 @@
-import Grid from "@mui/material/Unstable_Grid2";
 import Box from "@mui/material/Box";
 import {useState} from "react";
-import IssueDetailModal from "../Issue/IssueDetailModal.tsx";
+import IssueDetailModal from "../Issue/IssueDetail/IssueDetailModal.tsx";
 import IssueList from "../Issue/IssueList.tsx";
 import {IssueProp} from "../../types/Issue/Issue.ts";
+import IssueCreateModal from "../Issue/IssueCreate/IssueCreateModal.tsx";
+import Grid from '@mui/material/Grid';
 
 const KanbanBoard = () => {
     const [open, setOpen] = useState(false);
     const [selectedIssue, setSelectedIssue] = useState(0);
+    const [openCreate, setOpenCreate] = useState(false);
+
+    const handleClickOpenCreate = () => {
+        setOpenCreate(true);
+    }
+
+    const handleCloseOpenCreate = () => {
+        setOpenCreate(false);
+    }
 
     const handleClickOpen = (issueId:number) => {
         setSelectedIssue(issueId);
@@ -59,7 +69,7 @@ const KanbanBoard = () => {
             charger: {
                 id: 2,
                 nickname: "담밤",
-                profile: "https://cdn.hankyung.com/photo/202403/01.36047379.1.jpg"
+                profile: "https://entertainimg.kbsmedia.co.kr/cms/uploads/PERSON_20220407075246_a9e3ec3dc11907629fd3b2a379ee8801.jpg"
             },
             label: {
                 labelId: 2,
@@ -109,16 +119,17 @@ const KanbanBoard = () => {
         <Box>
             <Grid container columnSpacing={3} justifyContent="center">
                 {/** 진행전 */}
-                <IssueList title={"진행전"} issues={Beforeproceeding} handleClickOpen={handleClickOpen}/>
+                <IssueList title={"진행전"} issues={Beforeproceeding} handleClickOpen={handleClickOpen} handleClickOpenCreate={handleClickOpenCreate}/>
 
                 {/** 진행중 */}
-                <IssueList title={"진행중"} issues={Proceeding} handleClickOpen={handleClickOpen}/>
+                <IssueList title={"진행중"} issues={Proceeding} handleClickOpen={handleClickOpen} handleClickOpenCreate={handleClickOpenCreate}/>
 
                 {/** 완료 */}
-                <IssueList title={"완료"} issues={Complete} handleClickOpen={handleClickOpen}/>
+                <IssueList title={"완료"} issues={Complete} handleClickOpen={handleClickOpen} handleClickOpenCreate={handleClickOpenCreate}/>
 
             </Grid>
             <IssueDetailModal open={open} issueId={selectedIssue} onClose={handleClose}/>
+            <IssueCreateModal open={openCreate} onClose={handleCloseOpenCreate} />
         </Box>
     );
 }
