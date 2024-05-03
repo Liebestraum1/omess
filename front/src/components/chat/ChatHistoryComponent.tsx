@@ -30,11 +30,10 @@ const ChatHistoryComponent = () => {
         <Box
             ref={scrollRef}
             sx={{
-                height: '65vh',
                 overflowY: 'scroll',
                 display: 'flex',
                 flexDirection: 'column-reverse',
-                p: 2
+                px: 2
             }}
         >
             {messages ? messages!.map((message) => (

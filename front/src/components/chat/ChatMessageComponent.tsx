@@ -2,18 +2,23 @@ import {Box} from "@mui/material";
 import {ChatMessage} from "../../types/chat/chat.ts";
 import {useEffect, useRef, useState} from "react";
 import ChatMessageMenu from "./ChatMessageMenu.tsx";
-import ChatMessageEditing from "./ChatMessageEditing.tsx";
+import ChatEditingButton from "./ChatEditingButton.tsx";
 import TextField from "@mui/material/TextField";
 import {useChatStorage} from "../../stores/chatStorage.tsx";
+import {useSignInStore} from "../../stores/SignInStorage.tsx";
 
 const ChatMessageComponent = (message: ChatMessage) => {
     const {sendMessage} = useChatStorage();
+    const {memberId} = useSignInStore();
     const [isEditing, setIsEditing] = useState(false);
+    const [isView, setIsView] = useState<boolean>(false);
     const [date, setDate] = useState<string>('');
     const [time, setTime] = useState<string>('');
     const inputRef = useRef<HTMLInputElement>(null);
     const [inputValue, setInputValue] = useState<string>(message.message)
 
+
+    console.log(memberId, message.member.id);
 
     function transTime(t: string[]) {
         const str = (parseInt(t[0]) / 12) < 1 ? '오전 ' : '오후 ';
@@ -98,17 +103,27 @@ const ChatMessageComponent = (message: ChatMessage) => {
             justifyContent="space-between"
             gap={3}
             padding={2}
+            sx={{
+                '&:hover': {
+                    backgroundColor: 'grey.100',
+                }
+            }}
+            onMouseEnter={() => setIsView(true)}  // 마우스가 컴포넌트 위로 올라오면 상태를 true로 설정
+            onMouseLeave={() => setIsView(false)}
         >
             {/*<Avatar*/}
             {/*    src={value.member.}*/}
             {/*/>*/}
             {
                 !isEditing ?
-                    <Box>
+                    <Box
+                        sx={message.classify !== 'USER' ? {color: 'grey.500'} : null}
+                    >
                         <Box display="flex" gap={2}>
                             <Box sx={{fontWeight: 'bold'}}>{message.member.nickname}</Box>
                             <span>{date + ' ' + time}</span>
-                            <span>{message.isUpdated ? '(수정됨)' : ''}</span>
+                            <span>{message.isUpdated ? '(수정됨)' : null}</span>
+                            <span style={{fontSize: '12px'}}>{message.classify !== 'USER' ? '(시스템 메시지)' : null}</span>
                         </Box>
                         <Box>{message.message}</Box>
                     </Box> :
@@ -118,11 +133,19 @@ const ChatMessageComponent = (message: ChatMessage) => {
                         onChange={(e) => handleInputChange(e)}
                         label="메시지" sx={{width: '40%'}}/>
             }
-            {!isEditing ?
-                <ChatMessageMenu isPined={message.isPined} pin={pinMessage} setIsEditing={setIsEditing} delete={deleteMessage}/>
-                :
-                <ChatMessageEditing update={update} setIsEditing={setIsEditing}/>
-            }
+            <Box>
+                {
+                    message.classify === 'USER' ? !isEditing ?
+                            isView ?
+                                <ChatMessageMenu isPined={message.isPined} pin={pinMessage} setIsEditing={setIsEditing}
+                                                 delete={deleteMessage}/>
+                                :
+                                null
+                            :
+                            <ChatEditingButton update={update} setIsEditing={setIsEditing}/>
+                        : null
+                }
+            </Box>
         </Box>
     );
 }

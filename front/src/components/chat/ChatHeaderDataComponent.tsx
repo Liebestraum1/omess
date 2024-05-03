@@ -1,9 +1,23 @@
-import {ChatMessage} from "../../types/chat/chat.ts";
+import {Button} from "@mui/material";
+import {useState} from "react";
+import ChatHeaderModifyModal from "./ChatHeaderModifyModal.tsx";
 
-const ChatHeaderDataComponent = ({header}: { header: ChatMessage | undefined }) => {
+
+const ChatHeaderDataComponent = ({header}: { header: string | undefined }) => {
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => setOpen(true);
     return (
         <>
-            <span>{header?.message}</span>
+            {header ?
+                <span>{header}</span>
+                :
+                <Button color="secondary"
+                        onClick={() => handleOpen()}
+                >
+                    <span>채널 설명 추가하기</span>
+                </Button>
+            }
+            <ChatHeaderModifyModal open={open} setOpen={setOpen}/>
         </>
     );
 }

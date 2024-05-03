@@ -4,7 +4,7 @@ type Props = {
     setIsEditing: (value: any) => void;
     update: () => void;
 }
-const ChatMessageEditing = (props: Props) => {
+const ChatEditingButton = (props: Props) => {
     return (
         <Box
             display="flex"
@@ -25,4 +25,4 @@ const ChatMessageEditing = (props: Props) => {
         </Box>)
 }
 
-export default ChatMessageEditing
+export default ChatEditingButton

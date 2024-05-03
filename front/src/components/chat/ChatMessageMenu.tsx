@@ -1,5 +1,4 @@
-import {Box} from "@mui/material";
-import Fab from "@mui/material/Fab";
+import {Box, Button} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PushPinIcon from '@mui/icons-material/PushPin';
@@ -15,28 +14,38 @@ const ChatMessageMenu = (props: Props) => {
 
     return (
         <Box
-            padding={1}
+            p={2}
             boxShadow={3}
-            display='flex'
-            width="fit-content"
             borderRadius={3}
             gap={2}
         >
-            <Fab size="small" color="secondary" aria-label="pin"
-                 onClick={() => props.pin()}
+            <Button color="secondary" aria-label="pin"
+                    size='small'
+                    onClick={() => props.pin()}
+                    sx={{
+                        '&:hover': {backgroundColor: 'indigo'}
+                    }}
             >
                 {props.isPined ? <PushPinIcon/> : <PushPinOutlinedIcon/>}
-            </Fab>
-            <Fab size="small" color="secondary" aria-label="edit"
-                 onClick={() => props.setIsEditing(true)}
+            </Button>
+            <Button color="secondary" aria-label="edit"
+                    size='small'
+                    onClick={() => props.setIsEditing(true)}
+                    sx={{
+                        '&:hover': {backgroundColor: 'indigo'}
+                    }}
             >
                 <EditIcon/>
-            </Fab>
-            <Fab size="small" color="secondary" aria-label="delete"
-                 onClick={() => props.delete()}
+            </Button>
+            <Button color="secondary" aria-label="delete"
+                    size='small'
+                    onClick={() => props.delete()}
+                    sx={{
+                        '&:hover': {backgroundColor: 'indigo'}
+                    }}
             >
                 <DeleteIcon/>
-            </Fab>
+            </Button>
         </Box>
     );
 }

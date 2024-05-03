@@ -7,7 +7,7 @@ import ChatInfoComponent from "./ChatInfoComponent.tsx";
 
 const ChatHeaderComponent = (chat: ChatInfo) => {
     return (
-        <Box style={{height: '10vh'}}>
+        <Box>
             <Box
                 display="flex"
                 justifyContent="space-between"
@@ -27,7 +27,7 @@ const ChatHeaderComponent = (chat: ChatInfo) => {
                             gap={4}
                             alignItems="center"
                         >
-                            <MemberCountComponent count={chat.memberCount}/>
+                            <MemberCountComponent count={4}/>
                             <ChatHeaderDataComponent header={chat.header}/>
                         </Box>
                     </Box>
