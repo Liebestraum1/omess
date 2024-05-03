@@ -142,7 +142,7 @@ public class ChatService {
                         .findById(memberId)
                         .map(memberInfo -> ChatMessageMapper.toResponse(m, memberInfo))
                 )
-                .map(chatMessageDto -> ChatMapper.toChatNameResponse(chatId, chatMessageDto))
+                .map(chatMessageDto -> ChatMapper.toChatNameResponse(name, chatMessageDto))
                 .map(m -> ResponseMessage.ok(CHAT_NAME, m))
                 .flux();
     }
