@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import {Chip} from "@mui/material";
 import {useState} from "react";
-import DomainModal from "./DomainModal.tsx";
+import UpdateDomainModal from "./UpdateDomainModal.tsx";
 
 
 
@@ -30,7 +30,7 @@ const DomainComponent = (
                 variant="outlined"
                 onClick={handleOpen}
             />
-            <DomainModal
+            <UpdateDomainModal
                 projectId={projectId}
                 apiSpecificationId={apiSpecificationId}
                 domainId={domainId}
