@@ -115,7 +115,7 @@ public class ChatService {
      * 헤더 등록
      */
     public Flux<ResponseMessage> registerHeader(String chatId, Long memberId, String detail) {
-        log.info("헤더 등록 {}", detail);
+        log.info("헤더 등록");
         Content header = ChatMapper.toContent(memberId, detail);
         return chatRepository.findById(chatId)
                 .map(chat -> chat.update(header))
