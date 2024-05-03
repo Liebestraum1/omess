@@ -2,7 +2,6 @@ import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
 import PathBar from "./PathBar";
 import KanbanBoardPage from "../../pages/KanbanBoardPage.tsx";
-import ApiSpecificationComponent from "../ApiSpeification/ApiSpecificationComponent.tsx";
 
 const ModuleContentBox = styled(Box)({
     flex: 7,
@@ -25,7 +24,6 @@ const ModuleContent = () => {
         <ModuleContentBox>
             <PathBar />
             <KanbanBoardPage />
-            <ApiSpecificationComponent projectId={1} apiSpecificationId={1}/>
         </ModuleContentBox>
     );
 };
