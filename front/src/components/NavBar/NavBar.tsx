@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/system";
+import ProfileButton from "./ProfileButton";
 
 const NavBarBox = styled(Box)({
     height: "100%",
@@ -7,7 +8,11 @@ const NavBarBox = styled(Box)({
 });
 
 const NavBar = () => {
-    return <NavBarBox></NavBarBox>;
+    return (
+        <NavBarBox display={"flex"} justifyContent={"flex-end"} alignItems={"center"}>
+            <ProfileButton></ProfileButton>
+        </NavBarBox>
+    );
 };
 
 export default NavBar;

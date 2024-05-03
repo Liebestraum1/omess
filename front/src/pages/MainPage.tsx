@@ -19,10 +19,10 @@ const MainPage = () => {
 
     return (
         <Box sx={{ width: "100%", height: "100vh", display: "flex", flexDirection: "column" }}>
-            <Box sx={{ height: "32px" }}>
+            <Box sx={{ height: "40px" }}>
                 <NavBar />
             </Box>
-            <Box sx={{ height: `calc(100vh - 32px)`, overflow: "auto", display: "flex" }}>
+            <Box sx={{ height: `calc(100vh - 40px)`, overflow: "auto", display: "flex" }}>
                 <ProjectSidebar />
                 <ModuleSidebar />
                 <ModuleContent />
