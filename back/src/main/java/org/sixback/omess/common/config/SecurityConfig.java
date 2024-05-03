@@ -9,9 +9,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.NEVER;
 
@@ -22,6 +25,12 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final ProjectPermissionFilter projectPermissionFilter;
+    private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
+
+    @Bean
+    public SessionRegistry springSessionBackendSessionRegistry() {
+        return new SpringSessionBackedSessionRegistry<>(jdbcIndexedSessionRepository);
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
