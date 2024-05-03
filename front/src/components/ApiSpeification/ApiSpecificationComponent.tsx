@@ -10,14 +10,18 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
     apiSpecificationId: number
 }) => {
     const [ApiSpecification, setApiSpecification] = useState<ApiSpecification | null>(null);
+    const fetchApiSpecification =  async () => {
+        const data = await loadApiSpecification(projectId, apiSpecificationId);
+        setApiSpecification(data);
+    }
+
+    const handleChildChange = () => {
+        fetchApiSpecification();
+    };
+
 
     useEffect(() => {
-        (
-            async () => {
-                const data = await loadApiSpecification(projectId, apiSpecificationId);
-                setApiSpecification(data);
-            }
-        )()
+        fetchApiSpecification()
     }, [projectId, apiSpecificationId]);
 
     return ApiSpecification ? (
@@ -39,7 +43,13 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                                 justifyContent: 'space-between',
                             }}
                         >
-                            <DomainComponent domainId={domain.domainId} name={domain.name}/>
+                            <DomainComponent
+                                projectId={projectId}
+                                apiSpecificationId={apiSpecificationId}
+                                domainId={domain.domainId}
+                                name={domain.name}
+                                onChildChange={handleChildChange}
+                            />
                             <ApiListComponent apis={domain.apis}/>
                         </ListItem>
                     </List>
