@@ -15,12 +15,17 @@ public class Chat {
 
     @MongoId
     private String id;
-
+    private Content header;
     private Long projectId;
     private List<ChatMember> members;
 
     public Chat(Long projectId, List<ChatMember> members) {
         this.projectId = projectId;
         this.members = members;
+    }
+
+    public Chat update(Content header) {
+        this.header = header;
+        return this;
     }
 }
