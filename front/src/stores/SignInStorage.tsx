@@ -24,6 +24,7 @@ type SignInStore = {
     memberNickname: string | undefined;
     setServerSignIn: () => void;
     setMemberSignIn: (memberId: number, memberNickname: string) => void;
+    setUserLogout: () => void;
 };
 
 const signInStorage: PersistStorage<SignInStore> = {
@@ -60,6 +61,13 @@ export const useSignInStore = create(
                     memberNickname: memberNickname,
                 }));
             },
+
+            setUserLogout: () =>
+                set(() => ({
+                    signInStatus: "server",
+                    memberId: undefined,
+                    memberNickname: undefined,
+                })),
         }),
         {
             name: "signin",
