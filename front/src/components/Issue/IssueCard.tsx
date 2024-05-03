@@ -1,5 +1,5 @@
 import {Avatar, Button, Card, CardContent, Chip, Rating, Typography} from "@mui/material";
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from '@mui/material/Grid';
 import Box from "@mui/material/Box";
 import {IssueProp} from "../../types/Issue/Issue.ts";
 
@@ -27,7 +27,7 @@ const IssueCard = ({issue, handleClickOpen}: IssueCardProp) => {
                              alignItems="center">
                             <Avatar alt="프로필 이미지" src={issue.charger.profile}/>
                             <Box style={{paddingBottom: 30}}></Box>
-                            <Button size="small" onClick={() => {
+                            <Button size="small" color="secondary" onClick={() => {
                                 handleClickOpen(issue.issueId)
                             }}>더보기</Button>
                         </Box>
