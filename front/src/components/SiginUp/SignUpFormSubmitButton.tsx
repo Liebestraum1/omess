@@ -5,7 +5,7 @@ const SignUpFormSubmitButton = () => {
             sx={{
                 marginTop: "36px",
                 fontSize: 16,
-                width: "231px",
+                width: "100%",
             }}
             variant="contained"
             type="submit"
