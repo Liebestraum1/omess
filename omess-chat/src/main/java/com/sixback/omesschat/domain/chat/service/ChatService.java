@@ -130,4 +130,20 @@ public class ChatService {
                 .map(m -> ResponseMessage.ok(HEADER, m))
                 .flux();
     }
+
+    public Flux<ResponseMessage> modifyChatName(String chatId, Long memberId, String name) {
+        log.info("채팅방 이름 변경");
+        return chatRepository.findById(chatId)
+                .map(chat -> chat.update(name))
+                .flatMap(chatRepository::save)
+                .map(chat -> ChatMessageMapper.toSystemMessage(chatId, memberId, name))
+                .flatMap(chatMessageRepository::save)
+                .flatMap(m -> memberService
+                        .findById(memberId)
+                        .map(memberInfo -> ChatMessageMapper.toResponse(m, memberInfo))
+                )
+                .map(chatMessageDto -> ChatMapper.toChatNameResponse(chatId, chatMessageDto))
+                .map(m -> ResponseMessage.ok(CHAT_NAME, m))
+                .flux();
+    }
 }
