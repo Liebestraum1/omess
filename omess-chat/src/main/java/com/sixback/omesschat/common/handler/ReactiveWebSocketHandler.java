@@ -118,7 +118,7 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
      */
     private Mono<Void> after(WebSocketSession session, ResponseMessage message) {
         return switch (message.getType()) {
-            case MESSAGE, UPDATE, DELETE, SUCCESS, PIN, HEADER -> sessionService.send(session, message);
+            case MESSAGE, UPDATE, DELETE, SUCCESS, PIN, HEADER, CHAT_NAME -> sessionService.send(session, message);
             case HISTORY -> sessionService.sendToUser(session, message);
             default -> Mono.error(new ClassCastException());
         };
