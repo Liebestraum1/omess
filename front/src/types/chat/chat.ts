@@ -18,5 +18,6 @@ export type ChatMessage = {
     id: string,
     message: string,
     createAt: string,
-    isUpdated: boolean
+    isUpdated: boolean,
+    isPined: boolean
 }

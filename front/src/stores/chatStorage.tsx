@@ -51,6 +51,16 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         set({messages: deleteMessages});
     }
 
+    const pinMessage = (message: ChatMessage) => {
+        const messages = get().messages;
+
+        const updatedMessages = messages!.map(msg =>
+            msg.id === message.id ? {...msg, isPined: message.isPined} : msg
+        );
+
+        set({messages: updatedMessages});
+    }
+
     // const addMember = (writer: Writer) => {
     //     const members = get().members;
     //     if (members == null) {
@@ -108,6 +118,8 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                     case "DELETE":
                         deleteMessage(message.data);
                         break;
+                    case "PIN":
+                        pinMessage(message.data);
                     case "SUCCESS":
                         console.log("연결 성공")
                         break;
