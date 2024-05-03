@@ -18,6 +18,8 @@ public class ChatMessage {
     @MongoId
     private String id;
 
+    private MessageType classify;
+
     private String chatId;
     private Long writer;
     private String createAt = time();
@@ -28,7 +30,8 @@ public class ChatMessage {
     private boolean isDeleted = false;
     private boolean isPined = false;
 
-    public ChatMessage(String chatId, Long writer, String message) {
+    public ChatMessage(MessageType classify, String chatId, Long writer, String message) {
+        this.classify = classify;
         this.chatId = chatId;
         this.writer = writer;
         this.message = message;
