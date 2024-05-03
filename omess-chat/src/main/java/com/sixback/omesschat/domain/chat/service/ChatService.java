@@ -91,4 +91,16 @@ public class ChatService {
                 ).map(m -> ResponseMessage.ok(DELETE, m))
                 .flux();
     }
+
+    public Flux<ResponseMessage> pinChatMessage(Long memberId, String messageId) {
+        log.info("채팅 핀 기능");
+        return chatMessageRepository.findById(messageId)
+                .map(ChatMessage::pin)
+                .flatMap(chatMessageRepository::save)
+                .flatMap(m -> memberService
+                        .findById(memberId)
+                        .map(memberInfo -> ChatMessageMapper.toResponse(m, memberInfo))
+                ).map(m -> ResponseMessage.ok(PIN, m))
+                .flux();
+    }
 }

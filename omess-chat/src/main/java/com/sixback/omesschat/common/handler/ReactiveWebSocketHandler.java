@@ -83,6 +83,14 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
 
                 yield chatService.loadChatHistory(chatId, memberId, load.getOffset());
             }
+            case PIN -> {
+                PinRequestMessage pin = MessageParser.parseMessage(requestMessage.getData(),
+                        PinRequestMessage.class);
+
+                Long memberId = sessionService.findMemberId(session);
+
+                yield chatService.pinChatMessage(memberId, pin.getMessageId());
+            }
             default -> throw new TypeNotPresentException(type.name(), new Throwable("Not Present MessageType"));
         };
     }
@@ -92,7 +100,7 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
      */
     private Mono<Void> after(WebSocketSession session, ResponseMessage message) {
         return switch (message.getType()) {
-            case MESSAGE, UPDATE, DELETE, SUCCESS -> sessionService.send(session, message);
+            case MESSAGE, UPDATE, DELETE, SUCCESS, PIN -> sessionService.send(session, message);
             case HISTORY -> sessionService.sendToUser(session, message);
             default -> Mono.error(new ClassCastException());
         };

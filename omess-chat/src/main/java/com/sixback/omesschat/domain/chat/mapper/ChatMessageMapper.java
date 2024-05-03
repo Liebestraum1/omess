@@ -12,8 +12,9 @@ public class ChatMessageMapper {
                 member,
                 message.getId(),
                 message.getMessage(),
-                message.getCreateAt().toString(),
-                message.isUpdated()
+                message.getCreateAt(),
+                message.isUpdated(),
+                message.isPined()
         );
     }
 
