@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.project.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sixback.omess.common.ProjectMemberResult;
+import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
@@ -20,6 +22,7 @@ import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,6 +63,10 @@ class ProjectControllerTest {
     @Autowired
     MemberRepository memberRepository;
 
+    String email = "email@naver.com";
+    String nickname = "nickname";
+    String password = "password123";
+
     @Nested
     @DisplayName("create Project test ")
     class CreateProject {
@@ -69,15 +76,17 @@ class ProjectControllerTest {
             // given
             String createProjectRequest = objectMapper.writeValueAsString(new CreateProjectRequest("pName"));
 
-            Member member = makeMember();
+            Member member = makeMember(nickname, email, password);
             memberRepository.save(member);
             MockHttpSession session = makeMockSession(member.getId());
+            Cookie cookie = getCookie(email, password);
 
             // when
             mockMvc.perform(post("/api/v1/projects")
                             .contentType(APPLICATION_JSON)
                             .content(createProjectRequest)
-                            .session(session))
+//                            .session(session))
+                            .cookie(cookie))
                     // then
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.projectId").isNumber())
@@ -111,7 +120,7 @@ class ProjectControllerTest {
         @DisplayName("프로젝트 생성 - 빈 바디 실패")
         void createProject_fail_noRequestBody() throws Exception {
             // given
-            Member member = makeMember();
+            Member member = makeMember(nickname, email, password);
             memberRepository.save(member);
             MockHttpSession session = makeMockSession(member.getId());
 
@@ -135,7 +144,7 @@ class ProjectControllerTest {
             // given
             String createProjectRequest = objectMapper.writeValueAsString(new CreateProjectRequest(name));
 
-            Member member = makeMember();
+            Member member = makeMember(nickname, email, password);
             memberRepository.save(member);
             MockHttpSession session = makeMockSession(member.getId());
 
@@ -161,15 +170,17 @@ class ProjectControllerTest {
         @DisplayName("프로젝트 조회 - 성공")
         void getProjects_success() throws Exception {
             // given
-            ProjectMemberResult projectMemberResult = makeProjectMembers();
+            ProjectMemberResult projectMemberResult = makeProjectMembers(nickname, email, password);
             memberRepository.save(projectMemberResult.getMember());
             projectRepository.saveAll(projectMemberResult.getProjects());
             projectMemberRepository.saveAll(projectMemberResult.getProjectMembers());
             MockHttpSession session = makeMockSession(projectMemberResult.getMember().getId());
+            Cookie cookie = getCookie(email, password);
 
             // when
             mockMvc.perform(get("/api/v1/projects")
-                            .session(session))
+//                            .session(session)
+                            .cookie(cookie))
                     // then
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.projects").isArray())
@@ -212,13 +223,14 @@ class ProjectControllerTest {
         @DisplayName("프로젝트 업데이트 - 성공")
         void updateProject_success() throws Exception {
             // given
-            ProjectMemberResult projectMemberResult = makeProjectMembers();
+            ProjectMemberResult projectMemberResult = makeProjectMembers(nickname, email, password);
             Member member = projectMemberResult.getMember();
             Project project = projectMemberResult.getProjects().getFirst();
             memberRepository.save(member);
             projectRepository.saveAll(projectMemberResult.getProjects());
             projectMemberRepository.save(projectMemberResult.getProjectMembers().getFirst());
             MockHttpSession session = makeMockSession(member.getId());
+            Cookie cookie = getCookie(email, password);
 
             String updateProjectRequest = objectMapper.writeValueAsString(new UpdateProjectRequest("pName"));
 
@@ -226,7 +238,8 @@ class ProjectControllerTest {
             mockMvc.perform(patch("/api/v1/projects/" + project.getId())
                             .contentType(APPLICATION_JSON)
                             .content(updateProjectRequest)
-                            .session(session))
+                            .session(session)
+                            .cookie(cookie))
                     // then
                     .andExpect(status().isOk())
                     .andDo(print())
@@ -263,18 +276,21 @@ class ProjectControllerTest {
         @DisplayName("프로젝트 업데이트 - 빈 바디 실패")
         void updateProject_fail_noBody() throws Exception {
             // given
-            ProjectMemberResult projectMemberResult = makeProjectMembers();
+            ProjectMemberResult projectMemberResult = makeProjectMembers(nickname, email, password);
             Member member = projectMemberResult.getMember();
             Project project = projectMemberResult.getProjects().getFirst();
             memberRepository.save(member);
             projectRepository.saveAll(projectMemberResult.getProjects());
             projectMemberRepository.save(projectMemberResult.getProjectMembers().getFirst());
             MockHttpSession session = makeMockSession(member.getId());
+            Cookie cookie = getCookie(email, password);
 
             // when
             mockMvc.perform(patch("/api/v1/projects/" + project.getId())
                             .contentType(APPLICATION_JSON)
-                            .session(session))
+                            .session(session)
+                            .cookie(cookie))
+
                     // then
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
@@ -289,12 +305,13 @@ class ProjectControllerTest {
         @DisplayName("프로젝트 업데이트 - 값 검증으로 인한 실패")
         void updateProject_fail_validation(String name) throws Exception {
             // given
-            Member member = makeMember();
+            Member member = makeMember(nickname, email, password);
             Project project = makeProject("name");
             memberRepository.save(member);
             projectRepository.save(project);
             projectMemberRepository.save(new ProjectMember(project, member, USER));
             MockHttpSession session = makeMockSession(member.getId());
+            Cookie cookie = getCookie(email, password);
 
             String updateProjectRequest = "{ "
                     + "\"name\":" + "\"" + name + "\""
@@ -304,7 +321,8 @@ class ProjectControllerTest {
             mockMvc.perform(patch("/api/v1/projects/" + project.getId())
                             .contentType(APPLICATION_JSON)
                             .content(updateProjectRequest)
-                            .session(session))
+                            .session(session)
+                            .cookie(cookie))
                     // then
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.title").value(VALIDATION_ERROR.getTitle()))
@@ -313,5 +331,14 @@ class ProjectControllerTest {
                     .andDo(print())
             ;
         }
+    }
+
+    private Cookie getCookie(String email, String password) throws Exception {
+            MockHttpServletResponse response = mockMvc.perform(post("/api/v1/members/signin")
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(new SignInMemberRequest(email, password))))
+                    .andReturn()
+                    .getResponse();
+        return response.getCookie("SESSION");
     }
 }

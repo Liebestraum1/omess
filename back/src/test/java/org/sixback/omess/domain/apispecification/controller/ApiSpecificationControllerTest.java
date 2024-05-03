@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.apispecification.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.sixback.omess.domain.apispecification.model.entity.ApiSpecification;
 import org.sixback.omess.domain.apispecification.model.entity.Domain;
 import org.sixback.omess.domain.apispecification.repository.*;
 import org.sixback.omess.domain.apispecification.service.ApiSpecificationService;
+import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.sixback.omess.domain.project.model.entity.Project;
@@ -23,6 +25,7 @@ import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,7 +36,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sixback.omess.common.TestUtils.*;
+import static org.sixback.omess.common.TestUtils.makeMember;
+import static org.sixback.omess.common.TestUtils.makeProject;
 import static org.sixback.omess.domain.apispecification.util.ApiSpecificationMapper.*;
 import static org.sixback.omess.domain.apispecification.util.ApiSpecificationUtils.generatePath;
 import static org.sixback.omess.domain.project.model.enums.ProjectRole.USER;
@@ -92,18 +96,28 @@ class ApiSpecificationControllerTest {
     private ApiSpecification dummyApiSpecificationForSetUp;
     private Domain dummyDomainForSetUp;
     private Api dummyApiForSetUp;
+    private Cookie cookie;
 
     @BeforeEach
     public void setUp() {
-//		this.mockMvc = MockMvcBuilders.standaloneSetup(apiSpecificationController)
-//			.addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
-//			.build();
         dummyProjectForSetUp = makeProject();
-        dummyMemberForSetUp = makeMember();
+        dummyMemberForSetUp = makeMember("nickname", "e@naver.com", "password123");
         memberRepository.save(dummyMemberForSetUp);
         projectRepository.save(dummyProjectForSetUp);
         projectMemberRepository.save(new ProjectMember(dummyProjectForSetUp, dummyMemberForSetUp, USER));
-        mockitoSession = makeMockSession(dummyMemberForSetUp.getId());
+//        mockitoSession = makeMockSession(dummyMemberForSetUp.getId());
+
+        try {
+            MockHttpServletResponse response = mockMvc.perform(post("/api/v1/members/signin")
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(new SignInMemberRequest("e@naver.com", "password123"))))
+                    .andReturn()
+                    .getResponse();
+            cookie = response.getCookie("SESSION");
+        } catch (Exception e) {
+            System.out.println("login 실패");
+            throw new RuntimeException("");
+        }
     }
 
     @AfterEach
@@ -112,6 +126,7 @@ class ApiSpecificationControllerTest {
         domainRepository.deleteAll();
         apiSpecificationRepository.deleteAll();
         projectRepository.deleteAll();
+        memberRepository.deleteAll();
     }
 
     private void setUpDummyApiSpecification(Project project) {
@@ -178,7 +193,8 @@ class ApiSpecificationControllerTest {
         mockMvc.perform(
                         get("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}", dummyProjectForSetUp.getId(),
                                 dummyApiSpecificationForSetUp.getId())
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 ).andExpect(status().isOk())
 //			.andExpect(content().contentType(APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.domains").isArray())
@@ -198,7 +214,8 @@ class ApiSpecificationControllerTest {
                         post("/api/v1/projects/{projectId}/api-specifications", dummyProjectForSetUp.getId())
                                 .contentType(APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 ).andExpect(status().isOk())
                 .andDo(print());
 
@@ -223,11 +240,11 @@ class ApiSpecificationControllerTest {
         setUpDummyApiSpecification(dummyProjectForSetUp);
 
         //when
-        mockMvc.perform(
-                        post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains",
+        mockMvc.perform(post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains",
                                 dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId()
                         ).contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(request))
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -258,7 +275,8 @@ class ApiSpecificationControllerTest {
                         post("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}/apis",
                                 dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId()
                         ).contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(request))
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -273,6 +291,7 @@ class ApiSpecificationControllerTest {
         //given
         setUpDummyApiSpecification(dummyProjectForSetUp);
         setUpDummyDomain(dummyApiSpecificationForSetUp);
+
         Domain dummyDomain2 = new Domain("dummyDomain2", dummyApiSpecificationForSetUp);
         Domain dummyDomain3 = new Domain("dummyDomain3", dummyApiSpecificationForSetUp);
         Domain dummyDomain4 = new Domain("dummyDomain4", dummyApiSpecificationForSetUp);
@@ -285,8 +304,7 @@ class ApiSpecificationControllerTest {
         mockMvc.perform(
                         get("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains",
                                 dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId())
-                                .session(mockitoSession)
-                )
+                                .cookie(cookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.domains").isArray())
                 .andExpect(jsonPath("$.domains").isNotEmpty())
@@ -314,7 +332,8 @@ class ApiSpecificationControllerTest {
                                 dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId())
                                 .contentType(APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 ).andExpect(status().isOk())
                 .andDo(print());
 
@@ -338,7 +357,8 @@ class ApiSpecificationControllerTest {
         mockMvc.perform(
                         delete("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}",
                                 dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId())
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -363,7 +383,8 @@ class ApiSpecificationControllerTest {
                         get("/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}/apis/{apiId}",
                                 dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId(),
                                 dummyApiForSetUp.getId())
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.apiId").value(dummyApiForSetUp.getId()))
@@ -400,7 +421,8 @@ class ApiSpecificationControllerTest {
                         )
                                 .contentType(APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -440,7 +462,8 @@ class ApiSpecificationControllerTest {
                                 "/api/v1/projects/{projectId}/api-specifications/{apiSpecificationId}/domains/{domainId}/apis/{apiId}",
                                 dummyProjectForSetUp.getId(), dummyApiSpecificationForSetUp.getId(), dummyDomainForSetUp.getId(),
                                 dummyApiForSetUp.getId())
-                                .session(mockitoSession)
+//                                .session(mockitoSession)
+                                .cookie(cookie)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
