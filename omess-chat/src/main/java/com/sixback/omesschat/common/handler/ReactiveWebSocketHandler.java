@@ -5,6 +5,7 @@ import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
 import com.sixback.omesschat.domain.chat.parser.MessageParser;
 import com.sixback.omesschat.domain.chat.service.ChatService;
 import com.sixback.omesschat.domain.chat.service.WebSocketSessionService;
+import com.sixback.omesschat.domain.chat.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,78 +31,86 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
         Flux<WebSocketMessage> receive = session.receive();
         return receive.doOnSubscribe(message -> log.info("WebSocket 연결"))
                 .map(message -> MessageParser.parseMessage(message.getPayloadAsText()))
-                .flatMap(requestMessage -> process(session, requestMessage))
+                .map(this::validate)
+                .flatMap(o -> process(session, o))
                 .flatMap(o -> after(session, o))
                 .doOnError((error) -> error.printStackTrace())
                 .doFinally(type -> sessionService.leave(session))
                 .then();
     }
 
+    private Object validate(RequestMessage requestMessage) {
+        log.info("message validate...");
+        ValidationUtils.validate(requestMessage);
+        RequestType type = requestMessage.getType();
+        Object o = switch (type) {
+            case ENTER -> MessageParser.parseMessage(requestMessage.getData(),
+                    EnterRequestMessage.class);
+            case SEND -> MessageParser.parseMessage(requestMessage.getData(),
+                    SendRequestMessage.class);
+            case UPDATE -> MessageParser.parseMessage(requestMessage.getData(),
+                    UpdateRequestMessage.class);
+            case DELETE -> MessageParser.parseMessage(requestMessage.getData(),
+                    DeleteRequestMessage.class);
+            case LOAD -> MessageParser.parseMessage(requestMessage.getData(),
+                    LoadRequestMessage.class);
+            case PIN -> MessageParser.parseMessage(requestMessage.getData(),
+                    PinRequestMessage.class);
+            case HEADER -> MessageParser.parseMessage(requestMessage.getData(),
+                    HeaderRequestMessage.class);
+            case CHAT_NAME -> MessageParser.parseMessage(requestMessage.getData(),
+                    ChatNameRequestMessage.class);
+            default -> throw new TypeNotPresentException(type.name(), new Throwable("Not Present MessageType"));
+        };
+        return ValidationUtils.validate(o);
+    }
+
     /**
      * 메시지 처리
      */
-    private Flux<ResponseMessage> process(WebSocketSession session, RequestMessage requestMessage) {
+    private Flux<ResponseMessage> process(WebSocketSession session, Object request) {
         log.info("request processing... - {}", session.getId());
-        RequestType type = requestMessage.getType();
-        return switch (type) {
-            case ENTER -> {
-                EnterRequestMessage enter = MessageParser.parseMessage(requestMessage.getData(),
-                        EnterRequestMessage.class);
-                yield sessionService.enter(session, enter);
-            }
-            case SEND -> {
-                SendRequestMessage send = MessageParser.parseMessage(requestMessage.getData(),
-                        SendRequestMessage.class);
+        if (request instanceof EnterRequestMessage enter) {
+            return sessionService.enter(session, enter);
+        } else if (request instanceof SendRequestMessage send) {
+            String chatId = sessionService.findChatId(session);
+            Long memberId = sessionService.findMemberId(session);
 
-                String chatId = sessionService.findChatId(session);
-                Long memberId = sessionService.findMemberId(session);
+            return chatService.saveChatMessage(chatId, memberId, send);
+        } else if (request instanceof UpdateRequestMessage update) {
+            Long memberId = sessionService.findMemberId(session);
 
-                yield chatService.saveChatMessage(chatId, memberId, send);
-            }
-            case UPDATE -> {
-                UpdateRequestMessage update = MessageParser.parseMessage(requestMessage.getData(),
-                        UpdateRequestMessage.class);
+            return chatService.updateChatMessage(memberId, update.getMessageId(), update.getMessage());
+        } else if (request instanceof DeleteRequestMessage delete) {
 
-                Long memberId = sessionService.findMemberId(session);
+            Long memberId = sessionService.findMemberId(session);
 
-                yield chatService.updateChatMessage(memberId, update.getMessageId(), update.getMessage());
-            }
-            case DELETE -> {
-                DeleteRequestMessage delete = MessageParser.parseMessage(requestMessage.getData(),
-                        DeleteRequestMessage.class);
+            return chatService.deleteChatMessage(memberId, delete.getMessageId());
+        } else if (request instanceof LoadRequestMessage load) {
 
-                Long memberId = sessionService.findMemberId(session);
+            String chatId = sessionService.findChatId(session);
+            Long memberId = sessionService.findMemberId(session);
 
-                yield chatService.deleteChatMessage(memberId, delete.getMessageId());
-            }
-            case LOAD -> {
-                LoadRequestMessage load = MessageParser.parseMessage(requestMessage.getData(),
-                        LoadRequestMessage.class);
+            return chatService.loadChatHistory(chatId, memberId, load.getOffset());
+        } else if (request instanceof PinRequestMessage pin) {
 
-                String chatId = sessionService.findChatId(session);
-                Long memberId = sessionService.findMemberId(session);
+            Long memberId = sessionService.findMemberId(session);
 
-                yield chatService.loadChatHistory(chatId, memberId, load.getOffset());
-            }
-            case PIN -> {
-                PinRequestMessage pin = MessageParser.parseMessage(requestMessage.getData(),
-                        PinRequestMessage.class);
+            return chatService.pinChatMessage(memberId, pin.getMessageId());
+        } else if (request instanceof HeaderRequestMessage header) {
 
-                Long memberId = sessionService.findMemberId(session);
+            String chatId = sessionService.findChatId(session);
+            Long memberId = sessionService.findMemberId(session);
 
-                yield chatService.pinChatMessage(memberId, pin.getMessageId());
-            }
-            case HEADER -> {
-                HeaderRequestMessage header = MessageParser.parseMessage(requestMessage.getData(),
-                        HeaderRequestMessage.class);
+            return chatService.registerHeader(chatId, memberId, header.getDetail());
+        } else if (request instanceof ChatNameRequestMessage chatName) {
 
-                String chatId = sessionService.findChatId(session);
-                Long memberId = sessionService.findMemberId(session);
+            String chatId = sessionService.findChatId(session);
+            Long memberId = sessionService.findMemberId(session);
 
-                yield chatService.registerHeader(chatId, memberId, header.getDetail());
-            }
-            default -> throw new TypeNotPresentException(type.name(), new Throwable("Not Present MessageType"));
-        };
+            return chatService.modifyChatName(chatId, memberId, chatName.getName());
+        }
+        throw new TypeNotPresentException("REQUEST", new Throwable("type not present..."));
     }
 
     /**
