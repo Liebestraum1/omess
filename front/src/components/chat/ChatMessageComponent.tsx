@@ -5,13 +5,11 @@ import ChatMessageMenu from "./ChatMessageMenu.tsx";
 import ChatEditingButton from "./ChatEditingButton.tsx";
 import TextField from "@mui/material/TextField";
 import {useChatStorage} from "../../stores/chatStorage.tsx";
-import {useSignInStore} from "../../stores/SignInStorage.tsx";
 import MDEditor from '@uiw/react-md-editor';
 import '../../styles/MdEditor.css'
 
 const ChatMessageComponent = (message: ChatMessage) => {
     const {sendMessage} = useChatStorage();
-    const {memberId} = useSignInStore();
     const [isEditing, setIsEditing] = useState(false);
     const [isView, setIsView] = useState<boolean>(false);
     const [date, setDate] = useState<string>('');
