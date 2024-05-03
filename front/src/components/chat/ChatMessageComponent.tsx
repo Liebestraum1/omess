@@ -79,6 +79,17 @@ const ChatMessageComponent = (message: ChatMessage) => {
         sendMessage(JSON.stringify(data))
     }
 
+    const pinMessage = () => {
+        const data = {
+            type: 'PIN',
+            data: {
+                messageId: message.id,
+            }
+        }
+
+        sendMessage(JSON.stringify(data))
+    }
+
 
     return (
         <Box
@@ -108,7 +119,7 @@ const ChatMessageComponent = (message: ChatMessage) => {
                         label="메시지" sx={{width: '40%'}}/>
             }
             {!isEditing ?
-                <ChatMessageMenu setIsEditing={setIsEditing} delete={deleteMessage}/>
+                <ChatMessageMenu isPined={message.isPined} pin={pinMessage} setIsEditing={setIsEditing} delete={deleteMessage}/>
                 :
                 <ChatMessageEditing update={update} setIsEditing={setIsEditing}/>
             }
