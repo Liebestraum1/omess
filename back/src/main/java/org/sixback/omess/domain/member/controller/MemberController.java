@@ -98,6 +98,15 @@ public class MemberController {
                 .body(signinMemberResponse);
     }
 
+    @PostMapping("/signout")
+    public ResponseEntity<Void> signout(HttpSession session) {
+        log.debug("session: {}", session);
+        Long memberId = (Long) session.getAttribute("memberId");
+        log.debug("memberId: {}", memberId);
+        session.invalidate();
+        return ResponseEntity.ok().build();
+    }
+
     @ExceptionHandler({DuplicateEmailException.class, DuplicateNicknameException.class})
     public ErrorResponse DuplicateExceptionHandler(
             HttpServletRequest request, RuntimeException exception
