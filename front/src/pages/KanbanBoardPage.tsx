@@ -71,7 +71,6 @@ const KanbanBoardPage = () => {
         <Container style={{padding: 20}}>
             <KanbanBoadrFilter/>
             <KanbanBoard/>
-
         </Container>
     );
 }
