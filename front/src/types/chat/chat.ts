@@ -1,10 +1,17 @@
 export type ChatInfo = {
     id: string,
     name: string,
-    notice?: ChatMessage,
-    header?: ChatMessage,
-    memberCount: number,
-    messageCount: number
+    header?: string,
+}
+
+export type Header = {
+    detail: string,
+    message: ChatMessage
+}
+
+export type ChatName = {
+    chatName: string,
+    message: ChatMessage
 }
 
 export type Writer = {
@@ -14,6 +21,7 @@ export type Writer = {
 }
 
 export type ChatMessage = {
+    classify: string,
     member: Writer,
     id: string,
     message: string,

@@ -50,7 +50,7 @@ const ChatListComponent = ({projectId}: { projectId: number }) => {
                             <Avatar
                                 sx={{width: 20, height: 20, fontSize: "12px"}}
                                 variant="rounded"
-                            >{value.memberCount}</Avatar>
+                            >{0}</Avatar>
                             {value.name}</Link>
                     </Box>
                 ))) : null
