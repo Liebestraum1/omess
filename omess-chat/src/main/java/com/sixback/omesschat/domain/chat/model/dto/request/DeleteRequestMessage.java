@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class DeleteRequestMessage {
-    String messageId;
+    private String messageId;
 }
