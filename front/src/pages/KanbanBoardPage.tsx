@@ -1,137 +1,77 @@
-import {Button, Card, CardContent, Stack, Typography, Avatar, Chip, Container} from "@mui/material";
-import Grid from '@mui/material/Unstable_Grid2';
-import Box from "@mui/material/Box"; // Grid version 2
+import {
+    Container,
+} from "@mui/material";
+
+import KanbanBoadrFilter from "../components/KanbanBoard/KanbanBoadrFilter.tsx";
+import KanbanBoard from "../components/KanbanBoard/KanbanBoard.tsx";
+import {LabelProp} from "../types/Label/Label.ts";
+import {useKanbanBoardStore} from "../stores/KanbanBoardStorage.tsx";
+import {MemberProp} from "../types/Member/Member.ts";
+import {useEffect} from "react";
+
+// FixMe 칸반보드 라벨 리스트 조회 api 호출로 바꾸기
+const labels: LabelProp[] = [
+    {
+        labelId: 1,
+        name: "Back-End"
+    },
+    {
+        labelId: 2,
+        name: "Front-End"
+    },
+    {
+        labelId: 3,
+        name: "공통"
+    },
+]
+
+// FixMe 프로젝트 멤버 조회 api 호출로 바꾸기
+const projectMembers: MemberProp[] = [
+    {
+        id: 1,
+        nickname: "슈밤",
+        profile: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdHcLQLjBSyQ2kk7X4xV_XxScm1nk0TUqqUoUtqSTIQg&s",
+    },
+    {
+        id: 2,
+        nickname: "단밤",
+        profile: "https://cdn.hankyung.com/photo/202403/01.36047379.1.jpg",
+    },
+    {
+        id: 3,
+        nickname: "시밤",
+        profile: "https://blog.kakaocdn.net/dn/biKQiJ/btskhCTo1yV/p4tySh1KUUCyOfd7Y6LYUK/img.jpg",
+    },
+]
 
 const KanbanBoardPage = () => {
-    return (
-        <Container style={{padding: 10}}>
-            <Grid container columnSpacing={3}>
-                {/** 진행전 */}
-                <Grid xs={3.5} >
-                    <Box style={{backgroundColor: "#F7F8F9"}} padding={1} height={"100%"}>
-                        <Typography style={{padding: 10}}> 진행전 </Typography>
-                        <Stack spacing={3} >
-                            <Card>
-                                <CardContent>
-                                    <Grid container>
-                                        <Grid xs={9}>
-                                            <Typography style={{paddingBottom: 10}}> [Back-End] 회원 가입 api 구현</Typography>
-                                            <Chip label="back-end" color="primary" />
-                                        </Grid>
-                                        <Grid xs={3} >
-                                            <Box display={"flex"} flexDirection={"column"} justifyContent="center"  alignItems="center">
-                                                <Avatar alt="프로필 이미지"
-                                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdHcLQLjBSyQ2kk7X4xV_XxScm1nk0TUqqUoUtqSTIQg&s"/>
-                                                <Box style={{paddingBottom: 20}}></Box>
-                                                <Button  size="small">더보기</Button>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-                        </Stack>
-                        <Box padding={1} display={"flex"} justifyContent="center"  alignItems="center">
-                            <Button>+ 이슈 만들기</Button>
-                        </Box>
-                    </Box>
-                </Grid>
-                {/** 진행 중 */}
-                <Grid xs={3.5} >
-                    <Box style={{backgroundColor: "#F7F8F9"}} padding={1} height={"100%"}>
-                        <Typography style={{padding: 10}}> 진행전 </Typography>
-                        <Stack spacing={3} >
-                            <Card>
-                                <CardContent>
-                                    <Grid container>
-                                        <Grid xs={9}>
-                                            <Typography style={{paddingBottom: 10}}> [Back-End] 회원 가입 api 구현</Typography>
-                                            <Chip label="back-end" color="primary" />
-                                        </Grid>
-                                        <Grid xs={3} >
-                                            <Box display={"flex"} flexDirection={"column"} justifyContent="center"  alignItems="center">
-                                                <Avatar alt="프로필 이미지"
-                                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdHcLQLjBSyQ2kk7X4xV_XxScm1nk0TUqqUoUtqSTIQg&s"/>
-                                                <Box style={{paddingBottom: 20}}></Box>
-                                                <Button  size="small">더보기</Button>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-                        </Stack>
-                        <Box padding={1} display={"flex"} justifyContent="center"  alignItems="center">
-                            <Button>+ 이슈 만들기</Button>
-                        </Box>
-                    </Box>
-                </Grid>
-                {/** 완료 */}
-                <Grid xs={3.5} >
-                    <Box style={{backgroundColor: "#F7F8F9"}} padding={1} height={"100%"}>
-                        <Typography style={{padding: 10}}> 진행전 </Typography>
-                        <Stack spacing={3} >
-                            <Card>
-                                <CardContent>
-                                    <Grid container>
-                                        <Grid xs={9}>
-                                            <Typography style={{paddingBottom: 10}}> [Back-End] 회원 가입 api 구현</Typography>
-                                            <Chip label="back-end" color="primary" />
-                                        </Grid>
-                                        <Grid xs={3} >
-                                            <Box display={"flex"} flexDirection={"column"} justifyContent="center"  alignItems="center">
-                                                <Avatar alt="프로필 이미지"
-                                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdHcLQLjBSyQ2kk7X4xV_XxScm1nk0TUqqUoUtqSTIQg&s"/>
-                                                <Box style={{paddingBottom: 20}}></Box>
-                                                <Button  size="small">더보기</Button>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardContent>
-                                    <Grid container>
-                                        <Grid xs={9}>
-                                            <Typography style={{paddingBottom: 10}}> [Back-End] 회원 가입 api 구현</Typography>
-                                            <Chip label="back-end" color="primary" />
-                                        </Grid>
-                                        <Grid xs={3} >
-                                            <Box display={"flex"} flexDirection={"column"} justifyContent="center"  alignItems="center">
-                                                <Avatar alt="프로필 이미지"
-                                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdHcLQLjBSyQ2kk7X4xV_XxScm1nk0TUqqUoUtqSTIQg&s"/>
-                                                <Box style={{paddingBottom: 20}}></Box>
-                                                <Button  size="small">더보기</Button>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardContent>
-                                    <Grid container>
-                                        <Grid xs={9}>
-                                            <Typography style={{paddingBottom: 10}}> [Back-End] 회원 가입 api 구현</Typography>
-                                            <Chip label="back-end" color="primary" />
-                                        </Grid>
-                                        <Grid xs={3} >
-                                            <Box display={"flex"} flexDirection={"column"} justifyContent="center"  alignItems="center">
-                                                <Avatar alt="프로필 이미지"
-                                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdHcLQLjBSyQ2kk7X4xV_XxScm1nk0TUqqUoUtqSTIQg&s"/>
-                                                <Box style={{paddingBottom: 20}}></Box>
-                                                <Button  size="small">더보기</Button>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-                        </Stack>
-                        <Box padding={1} display={"flex"} justifyContent="center"  alignItems="center">
-                            <Button>+ 이슈 만들기</Button>
-                        </Box>
-                    </Box>
-                </Grid>
-            </Grid>
-        </Container>
 
+
+    const setLabels = useKanbanBoardStore(state => state.setLabels);
+    const setProjectMembers = useKanbanBoardStore(state => state.setprojectMembers);
+    const selectedLabel = useKanbanBoardStore(state => state.selectedLabel);
+    const selectedMember = useKanbanBoardStore(state => state.selectedMember);
+    const selectedImpotance = useKanbanBoardStore(state => state.selectedImpotance);
+    
+    // FixMe 이슈 필터링 api 호출
+    useEffect(() => {
+        console.log('Selected Label Changed:', selectedLabel);
+        console.log('Selected Member Changed:', selectedMember);
+        console.log('Selected Importance Changed:', selectedImpotance);
+        // 필요한 추가 로직을 여기에 구현
+    }, [selectedLabel, selectedMember, selectedImpotance]);  // 상태 변화 감지
+
+    useEffect(() => {
+        // 페이지 진입 시 라벨과 프로젝트 멤버 설정
+        setLabels(labels);
+        setProjectMembers(projectMembers);
+    }, [setLabels, setProjectMembers]); // 의존성 배열에 추가
+
+    return (
+        <Container style={{padding: 20}}>
+            <KanbanBoadrFilter/>
+            <KanbanBoard/>
+        </Container>
     );
 }
 
