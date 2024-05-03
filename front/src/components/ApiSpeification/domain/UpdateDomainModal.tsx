@@ -35,7 +35,7 @@ const modalStyle = {
     gap: 2,
 };
 
-const DomainModal = (
+const UpdateDomainModal = (
     {projectId, apiSpecificationId, domainId, name, onChildChange, open, changeOpen}:
         {
             projectId: number,
@@ -76,6 +76,7 @@ const DomainModal = (
             updateDomain(projectId, apiSpecificationId, domainId, inputValue)
                 .then(() => {
                     handleClose()
+                    setInputValue(inputValue)
                     onChildChange()
                 })
                 .catch((e) => {
@@ -111,7 +112,7 @@ const DomainModal = (
                         onChange={handleChange}
                         disabled={isShowMode}
                         inputProps={{
-                            maxLength: 40
+                            maxLength: 20
                         }}
                         error={isSameName}
                         helperText={isSameName ? '동일한 이름입니다.' : ''}
@@ -199,4 +200,4 @@ const DomainModal = (
 
 }
 
-export default DomainModal
+export default UpdateDomainModal
