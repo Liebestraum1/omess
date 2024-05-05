@@ -13,6 +13,7 @@ DROP TABLE if exists `api`;
 DROP TABLE if exists `path_variable`;
 DROP TABLE if exists `request_header`;
 DROP TABLE if exists `query_param`;
+DROP TABLE if exists `file_information`;
 DROP TABLE if exists `SPRING_SESSION_ATTRIBUTES`;
 DROP TABLE if exists `SPRING_SESSION`;
 
