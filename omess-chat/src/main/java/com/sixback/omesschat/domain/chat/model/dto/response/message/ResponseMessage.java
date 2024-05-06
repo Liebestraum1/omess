@@ -1,8 +1,8 @@
-package com.sixback.omesschat.domain.chat.model.dto.response;
+package com.sixback.omesschat.domain.chat.model.dto.response.message;
 
 import lombok.Getter;
 
-import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.SUCCESS;
+import static com.sixback.omesschat.domain.chat.model.dto.response.message.ResponseType.SUCCESS;
 
 @Getter
 public class ResponseMessage {

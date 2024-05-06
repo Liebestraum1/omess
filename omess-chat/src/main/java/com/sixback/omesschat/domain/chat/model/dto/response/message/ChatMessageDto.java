@@ -1,4 +1,4 @@
-package com.sixback.omesschat.domain.chat.model.dto.response;
+package com.sixback.omesschat.domain.chat.model.dto.response.message;
 
 import com.sixback.omesschat.domain.chat.model.entity.MessageType;
 import com.sixback.omesschat.domain.member.model.dto.MemberInfo;
