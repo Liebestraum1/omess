@@ -2,8 +2,8 @@ package com.sixback.omesschat.domain.chat.service;
 
 import com.sixback.omesschat.domain.chat.mapper.ChatMapper;
 import com.sixback.omesschat.domain.chat.mapper.ChatMessageMapper;
-import com.sixback.omesschat.domain.chat.model.dto.request.SendRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.SendRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.response.message.ResponseMessage;
 import com.sixback.omesschat.domain.chat.model.entity.ChatMessage;
 import com.sixback.omesschat.domain.chat.model.entity.Content;
 import com.sixback.omesschat.domain.chat.repository.ChatMessageRepository;
@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 
-import static com.sixback.omesschat.domain.chat.model.dto.response.ResponseType.*;
+import static com.sixback.omesschat.domain.chat.model.dto.response.message.ResponseType.*;
 
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ChatService {
+public class ChatWebSocketService {
 
     private static final int PAGE_SIZE = 20;
     private final MemberService memberService;
