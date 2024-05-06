@@ -98,9 +98,8 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
         } else if (request instanceof LoadRequestMessage load) {
 
             String chatId = sessionService.findChatId(session);
-            Long memberId = sessionService.findMemberId(session);
 
-            return chatWebSocketService.loadChatHistory(chatId, memberId, load.getOffset());
+            return chatWebSocketService.loadChatHistory(chatId, load.getOffset());
         } else if (request instanceof PinRequestMessage pin) {
 
             Long memberId = sessionService.findMemberId(session);
