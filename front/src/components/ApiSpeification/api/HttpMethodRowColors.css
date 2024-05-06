@@ -1,0 +1,31 @@
+.GET-ROW {
+    background-color: #EBF3FB
+}
+
+.POST-ROW {
+    background-color: #E9F6F1
+}
+
+.HEAD-ROW {
+    background-color: #F1E5FA
+}
+
+.PUT-ROW {
+    background-color: #FAF2E8
+}
+
+.DELETE-ROW {
+    background-color: #FAE8E9
+}
+
+.OPTIONS-ROW {
+    background-color: #E4EAF3
+}
+
+.PATCH-ROW {
+    background-color: #EAF8F5
+}
+
+.EDIT-ROW{
+    background-color: #FFFFFF;
+}
