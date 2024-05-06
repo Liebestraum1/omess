@@ -70,7 +70,12 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                                     name={domain.name}
                                     onChildChange={handleChildChange}
                                 />
-                                <ApiListComponent apis={domain.apis}/>
+                                <ApiListComponent
+                                    projectId={projectId}
+                                    apiSpecificationId={apiSpecificationId}
+                                    domainId={domain.domainId}
+                                    onChildChange={handleChildChange}
+                                    apis={domain.apis}/>
                             </ListItem>
                         </List>
                     ))}
