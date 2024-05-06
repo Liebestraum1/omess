@@ -47,9 +47,9 @@ public class ChatWebSocketService {
     /**
      * 채팅 내역을 불러오는 기능
      */
-    public Flux<ResponseMessage> loadChatHistory(String chatId, Long memberId, int offset) {
+    public Flux<ResponseMessage> loadChatHistory(String chatId, int offset) {
         log.info("채팅 내역 불러오기...");
-        return chatMessageRepository.findAllByChatIdAndWriter(chatId, memberId)
+        return chatMessageRepository.findAllByChatId(chatId)
                 .sort((o1, o2) -> o2.getCreateAt().compareTo(o1.getCreateAt()))
                 .skip(offset)
                 .take(PAGE_SIZE)
