@@ -97,7 +97,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                     const enter = {
                         type: 'ENTER',
                         data: {
-                            memberId: 1,
+                            memberId: 2,
                             chatId: `${get().chatId}`
                         }
                     };

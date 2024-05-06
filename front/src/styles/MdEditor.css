@@ -5,13 +5,14 @@
     border: 0
 }
 
-.w-md-editor-toolbar .send-btn {
+.w-md-editor-toolbar .send-btn.active {
     background-color: #4F378B
 }
 
-.w-md-editor-toolbar .send-btn:hover {
+.w-md-editor-toolbar .send-btn.deactive {
     background-color: #E8DEF8
 }
+
 
 .w-md-editor-toolbar .send-btn .send-icon{
     color: white
@@ -19,7 +20,6 @@
 
 .w-md-editor-toolbar .send-btn:hover .send-icon{
     cursor: pointer;
-    color: #4F378B
 }
 
 .w-md-editor-toolbar .file-btn {

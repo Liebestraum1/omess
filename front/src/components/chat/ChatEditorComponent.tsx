@@ -17,6 +17,8 @@ const ChatEditorComponent = () => {
         if (value == null || undefined) return;
         if (value!.length >= 1) {
             setIsActive(true);
+        } else {
+            setIsActive(false);
         }
     }, [value]);
 
@@ -28,12 +30,12 @@ const ChatEditorComponent = () => {
                 message: value
             }
         }
-        setValue(undefined)
+        setValue('')
         sendMessage(JSON.stringify(data))
         setIsActive(false);
     }
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) { //shift + enter, alt + enter?? x + enter 면 다됨 난 그냥 엔터만
             send();
             event.preventDefault();
         }
@@ -84,7 +86,7 @@ const ChatEditorComponent = () => {
                 <Button
                     disabled={!isActive}
                     onClick={() => send()}
-                    className='send-btn'
+                    className={isActive ? 'send-btn active' : 'send-btn deactive'}
                 >
                     <SendRoundedIcon className='send-icon'/>
                 </Button>
@@ -97,7 +99,7 @@ const ChatEditorComponent = () => {
             <MDEditor data-color-mode="light"
                       value={value}
                       onChange={(v) => setValue(v)}
-                      onKeyDown={(e) => handleKeyDown(e)}
+                      onKeyPress={handleKeyDown}
                       textareaProps={{
                           placeholder: '메시지 입력...',
                           maxLength: 16383

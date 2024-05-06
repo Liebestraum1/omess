@@ -1,4 +1,4 @@
-import {Box} from "@mui/material";
+import {Box, Divider} from "@mui/material";
 import ChatMessageComponent from "./ChatMessageComponent.tsx";
 import {useInView} from "react-intersection-observer";
 import {useEffect, useRef} from "react";
@@ -36,8 +36,14 @@ const ChatHistoryComponent = () => {
                 px: 2
             }}
         >
-            {messages ? messages!.map((message) => (
-                <ChatMessageComponent key={message.id} {...message} />
+            {messages ? messages!.map((message, idx) => (
+                <Box>
+                    {
+                        messages[idx + 1] == null || message.createAt.split(' ')[0] !== messages[idx + 1].createAt.split(' ')[0] ?
+                            <Divider>{message.createAt.split(' ')[0]}</Divider> : null
+                    }
+                    <ChatMessageComponent key={message.id} message={message} prevMessage={messages[idx + 1]}/>
+                </Box>
             )) : null}
             <div ref={ref}></div>
         </Box>
