@@ -1,8 +1,11 @@
 package com.sixback.omesschat.domain.chat.mapper;
 
-import com.sixback.omesschat.domain.chat.model.dto.response.ChatHeaderMessage;
-import com.sixback.omesschat.domain.chat.model.dto.response.ChatMessageDto;
-import com.sixback.omesschat.domain.chat.model.dto.response.ChatNameMessage;
+import com.sixback.omesschat.domain.chat.model.dto.response.api.ChatDto;
+import com.sixback.omesschat.domain.chat.model.dto.response.message.ChatHeaderMessage;
+import com.sixback.omesschat.domain.chat.model.dto.response.message.ChatMessageDto;
+import com.sixback.omesschat.domain.chat.model.dto.response.message.ChatNameMessage;
+import com.sixback.omesschat.domain.chat.model.entity.Chat;
+import com.sixback.omesschat.domain.chat.model.entity.ChatMember;
 import com.sixback.omesschat.domain.chat.model.entity.Content;
 
 public class ChatMapper {

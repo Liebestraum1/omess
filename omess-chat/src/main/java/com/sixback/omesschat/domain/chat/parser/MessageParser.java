@@ -3,7 +3,7 @@ package com.sixback.omesschat.domain.chat.parser;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sixback.omesschat.domain.chat.model.dto.request.RequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.RequestMessage;
 
 import java.util.Map;
 
