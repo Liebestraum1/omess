@@ -7,6 +7,7 @@ import com.sixback.omesschat.domain.chat.model.dto.response.message.ChatNameMess
 import com.sixback.omesschat.domain.chat.model.entity.Chat;
 import com.sixback.omesschat.domain.chat.model.entity.ChatMember;
 import com.sixback.omesschat.domain.chat.model.entity.Content;
+import java.util.List;
 
 public class ChatMapper {
 
@@ -20,5 +21,13 @@ public class ChatMapper {
 
     public static ChatNameMessage toChatNameResponse(String chatName, ChatMessageDto chatMessageDto) {
         return new ChatNameMessage(chatName, chatMessageDto);
+    }
+
+    public static ChatDto toChatDto(Chat chat) {
+        return new ChatDto(chat.getId(), chat.getName(), chat.getHeader().getDetail(), chat.getMembers().size());
+    }
+
+    public static Chat toChat(Long projectId, String name, List<ChatMember> chatMembers) {
+        return new Chat(projectId, name, chatMembers);
     }
 }
