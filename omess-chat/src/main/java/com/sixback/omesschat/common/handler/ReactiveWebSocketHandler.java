@@ -1,9 +1,18 @@
 package com.sixback.omesschat.common.handler;
 
-import com.sixback.omesschat.domain.chat.model.dto.request.*;
-import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.ChatNameRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.DeleteRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.EnterRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.HeaderRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.LoadRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.PinRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.RequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.RequestType;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.SendRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.UpdateRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.response.message.ResponseMessage;
 import com.sixback.omesschat.domain.chat.parser.MessageParser;
-import com.sixback.omesschat.domain.chat.service.ChatService;
+import com.sixback.omesschat.domain.chat.service.ChatWebSocketService;
 import com.sixback.omesschat.domain.chat.service.WebSocketSessionService;
 import com.sixback.omesschat.domain.chat.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +30,7 @@ import reactor.core.publisher.Mono;
 public class ReactiveWebSocketHandler implements WebSocketHandler {
 
     private final WebSocketSessionService sessionService;
-    private final ChatService chatService;
+    private final ChatWebSocketService chatWebSocketService;
 
     /**
      * 웹 소켓의 데이터 처리
@@ -76,39 +85,39 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
             String chatId = sessionService.findChatId(session);
             Long memberId = sessionService.findMemberId(session);
 
-            return chatService.saveChatMessage(chatId, memberId, send);
+            return chatWebSocketService.saveChatMessage(chatId, memberId, send);
         } else if (request instanceof UpdateRequestMessage update) {
             Long memberId = sessionService.findMemberId(session);
 
-            return chatService.updateChatMessage(memberId, update.getMessageId(), update.getMessage());
+            return chatWebSocketService.updateChatMessage(memberId, update.getMessageId(), update.getMessage());
         } else if (request instanceof DeleteRequestMessage delete) {
 
             Long memberId = sessionService.findMemberId(session);
 
-            return chatService.deleteChatMessage(memberId, delete.getMessageId());
+            return chatWebSocketService.deleteChatMessage(memberId, delete.getMessageId());
         } else if (request instanceof LoadRequestMessage load) {
 
             String chatId = sessionService.findChatId(session);
             Long memberId = sessionService.findMemberId(session);
 
-            return chatService.loadChatHistory(chatId, memberId, load.getOffset());
+            return chatWebSocketService.loadChatHistory(chatId, memberId, load.getOffset());
         } else if (request instanceof PinRequestMessage pin) {
 
             Long memberId = sessionService.findMemberId(session);
 
-            return chatService.pinChatMessage(memberId, pin.getMessageId());
+            return chatWebSocketService.pinChatMessage(memberId, pin.getMessageId());
         } else if (request instanceof HeaderRequestMessage header) {
 
             String chatId = sessionService.findChatId(session);
             Long memberId = sessionService.findMemberId(session);
 
-            return chatService.registerHeader(chatId, memberId, header.getDetail());
+            return chatWebSocketService.registerHeader(chatId, memberId, header.getDetail());
         } else if (request instanceof ChatNameRequestMessage chatName) {
 
             String chatId = sessionService.findChatId(session);
             Long memberId = sessionService.findMemberId(session);
 
-            return chatService.modifyChatName(chatId, memberId, chatName.getName());
+            return chatWebSocketService.modifyChatName(chatId, memberId, chatName.getName());
         }
         throw new TypeNotPresentException("REQUEST", new Throwable("type not present..."));
     }

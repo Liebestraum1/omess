@@ -2,8 +2,8 @@ package com.sixback.omesschat.domain.chat.service;
 
 import com.sixback.omesschat.domain.chat.model.context.ChatRoom;
 import com.sixback.omesschat.domain.chat.model.context.ChatUser;
-import com.sixback.omesschat.domain.chat.model.dto.request.EnterRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.response.ResponseMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.EnterRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.response.message.ResponseMessage;
 import com.sixback.omesschat.domain.chat.parser.MessageParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
