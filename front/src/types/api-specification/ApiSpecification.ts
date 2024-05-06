@@ -31,6 +31,24 @@ export type QueryParam = {
     description: string
 }
 
+export type RequestHeaderRow = {
+    id: number,
+    headerKey: string,
+    headerValue: string
+}
+
+export type PathVariableRow = {
+    id: number,
+    name: string,
+    description: string
+}
+
+export type QueryParamRow = {
+    id: number,
+    name: string,
+    description: string
+}
+
 export type DomainWithApiSummary = {
     domainId: number,
     name: string,
@@ -41,4 +59,16 @@ export type DomainList = {
     domains: Domain[]
 }
 
-
+export type Api = {
+    apiId: number,
+    method: string,
+    name: string,
+    description: string,
+    endpoint: string,
+    requestSchema: string,
+    responseSchema: string,
+    statusCode: number,
+    requestHeaders: RequestHeader[],
+    queryParams: QueryParam[],
+    pathVariables: PathVariable[]
+}
