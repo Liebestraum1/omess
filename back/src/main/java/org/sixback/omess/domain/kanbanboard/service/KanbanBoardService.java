@@ -44,7 +44,7 @@ public class KanbanBoardService {
     public void createKanbanBoard(Long memberId, Long projectId, WriteKanbanBoardRequest writeKanbanBoardRequest) {
         Project project = getProject(projectId);
 
-        KanbanBoard kanbanBoard = new KanbanBoard(writeKanbanBoardRequest.getTitle(), "kanbanboards", project);
+        KanbanBoard kanbanBoard = new KanbanBoard(writeKanbanBoardRequest.getName(), writeKanbanBoardRequest.getCategory(), project);
 
         kanbanBoardRepository.save(kanbanBoard);
 
@@ -105,6 +105,38 @@ public class KanbanBoardService {
         String path = makeIssuePath(projectId, moduleId, issue.getId());
         issue.updatePath(path);
 
+    }
+
+    public GetIssueResponse createIssueStomp(Long memberId, Long projectId, Long moduleId, WriteIssueRequest writeIssueRequest) {
+        KanbanBoard kanbanBoard = isProjectKanbanBoard(projectId, moduleId);
+
+        Member member = isProjectMember(projectId, writeIssueRequest.getMemberId());
+
+        Label label = isModuleLabel(moduleId, writeIssueRequest.getLabelId());
+
+        Issue issue = new Issue(
+                writeIssueRequest.getTitle(),
+                writeIssueRequest.getContent(),
+                writeIssueRequest.getImportance(),
+                writeIssueRequest.getStatus(),
+                kanbanBoard, member, label);
+
+        issueRepository.save(issue);
+
+        String path = makeIssuePath(projectId, moduleId, issue.getId());
+        issue.updatePath(path);
+
+        return GetIssueResponse.builder()
+                .issueId(issue.getId())
+                .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
+                .label(issue.getLabel() != null ? GetLabelResponse.builder()
+                        .labelId(issue.getLabel().getId())
+                        .name(issue.getLabel().getName())
+                        .build() : null)
+                .title(issue.getTitle())
+                .importance(issue.getImportance())
+                .status(issue.getStatus())
+                .build();
     }
 
     @Transactional
