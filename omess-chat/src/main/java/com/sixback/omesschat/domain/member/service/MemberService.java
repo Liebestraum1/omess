@@ -17,5 +17,9 @@ public class MemberService {
     public Mono<MemberInfo> findById(Long memberId) {
         return memberRepository.findById(memberId).map(MemberMapper::toMemberInfo);
     }
+
+    public Mono<MemberInfo> findByEmail(String email) {
+        return memberRepository.findByEmail(email).map(MemberMapper::toMemberInfo);
+    }
 }
 
