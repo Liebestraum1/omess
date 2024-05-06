@@ -1,10 +1,14 @@
 import {create} from "zustand";
 import {LabelProp} from "../types/Label/Label.ts";
 import {MemberProp} from "../types/Member/Member.ts";
+// import {IssueProp} from "../types/Issue/Issue.ts";
 
 type KanbanBoardStorage = {
     labels: LabelProp[];
     projectMembers: MemberProp[];
+    // issues: Array<IssueProp> | null;
+    // client: WebSocket | null;
+    // serverUrl: string;
     selectedLabel: number | null;
     selectedMember: number | null;
     selectedImpotance: number | null;
@@ -21,7 +25,9 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set) => ({
     selectedLabel: null,
     selectedMember: null,
     selectedImpotance: null,
-
+    // issues: [],
+    // client: null,
+    // serverUrl: 'ws://localhost:8080/chat/v1',
     setLabels: (labels: LabelProp[]) => set({labels}),
     setprojectMembers: (projectMembers: MemberProp[]) => set({projectMembers}),
     setSelectedLabel: (labelId: number | null) => set({selectedLabel: labelId}),

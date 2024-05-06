@@ -17,6 +17,9 @@ export default ({ mode }: { mode: Mode }) => {
                     },
                 },
             },
+            define: {
+                'global': {},
+            },
         }
     );
 };
