@@ -1,5 +1,4 @@
 import {Box} from "@mui/material";
-import {ChatMessage} from "../../types/chat/chat.ts";
 import {useEffect, useRef, useState} from "react";
 import ChatMessageMenu from "./ChatMessageMenu.tsx";
 import ChatEditingButton from "./ChatEditingButton.tsx";
@@ -7,15 +6,19 @@ import TextField from "@mui/material/TextField";
 import {useChatStorage} from "../../stores/chatStorage.tsx";
 import MDEditor from '@uiw/react-md-editor';
 import '../../styles/MdEditor.css'
+import {ChatMessage} from "../../types/chat/chat.ts";
 
-const ChatMessageComponent = (message: ChatMessage) => {
+type Props = {
+    prevMessage: ChatMessage,
+    message: ChatMessage
+}
+const ChatMessageComponent = (props: Props) => {
     const {sendMessage} = useChatStorage();
     const [isEditing, setIsEditing] = useState(false);
     const [isView, setIsView] = useState<boolean>(false);
-    const [date, setDate] = useState<string>('');
-    const [time, setTime] = useState<string>('');
+    const [nowTime, setNowTime] = useState<string>('');
     const inputRef = useRef<HTMLInputElement>(null);
-    const [inputValue, setInputValue] = useState<string>(message.message)
+    const [inputValue, setInputValue] = useState<string>(props.message.message)
 
 
     function transTime(t: string[]) {
@@ -33,21 +36,26 @@ const ChatMessageComponent = (message: ChatMessage) => {
     }
 
     useEffect(() => {
-        const dateTime = message.createAt.split(' ')
+        const dateTime = props.message.createAt.split(' ')
         const t = dateTime[1].split(':');
 
         const res = transTime(t);
 
-        setDate(dateTime[0]);
-        setTime(res);
-    }, [message]);
+        setNowTime(res);
+    }, [props.message.message]);
+
+    useEffect(() => {
+        if (props.prevMessage == null) return;
+        const dateTime = props.prevMessage.createAt.split(' ')
+
+    }, [props.prevMessage?.message]);
 
     const handleInputChange = (e: any) => {
         setInputValue(e.target.value);
     };
 
     const update = () => {
-        const before = message.message;
+        const before = props.message.message;
         const m = inputValue.trim()
         if (m!.length === 0 || m!.length >= 16383) {
             console.error('길이 제한')
@@ -62,7 +70,7 @@ const ChatMessageComponent = (message: ChatMessage) => {
         const data = {
             type: 'UPDATE',
             data: {
-                messageId: message.id,
+                messageId: props.message.id,
                 message: m
             }
         }
@@ -75,7 +83,7 @@ const ChatMessageComponent = (message: ChatMessage) => {
         const data = {
             type: 'DELETE',
             data: {
-                messageId: message.id,
+                messageId: props.message.id,
             }
         }
 
@@ -86,7 +94,7 @@ const ChatMessageComponent = (message: ChatMessage) => {
         const data = {
             type: 'PIN',
             data: {
-                messageId: message.id,
+                messageId: props.message.id,
             }
         }
 
@@ -116,19 +124,23 @@ const ChatMessageComponent = (message: ChatMessage) => {
             {
                 !isEditing ?
                     <Box
-                        sx={message.classify !== 'USER' ? {color: 'grey.500'} : null}
+                        sx={props.message.classify !== 'USER' ? {color: 'grey.500'} : null}
                     >
                         <Box display="flex" gap={2}>
-                            <Box sx={{fontWeight: 'bold'}}>{message.member.nickname}</Box>
-                            <span>{date + ' ' + time}</span>
-                            <span>{message.isUpdated ? '(수정됨)' : null}</span>
-                            <span style={{fontSize: '12px'}}>{message.classify !== 'USER' ? '(시스템 메시지)' : null}</span>
+                            {
+                                props.prevMessage == null || props.message.member.id !== props.prevMessage?.member.id ?
+                                    <Box sx={{fontWeight: 'bold'}}>{props.message.member.nickname}</Box> : null
+                            }
+                            <Box>
+                                <span>{nowTime}</span>
+                                <span
+                                    style={{fontSize: '12px'}}>{props.message.classify !== 'USER' ? '(시스템 메시지)' : null}</span>
+                            </Box>
                         </Box>
                         <Box>
                             <MDEditor.Markdown
                                 className='markdown-view'
-                                source={message.message}
-                            />
+                                source={props.message.isUpdated ? props.message.message + ' (수정됨) ' : props.message.message}/>
                         </Box>
                     </Box> :
                     <TextField
@@ -139,9 +151,10 @@ const ChatMessageComponent = (message: ChatMessage) => {
             }
             <Box>
                 {
-                    message.classify === 'USER' ? !isEditing ?
+                    props.message.classify === 'USER' ? !isEditing ?
                             isView ?
-                                <ChatMessageMenu isPined={message.isPined} pin={pinMessage} setIsEditing={setIsEditing}
+                                <ChatMessageMenu isPined={props.message.isPined} pin={pinMessage}
+                                                 setIsEditing={setIsEditing}
                                                  delete={deleteMessage}/>
                                 :
                                 null
