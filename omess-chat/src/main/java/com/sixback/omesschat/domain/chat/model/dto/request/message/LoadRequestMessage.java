@@ -1,4 +1,4 @@
-package com.sixback.omesschat.domain.chat.model.dto.request;
+package com.sixback.omesschat.domain.chat.model.dto.request.message;
 
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
