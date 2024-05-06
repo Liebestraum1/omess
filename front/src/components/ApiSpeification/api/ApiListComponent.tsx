@@ -132,6 +132,7 @@ const ApiListComponent = ({projectId, apiSpecificationId, domainId, onChildChang
         <>
             <Box sx={{width: '100%' }}>
                 <DataGrid
+                    autoHeight={apis.length !== 0}
                     className={""}
                     rows={rows}
                     columns={columns}
