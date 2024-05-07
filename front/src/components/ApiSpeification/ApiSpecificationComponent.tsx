@@ -6,6 +6,7 @@ import ApiListComponent from "./api/ApiListComponent.tsx";
 import DomainComponent from "./domain/DomainComponent.tsx";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import CreateDomainModal from "./domain/CreateDomainModal.tsx";
+import ApiCreateModal from "./api/ApiCreateModal.tsx";
 
 const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
     projectId: number,
@@ -13,6 +14,7 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
 }) => {
     const [ApiSpecification, setApiSpecification] = useState<ApiSpecification | null>(null);
     const [isNewDomainMode, setIsNewDomainMode] = useState<boolean>(false)
+    const [isNewApiMode, setIsNewApiMode] = useState<boolean>(false)
     const fetchApiSpecification = async () => {
         const data = await loadApiSpecification(projectId, apiSpecificationId);
         setApiSpecification(data);
@@ -31,6 +33,14 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
 
     }
 
+    const handleCrateApiModalOpen = () => {
+        setIsNewApiMode(true)
+    }
+
+    const changeCreateApiModalOpen = (isOpen: boolean) => {
+        setIsNewApiMode(isOpen)
+    }
+
 
     useEffect(() => {
         fetchApiSpecification()
@@ -43,7 +53,9 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                     sx={{display: 'flex', margin: '10px', justifyContent: 'end'}}
                 >
                     <Chip
-                        icon={<AddCircleIcon/>}
+                        icon={<AddCircleIcon
+                            style={{color: '#4F378B'}}
+                            />}
                         label="도메인 추가" variant='outlined'
                         onClick={handleCreateDomainModalOpen}
                     />
@@ -77,6 +89,22 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                                     onChildChange={handleChildChange}
                                     apis={domain.apis}/>
                             </ListItem>
+                            <Chip
+                                icon={<AddCircleIcon
+                                    style={{color: '#4F378B'}}
+                                />}
+                                label="API 추가" variant='outlined'
+                                sx={{ml: 2}}
+                                onClick={handleCrateApiModalOpen}
+                            />
+                            <ApiCreateModal
+                                projectId={projectId}
+                                apiSpecificationId={apiSpecificationId}
+                                domainId={domain.domainId}
+                                onChildChange={handleChildChange}
+                                open={isNewApiMode}
+                                changeOpen={changeCreateApiModalOpen}
+                            />
                         </List>
                     ))}
 
@@ -87,6 +115,8 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                         onChildChange={handleChildChange}
                         changeOpen={changeOpen}
                     />
+
+
                 </Box>
             </Box>
         </>
