@@ -19,6 +19,8 @@ const ChatMessageComponent = (props: Props) => {
     const [nowTime, setNowTime] = useState<string>('');
     const inputRef = useRef<HTMLInputElement>(null);
     const [inputValue, setInputValue] = useState<string>(props.message.message)
+    const [isSequence, setIsSequence] = useState(false);
+    const [isSystem, setIsSystem] = useState(false);
 
 
     function transTime(t: string[]) {
@@ -42,12 +44,14 @@ const ChatMessageComponent = (props: Props) => {
         const res = transTime(t);
 
         setNowTime(res);
+        setIsSystem(props.message.classify !== 'USER')
     }, [props.message.message]);
 
     useEffect(() => {
         if (props.prevMessage == null) return;
         const dateTime = props.prevMessage.createAt.split(' ')
-
+        setIsSequence(props.message.member.id === props.prevMessage!.member.id
+            && props.prevMessage!.classify === 'USER')
     }, [props.prevMessage?.message]);
 
     const handleInputChange = (e: any) => {
@@ -108,7 +112,8 @@ const ChatMessageComponent = (props: Props) => {
             display="flex"
             justifyContent="space-between"
             gap={3}
-            padding={2}
+            py={isSequence && !isSystem ? 0 : 1}
+            px={2}
             className='view-box'
             sx={{
                 '&:hover': {
@@ -124,23 +129,33 @@ const ChatMessageComponent = (props: Props) => {
             {
                 !isEditing ?
                     <Box
-                        sx={props.message.classify !== 'USER' ? {color: 'grey.500'} : null}
+                        sx={isSystem ? {color: 'grey.500'} : null}
                     >
                         <Box display="flex" gap={2}>
                             {
-                                props.prevMessage == null || props.message.member.id !== props.prevMessage?.member.id ?
+                                !isSequence || isSystem ?
                                     <Box sx={{fontWeight: 'bold'}}>{props.message.member.nickname}</Box> : null
                             }
                             <Box>
-                                <span>{nowTime}</span>
+                                {
+                                    !isSequence || isSystem ?
+                                        <span>{nowTime}</span> : null
+                                }
                                 <span
-                                    style={{fontSize: '12px'}}>{props.message.classify !== 'USER' ? '(시스템 메시지)' : null}</span>
+                                    style={{fontSize: '12px'}}>{isSystem ? ' (시스템 메시지) ' : null}</span>
                             </Box>
                         </Box>
-                        <Box>
-                            <MDEditor.Markdown
-                                className='markdown-view'
-                                source={props.message.isUpdated ? props.message.message + ' (수정됨) ' : props.message.message}/>
+                        <Box display='flex'
+                             gap={1}
+                        >
+                            {
+                                isSystem ? <span>{props.message.message}</span>
+                                    :
+                                    <MDEditor.Markdown
+                                        className='markdown-view'
+                                        source={props.message.message}/>
+                            }
+                            <span style={{color: '#E8DEF8'}}>{props.message.isUpdated ? '(수정됨)' : ''}</span>
                         </Box>
                     </Box> :
                     <TextField

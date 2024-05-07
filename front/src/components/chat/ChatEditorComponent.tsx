@@ -1,10 +1,12 @@
-import {Box, Button, styled} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import {useEffect, useState} from "react";
 import {useChatStorage} from "../../stores/chatStorage.tsx";
-import MDEditor, {commands} from '@uiw/react-md-editor';
+import MDEditor from '@uiw/react-md-editor';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import AttachFileRoundedIcon from '@mui/icons-material/AttachFileRounded';
 import '../../styles/MdEditor.css'
+import {customCommands, VisuallyHiddenInput} from "./EditorAttr.ts";
+import ChatFileInput from "./ChatFileInputComponent.tsx";
 
 
 const ChatEditorComponent = () => {
@@ -12,6 +14,25 @@ const ChatEditorComponent = () => {
 
     const [value, setValue] = useState<string | undefined>(undefined);
     const [isActive, setIsActive] = useState<boolean>(false);
+    const [files, setFiles] = useState<Array<File>>([]);
+    const [alert, setAlert] = useState<string>('');
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+        const newFiles: File[] = []
+        const selectedFiles = event.target.files;
+        setAlert('');
+        if (selectedFiles) {
+            Array.from(selectedFiles).forEach(file => {
+                if (file.size > maxSize) {
+                    setAlert(prev => prev + file.name + ' ');
+                } else {
+                    newFiles.push(file)
+                }
+            });
+            setFiles(prev => [...prev, ...newFiles])
+        }
+    };
 
     useEffect(() => {
         if (value == null || undefined) return;
@@ -41,30 +62,7 @@ const ChatEditorComponent = () => {
         }
     }
 
-    const customCommands = [
-        commands.bold, // 굵게
-        commands.italic, // 기울임꼴
-        commands.strikethrough, // 취소선
-        commands.title,
-        commands.divider, // 구분선
-        commands.link, // 링크
-        commands.code, // 코드
-        commands.quote, // 인용문
-        commands.unorderedListCommand, // 번호 없는 목록
-        commands.orderedListCommand, // 번호 있는 목록
-    ];
 
-
-    const VisuallyHiddenInput = styled('input')({
-        clipPath: 'inset(50%)',
-        height: 1,
-        overflow: 'hidden',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        whiteSpace: 'nowrap',
-        width: 1,
-    });
     const sendBtn = {
         name: 'send',
         keyCommand: 'send',
@@ -81,7 +79,10 @@ const ChatEditorComponent = () => {
                     tabIndex={-1}
                 >
                     <AttachFileRoundedIcon/>
-                    <VisuallyHiddenInput type="file"/>
+                    <VisuallyHiddenInput type="file"
+                                         multiple={true}
+                                         onChange={handleFileChange}
+                    />
                 </Button>
                 <Button
                     disabled={!isActive}
@@ -96,23 +97,45 @@ const ChatEditorComponent = () => {
     return (
         <Box p={3}
         >
-            <MDEditor data-color-mode="light"
-                      value={value}
-                      onChange={(v) => setValue(v)}
-                      onKeyPress={handleKeyDown}
-                      textareaProps={{
-                          placeholder: '메시지 입력...',
-                          maxLength: 16383
-                      }}
-                      height='100%'
-                      visibleDragbar={false}
-                      preview={"edit"}
-                      toolbarBottom={true}
-                      commands={customCommands}
-                      extraCommands={[
-                          sendBtn
-                      ]}
+            <Box
+                display='flex'
+                gap={2}
+                overflow='auto'
+            >
+                {
+                    files.map((file) => (
+                        <ChatFileInput file={file}/>
+                    ))
+                }
+            </Box>
+            <MDEditor
+                className='my-editor'
+                data-color-mode="light"
+                value={value}
+                onChange={(v) => setValue(v)}
+                onKeyPress={handleKeyDown}
+                textareaProps={{
+                    placeholder: '메시지 입력...',
+                    maxLength: 16383
+                }}
+                height='100%'
+                visibleDragbar={false}
+                preview={"edit"}
+                toolbarBottom={true}
+                commands={customCommands}
+                extraCommands={[
+                    sendBtn
+                ]}
             ></MDEditor>
+            <Box>
+                {
+                    alert === '' ? null
+                        :
+                        <p style={{color: '#EB4646'}}>
+                            50MB 이상인 파일을 업로드 못했습니다: {alert}
+                        </p>
+                }
+            </Box>
         </Box>
     );
 }
