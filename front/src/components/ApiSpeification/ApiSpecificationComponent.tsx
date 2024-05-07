@@ -13,7 +13,7 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
 }) => {
     const [ApiSpecification, setApiSpecification] = useState<ApiSpecification | null>(null);
     const [isNewDomainMode, setIsNewDomainMode] = useState<boolean>(false)
-    const fetchApiSpecification =  async () => {
+    const fetchApiSpecification = async () => {
         const data = await loadApiSpecification(projectId, apiSpecificationId);
         setApiSpecification(data);
     }
@@ -26,7 +26,7 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
         setIsNewDomainMode(isOpen)
     }
 
-    const handleCreateDomainModalOpen = () =>{
+    const handleCreateDomainModalOpen = () => {
         setIsNewDomainMode(true)
 
     }
@@ -40,10 +40,10 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
         <>
             <Box>
                 <Box
-                    sx={{display: 'flex',margin:'10px', justifyContent: 'end'}}
+                    sx={{display: 'flex', margin: '10px', justifyContent: 'end'}}
                 >
                     <Chip
-                        icon={<AddCircleIcon />}
+                        icon={<AddCircleIcon/>}
                         label="도메인 추가" variant='outlined'
                         onClick={handleCreateDomainModalOpen}
                     />

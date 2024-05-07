@@ -3,7 +3,7 @@ import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import {Api, ApiSummary} from "../../../types/api-specification/ApiSpecification.ts";
 import {useEffect, useState} from "react";
 import {Button} from "@mui/material";
-import ApiModal from "./ApiModal.tsx";
+import ApiInfoAndUpdateModal from "./ApiInfoAndUpdateModal.tsx";
 import methodColors from "./HttpMethodModalColor.tsx"
 import {loadApi} from "../request/ApiSpecificationRequest.ts";
 import "./HttpMethodRowColors.css"
@@ -152,7 +152,7 @@ const ApiListComponent = ({projectId, apiSpecificationId, domainId, onChildChang
 
                 />
             </Box>
-            <ApiModal
+            <ApiInfoAndUpdateModal
                 projectId={projectId}
                 apiSpecificationId={apiSpecificationId}
                 domainId={domainId}
