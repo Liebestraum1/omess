@@ -57,7 +57,7 @@ public class ApiSpecificationUtils {
 	}
 
 	public static void checkIsValidJsonSchema(String schemaString) {
-		if (schemaString == null) {
+		if (schemaString == null || schemaString.isEmpty()) {
 			return;
 		}
 
