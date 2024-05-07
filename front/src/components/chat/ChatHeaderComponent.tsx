@@ -4,8 +4,13 @@ import ChatHeaderDataComponent from "./ChatHeaderDataComponent.tsx";
 import MemberCountComponent from "./MemberCountComponent.tsx";
 import ChatNameComponent from "./ChatNameComponent.tsx";
 import ChatInfoComponent from "./ChatInfoComponent.tsx";
+import PinComponent from "./PinComponent.tsx";
 
-const ChatHeaderComponent = (chat: ChatInfo) => {
+const ChatHeaderComponent = ({chat, setIsOpened, setSelectedTab}: {
+    chat: ChatInfo,
+    setIsOpened: any,
+    setSelectedTab: any
+}) => {
     return (
         <Box>
             <Box
@@ -24,15 +29,16 @@ const ChatHeaderComponent = (chat: ChatInfo) => {
                         </Box>
                         <Box
                             display="flex"
-                            gap={4}
+                            gap={2}
                             alignItems="center"
                         >
-                            <MemberCountComponent count={4}/>
+                            <MemberCountComponent count={4} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
+                            <PinComponent pinCount={4} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
                             <ChatHeaderDataComponent header={chat.header}/>
                         </Box>
                     </Box>
                 </Box>
-                <ChatInfoComponent chatId={chat.id}/>
+                <ChatInfoComponent chatId={chat.id} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
             </Box>
             <Divider/>
         </Box>

@@ -45,7 +45,7 @@ const ChatHistoryComponent = () => {
                     <ChatMessageComponent key={message.id} message={message} prevMessage={messages[idx + 1]}/>
                 </Box>
             )) : null}
-            <div ref={ref}></div>
+            <Box ref={ref} p={1}></Box>
         </Box>
     );
 }

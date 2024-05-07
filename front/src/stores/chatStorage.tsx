@@ -1,13 +1,14 @@
 import {create} from "zustand";
-import {ChatInfo, ChatMessage, ChatName, Header, Writer} from "../types/chat/chat.ts";
+import {ChatInfo, ChatMessage, ChatName, Header, ChatMember} from "../types/chat/chat.ts";
 
 type ChatStorage = {
     chatId: string | null;
     chatInfo: ChatInfo | null,
     serverUrl: string;
     client: WebSocket | null;
-    members: Writer[] | null;
+    members: Array<ChatMember> | null;
     messages: Array<ChatMessage> | null;
+    pinMessages: Array<ChatMessage> | null;
     init: (chat: ChatInfo) => void;
     sendMessage: (data: any) => void;
 };
@@ -68,6 +69,19 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         chat!.name = chatName.chatName
 
         set({chatInfo: chat})
+        addFirst(chatName.message)
+    }
+
+    const membersMessage = (member: ChatMember) => {
+        const members = get().members;
+        members!.push(member);
+        set({members:members});
+    }
+
+    const loadPinMessage = (message: ChatMessage) => {
+        const pinMessages = get().pinMessages;
+        pinMessages!.push(message);
+        set({pinMessages: pinMessages});
     }
 
     return {
@@ -77,6 +91,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         members: null,
         messages: null,
         chatInfo: null,
+        pinMessages: null,
         init: (chat: ChatInfo) => {
             if (chat == null) {
                 console.log('must have chatInfo')
@@ -103,6 +118,8 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                     };
                     client.send(JSON.stringify(enter));
                     set({messages: []})
+                    set({pinMessages: []})
+                    set({members: []})
                 }
             }
 
@@ -116,6 +133,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
             }
 
             client.onmessage = (event) => {
+                if (client.readyState === WebSocket.CONNECTING) return;
                 const message = JSON.parse(event.data);
                 console.log(message.type, message.data)
                 switch (message.type) {
@@ -140,6 +158,12 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                     case "CHAT_NAME":
                         chatNameMessage(message.data);
                         break
+                    case "MEMBERS":
+                        membersMessage(message.data);
+                        break
+                    case "LOAD_PIN":
+                        loadPinMessage(message.data);
+                        break;
                     case "SUCCESS":
                         console.log("연결 성공")
                         break;
