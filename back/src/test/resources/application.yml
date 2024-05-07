@@ -3,6 +3,11 @@ spring:
     import:
       - optional:file:env/.env[.properties]
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${TEST_DB_URL}
@@ -21,3 +26,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+minio:
+  url: ${MINIO_URL}
+  path: ${MINIO_PATH}
+  bucket:
+    name: ${MINIO_TEST_BUCKET}
+  key:
+    access: ${MINIO_ACCESS_KEY}
+    secret: ${MINIO_SECRET_KEY}
