@@ -104,7 +104,7 @@ const modalStyle = {
     overflow: 'auto',
 };
 
-const ApiModal = (
+const ApiInfoAndUpdateModal = (
     {projectId, apiSpecificationId, domainId, api, onChildChange, open, changeOpen}:
         {
             projectId: number,
@@ -283,7 +283,7 @@ const ApiModal = (
                 .catch((e) => {
                     setErrorState({isError: true, errorMessage: e.response.data.title})
                 })
-        }else{
+        } else {
             setErrorState({isError: true, errorMessage: "JSON SCHEMA의 유효성을 확인해주세요!"})
         }
     };
@@ -1000,4 +1000,4 @@ const ApiModal = (
     )
 }
 
-export default ApiModal
+export default ApiInfoAndUpdateModal
