@@ -1,9 +1,11 @@
 package com.sixback.omesschat.domain.chat.service;
 
 import com.sixback.omesschat.domain.chat.mapper.ChatMapper;
+import com.sixback.omesschat.domain.chat.mapper.ChatMemberMapper;
 import com.sixback.omesschat.domain.chat.mapper.ChatMessageMapper;
 import com.sixback.omesschat.domain.chat.model.dto.request.message.SendRequestMessage;
 import com.sixback.omesschat.domain.chat.model.dto.response.message.ResponseMessage;
+import com.sixback.omesschat.domain.chat.model.entity.ChatMember;
 import com.sixback.omesschat.domain.chat.model.entity.ChatMessage;
 import com.sixback.omesschat.domain.chat.model.entity.Content;
 import com.sixback.omesschat.domain.chat.repository.ChatMessageRepository;
@@ -88,7 +90,8 @@ public class ChatWebSocketService {
                     if (!memberId.equals(m.getWriter())) {
                         throw new IllegalArgumentException();
                     }
-                }).map(ChatMessage::delete).flatMap(chatMessageRepository::save)
+                }).map(ChatMessage::delete)
+                .flatMap(chatMessageRepository::save)
                 .flatMap(m -> memberService
                         .findById(memberId)
                         .map(memberInfo -> ChatMessageMapper.toResponse(m, memberInfo))
@@ -131,6 +134,9 @@ public class ChatWebSocketService {
                 .flux();
     }
 
+    /**
+     * 채팅방 이름 변경
+     */
     public Flux<ResponseMessage> modifyChatName(String chatId, Long memberId, String name) {
         log.info("채팅방 이름 변경");
         return chatRepository.findById(chatId)
@@ -145,5 +151,39 @@ public class ChatWebSocketService {
                 .map(chatMessageDto -> ChatMapper.toChatNameResponse(name, chatMessageDto))
                 .map(m -> ResponseMessage.ok(CHAT_NAME, m))
                 .flux();
+    }
+
+    /**
+     * 채팅방 멤버 불러오기
+     */
+    public Flux<ResponseMessage> loadChatMembers(String chatId) {
+        return chatRepository
+                .findById(chatId)
+                .flatMapMany(chat -> Flux.fromIterable(chat.getMembers()))
+                .filter(ChatMember::isAlive)
+                .flatMap(chatMember -> {
+                    Long memberId = chatMember.getMemberId();
+                    return memberService
+                            .findById(memberId)
+                            .map(memberInfo ->
+                                    ChatMemberMapper.toChatMemberDto(memberInfo, chatMember.getRole())
+                            );
+                })
+                .map(chatMemberDto -> ResponseMessage.ok(MEMBERS, chatMemberDto));
+    }
+
+    /**
+     * 채팅방 핀 불러오기
+     */
+    public Flux<ResponseMessage> loadPinMessages(String chatId, int offset) {
+        return chatMessageRepository.findPinMessageByChatId(chatId)
+                .sort((o1, o2) -> o2.getCreateAt().compareTo(o1.getCreateAt()))
+                .skip(offset)
+                .take(PAGE_SIZE)
+                .flatMap(chatMessage -> memberService
+                        .findById(chatMessage.getWriter())
+                        .map(memberInfo -> ChatMessageMapper.toResponse(chatMessage, memberInfo))
+                ).map(chatMessageDto -> ResponseMessage.ok(LOAD_PIN, chatMessageDto))
+                .doOnComplete(() -> log.info("핀 내역 불러오기 성공 !!!"));
     }
 }
