@@ -40,6 +40,27 @@ export const loadApi = async <T = Api>(projectId: number, apiSpecificationId: nu
     return data;
 };
 
+export const createApi = async <T = void>(projectId: number, apiSpecificationId: number, domainId: number,
+                                          method: string, name: string, description: string, endpoint: string, statusCode: number, requestSchema: string, responseSchema: string,
+                                          createRequestHeaderRequests: RequestHeader[], createQueryParamRequests: QueryParam[], createPathVariableRequests: PathVariable[]): Promise<T> => {
+    const {data} = await axios.post<T>(`/api/v1/projects/${projectId}/api-specifications/${apiSpecificationId}/domains/${domainId}/apis`,
+        {
+            name: name,
+            description: description,
+            endpoint: endpoint,
+            method: method,
+            statusCode: statusCode,
+            requestSchema: requestSchema,
+            responseSchema: responseSchema,
+            createRequestHeaderRequests: createRequestHeaderRequests,
+            createPathVariableRequests: createPathVariableRequests,
+            createQueryParamRequests: createQueryParamRequests
+        }
+        );
+    return data;
+};
+
+
 export const updateApi = async <T = void>(
     projectId: number, apiSpecificationId: number, domainId: number, apiId: number,
     method: string, name: string, description: string, endpoint: string, statusCode: number, requestSchema: string, responseSchema: string,
