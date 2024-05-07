@@ -12,6 +12,8 @@ import IssueCreateStatusFilter from "./IssueCreateStatusFilter.tsx";
 import IssueCreateImportanceFilter from "./IssueCreateImportanceFilter.tsx";
 import IssueCreateChargerFilter from "./IssueCreateChargerFilter.tsx";
 import IssueCreateLabelFilter from "./IssueCreateLabelFilter.tsx";
+import {CreateIssueProp} from "../../../types/Issue/CreateIssue.ts";
+import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
 
 type IssueDetailModalProp = {
     open: boolean;
@@ -25,7 +27,8 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
     const [importance, setImportance] = useState<number | null>(null);
     const [charger, setCharger] = useState<number | null>(null);
     const [label, setLabel] = useState<number | null>(null);
-
+    const {createIssue} = useKanbanBoardStore();
+    const projectId = 1;
     const onCloseModal = () => {
         setMd("");
         onClose();
@@ -34,9 +37,24 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
         setTitle(event.target.value);
     };
 
-    // FixMe 이슈 생성  api 호출
     const onClickCreateIssue = () => {
-        console.log(title + md + charger + label + importance + status);
+        if(status && importance){
+            if(md === undefined){
+                setMd("");
+            }
+            const writeIssueRequest : CreateIssueProp = {
+                title: title,
+                content: md!,
+                importance: importance,
+                status: status,
+                memberId: charger,
+                labelId: label
+            }
+            createIssue(projectId, writeIssueRequest);
+        }else{
+            // FixMe 에러 처리
+        }
+       
     }
     
     return (
