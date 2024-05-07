@@ -2,3 +2,20 @@ body {
     margin: 0;
     padding: 0;
 }
+
+/* 스크롤바의 너비를 설정 */
+::-webkit-scrollbar {
+    width: 0;
+    height: 0.75rem;
+}
+
+/* 스크롤바 트랙(스크롤바 배경)의 스타일을 설정 */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* 스크롤바 썸(움직이는 부분)의 스타일을 설정 */
+::-webkit-scrollbar-thumb {
+    background-color: #4F378B; /* 마우스 오버 시 배경색 지정 */
+    border-radius: 4px;
+}
