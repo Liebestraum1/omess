@@ -13,12 +13,14 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.net.URI;
 import java.util.List;
 
 import static org.sixback.omess.common.exception.ErrorType.*;
 import static org.sixback.omess.domain.apispecification.exception.ApiSpecificationErrorMessage.INVALID_JSON_SCHEMA;
+import static org.sixback.omess.domain.file.model.enums.FileErrorMessage.MAX_UPLOAD_SIZE_EXCEEDED_ERROR;
 import static org.springframework.http.HttpStatus.*;
 
 
@@ -74,6 +76,18 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ErrorResponse maxUploadSizeExceededExceptionHandler(
+            HttpServletRequest request,
+            MaxUploadSizeExceededException e
+    ) {
+        return ErrorResponse.builder(e, BAD_REQUEST, MAX_UPLOAD_SIZE_EXCEEDED_ERROR.getMessage())
+                .title(MAX_UPLOAD_SIZE_EXCEEDED_ERROR.name())
+                .instance(URI.create(request.getRequestURI()))
+                .build()
+                ;
+    }
+
     @ExceptionHandler(InsufficientAuthenticationException.class)
     public ErrorResponse unAuthenticationExceptionHandler(
             HttpServletRequest request, InsufficientAuthenticationException exception
@@ -112,7 +126,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request, Exception exception
     ) {
         printException(exception);
-        return ErrorResponse.builder(exception, INTERNAL_SERVER_ERROR, "서버에 알 수 없는 에러가 발생여였습니다.")
+        return ErrorResponse.builder(exception, INTERNAL_SERVER_ERROR, UNKNOWN_ERROR.getTitle())
                 .title(UNKNOWN_ERROR.getTitle())
                 .instance(URI.create(request.getRequestURI()))
                 .build();
