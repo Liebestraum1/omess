@@ -13,6 +13,8 @@ public class ChatMember {
 
     @Setter
     private boolean isAlive = true;
+    @Setter
+    private ChatRole role;
 
     public ChatMember(Long memberId) {
         this.memberId = memberId;

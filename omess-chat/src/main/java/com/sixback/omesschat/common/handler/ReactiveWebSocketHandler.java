@@ -1,15 +1,6 @@
 package com.sixback.omesschat.common.handler;
 
-import com.sixback.omesschat.domain.chat.model.dto.request.message.ChatNameRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.DeleteRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.EnterRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.HeaderRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.LoadRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.PinRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.RequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.RequestType;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.SendRequestMessage;
-import com.sixback.omesschat.domain.chat.model.dto.request.message.UpdateRequestMessage;
+import com.sixback.omesschat.domain.chat.model.dto.request.message.*;
 import com.sixback.omesschat.domain.chat.model.dto.response.message.ResponseMessage;
 import com.sixback.omesschat.domain.chat.parser.MessageParser;
 import com.sixback.omesschat.domain.chat.service.ChatWebSocketService;
@@ -69,6 +60,9 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
                     HeaderRequestMessage.class);
             case CHAT_NAME -> MessageParser.parseMessage(requestMessage.getData(),
                     ChatNameRequestMessage.class);
+            case LOAD_PIN -> MessageParser.parseMessage(requestMessage.getData(),
+                    PinListRequestMessage.class);
+            case MEMBERS -> new EmptyRequestMessage(type);
             default -> throw new TypeNotPresentException(type.name(), new Throwable("Not Present MessageType"));
         };
         return ValidationUtils.validate(o);
@@ -117,6 +111,14 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
             Long memberId = sessionService.findMemberId(session);
 
             return chatWebSocketService.modifyChatName(chatId, memberId, chatName.getName());
+        } else if (request instanceof PinListRequestMessage pinList) {
+            int offset = pinList.getOffset();
+            String chatId = sessionService.findChatId(session);
+
+            return chatWebSocketService.loadPinMessages(chatId, offset);
+        } else if (request instanceof EmptyRequestMessage empty) {
+            String chatId = sessionService.findChatId(session);
+            return chatWebSocketService.loadChatMembers(chatId);
         }
         throw new TypeNotPresentException("REQUEST", new Throwable("type not present..."));
     }
@@ -127,7 +129,7 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
     private Mono<Void> after(WebSocketSession session, ResponseMessage message) {
         return switch (message.getType()) {
             case MESSAGE, UPDATE, DELETE, SUCCESS, PIN, HEADER, CHAT_NAME -> sessionService.send(session, message);
-            case HISTORY -> sessionService.sendToUser(session, message);
+            case HISTORY, MEMBERS, LOAD_PIN -> sessionService.sendToUser(session, message);
             default -> Mono.error(new ClassCastException());
         };
     }
