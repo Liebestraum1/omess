@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../common";
 
 export type SignUpRequest = {
     email: string;
