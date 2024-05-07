@@ -25,7 +25,7 @@ public class FileInformation {
     private String originalName;
 
     @Column(length = 1000, nullable = false)
-    private String address;
+    private String path;
 
     @Column(length = 20, nullable = false)
     private String fileExtension;
@@ -39,20 +39,24 @@ public class FileInformation {
     @Column(nullable = false)
     private boolean isSaved = false;
 
+    @Transient
+    private String address;
+
     @Builder
     public FileInformation(
             Long id, String name, String originalName,
-            String address, String fileExtension, Long referenceId,
-            ReferenceType referenceType, boolean isSaved
+            String path, String fileExtension, Long referenceId,
+            ReferenceType referenceType, boolean isSaved, String address
     ) {
         this.id = id;
         this.name = name;
         this.originalName = originalName;
-        this.address = address;
+        this.path = path;
         this.fileExtension = fileExtension;
         this.referenceId = referenceId;
         this.referenceType = referenceType;
         this.isSaved = isSaved;
+        this.address = address;
     }
 
     public void changeSaveStatus(boolean isSaved) {

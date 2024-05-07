@@ -166,7 +166,7 @@ CREATE TABLE `file_information`
     `id`             BIGINT AUTO_INCREMENT PRIMARY KEY,
     `name`           varchar(50)            NOT NULL,
     `original_name`  varchar(50)            NOT NULL,
-    `address`        varchar(1000)          NOT NULL,
+    `path`           varchar(1000)          NOT NULL,
     `file_extension` varchar(20)            NOT NULL,
     `reference_id`   bigint                 NOT NULL,
     `reference_type` ENUM ('PROFILE_IMAGE') NOT NULL,
@@ -175,7 +175,7 @@ CREATE TABLE `file_information`
     updated_at       TIMESTAMP                       DEFAULT now() ON UPDATE now()
 );
 
-CREATE INDEX file_info_index ON file_information(reference_type, reference_id);
+CREATE INDEX file_info_index ON file_information (reference_type, reference_id);
 
 -- session
 CREATE TABLE IF NOT EXISTS SPRING_SESSION
