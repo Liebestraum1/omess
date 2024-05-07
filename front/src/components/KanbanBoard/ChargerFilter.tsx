@@ -4,18 +4,15 @@ import {useKanbanBoardStore} from "../../stores/KanbanBoardStorage.tsx";
 import {useState} from "react";
 
 const ChargerFilter = () => {
-    const {projectMembers, setSelectedMember} = useKanbanBoardStore(state => ({
-        projectMembers: state.projectMembers,
-        setSelectedMember: state.setSelectedMember
-    }));
+    const {projectMembers, setSelectedMember, kanbanBoardId} = useKanbanBoardStore();
     const [selectedMember, setSelectedMemberLocal] = useState('');
 
     const handleChange = (event: SelectChangeEvent<string>) => {
         setSelectedMemberLocal(event.target.value);  // 로컬 상태 업데이트
-        if (event.target.value == "") {
-            setSelectedMember(null);  // Zustand 스토어 상태 업데이트
-        } else {
-            setSelectedMember(parseInt(event.target.value));  // Zustand 스토어 상태 업데이트
+        if (event.target.value == "" && kanbanBoardId) {
+            setSelectedMember(null, 1, kanbanBoardId);  // Zustand 스토어 상태 업데이트
+        } else if(kanbanBoardId){
+            setSelectedMember(parseInt(event.target.value), 1, kanbanBoardId);  // Zustand 스토어 상태 업데이트
         }
     };
 

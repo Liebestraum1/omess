@@ -12,9 +12,11 @@ import IssueChargerFilter from "./IssueChargerFilter.tsx";
 import Grid from '@mui/material/Grid';
 import MDEditor from "@uiw/react-md-editor";
 import IssueStatusFilter from "./IssueStatusFilter.tsx";
-import {useState} from "react";
+import React, {useEffect, useState} from "react";
 import IssueUpdateModal from "../IssueUpdate/IssueUpdateModal.tsx";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
+
 
 type IssueDetailModalProp = {
     open: boolean;
@@ -23,6 +25,7 @@ type IssueDetailModalProp = {
 };
 
 const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
+    const {getIssueDetail, kanbanBoardId} = useKanbanBoardStore();
     const [openUpdate, setOpenUpdate] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -46,40 +49,45 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
     const handleClose = () => {
         setOpenUpdate(false);
     }
-    
-    
+
+
     //삭제하기
     const handleClickDelete = () => {
         handleCloseMenu();
         // FixMe 이슈 삭제 api 호출
     }
 
-    // FixMe 이슈 디테일 api 호출
-    const issueDetail: IssueDetailProp = {
-        issueId: 1,
-        title: " [Back-End] 회원 가입 api 구현",
-        content: "## 이메일, 비밀번호, 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기 이메일, 비밀번호,\n" +
-            " 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호, 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호,\n \n" +
-            " 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, \n \n" +
-            " - 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호, 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호,\n \n" +
-            " - 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호, 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호,\n \n" +
-            " 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 \n \n " +
-            "기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 \n \n " +
-            "입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, \n \n " +
-            "전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, \n \n" +
-            " 성별, 전화번호 입력받는 회원가입 기능 구현하기",
+    const [issueDetail, setIssueDetail] = useState<IssueDetailProp>({
+        issueId: 0,
+        title: "",
+        content: "",
         charger: {
-            id: 1,
-            nickname: "슈밤",
-            profile: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdHcLQLjBSyQ2kk7X4xV_XxScm1nk0TUqqUoUtqSTIQg&s"
+            id: 0,
+            nickname: "",
+            profile: ""
         },
         label: {
-            labelId: 1,
-            name: "Back-End"
+            labelId: 0,
+            name: "",
         },
-        importance: 1,
-        status: 1,
+        importance: 0,
+        status: 0
+    });
+
+    const getDetail = async () => {
+        if(kanbanBoardId && issueId > 0){
+            const response = await getIssueDetail(1, kanbanBoardId, issueId);
+
+            setIssueDetail(response);
+        }
+
     }
+
+    useEffect(() => {
+        if (issueId != null) {
+            getDetail();
+        }
+    }, [issueId]);
 
     const onClickRating = () => {
         // FixMe 이슈 중요도 수정 api 호출
@@ -113,7 +121,7 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
                     overflowY: 'auto' // 스크롤 활성화
                 }}>
                     <Box display={"flex"} justifyContent={"space-between"}>
-                        <Typography variant="h4" paddingBottom={3}> {issueId} {issueDetail.title} </Typography>
+                        <Typography variant="h4" paddingBottom={3}> {issueId} {issueDetail!.title} </Typography>
                         <Box>
                             <Button
                                 id="basic-button"
@@ -140,25 +148,25 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
                     </Box>
                     <Divider/>
                     <Grid container paddingY={2}>
-                        <Grid xs={10}>
+                        <Grid item xs={10}>
                             <Box sx={{
                                 overflowY: 'auto' // 내용이 많을 경우 스크롤
                             }}>
                                 <Typography fontWeight="bold" paddingBottom={1}>설명</Typography>
                                 <div className="markarea">
                                     <div data-color-mode="light">
-                                        <MDEditor.Markdown source={issueDetail.content}/>
+                                        <MDEditor.Markdown source={issueDetail!.content}/>
                                     </div>
                                 </div>
                             </Box>
                         </Grid>
-                        <Grid xs={2} paddingLeft={1}>
+                        <Grid item xs={2} paddingLeft={1}>
                             <Box>
-                                <IssueChargerFilter id={issueDetail.charger.id}/>
-                                <IssueLabelFilter labelId={issueDetail.label.labelId}/>
-                                <IssueStatusFilter status={issueDetail.status}/>
+                                <IssueChargerFilter id={issueDetail!.charger.id}/>
+                                <IssueLabelFilter labelId={issueDetail!.label.labelId}/>
+                                <IssueStatusFilter status={issueDetail!.status}/>
                                 <Box paddingLeft={5.5}>
-                                    <Rating name="read-only" size="large" defaultValue={issueDetail.importance}
+                                    <Rating name="read-only" size="large" defaultValue={issueDetail!.importance}
                                             onChange={onClickRating} max={3}/>
                                 </Box>
                             </Box>

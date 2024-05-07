@@ -5,20 +5,17 @@ import {useEffect, useState} from "react";
 import {ColorArr} from "../../services/common/Color.ts";
 
 const LabelFilter = () => {
-    const {labels, setSelectedLabel} = useKanbanBoardStore(state => ({
-        labels: state.labels,
-        setSelectedLabel: state.setSelectedLabel
-    }));
+    const {labels, setSelectedLabel, kanbanBoardId} = useKanbanBoardStore();
 
     const [selectedLabel, setSelectedLabelLocal] = useState('');
     const [colorArr, setColorArr] = useState<string[]>([]);
 
     const handleChange = (event: SelectChangeEvent<string>) => {
         setSelectedLabelLocal(event.target.value);
-        if (event.target.value == "") {
-            setSelectedLabel(null);
-        } else {
-            setSelectedLabel(parseInt(event.target.value));
+        if (event.target.value == "" && kanbanBoardId) {
+            setSelectedLabel(null, 1, kanbanBoardId);
+        } else if(kanbanBoardId){
+            setSelectedLabel(parseInt(event.target.value), 1, kanbanBoardId);
         }
     };
 
