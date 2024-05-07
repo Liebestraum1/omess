@@ -17,7 +17,7 @@ public class WriteIssueRequest {
     String content;
     @NotNull(message = "importance는 공백일 수 없습니다.") @Min(0) @Max(3)
     Integer importance;
-    @NotNull(message = "status는 공백일 수 없습니다.") @Min(0) @Max(3)
+    @NotNull(message = "status는 공백일 수 없습니다.") @Min(1) @Max(3)
     Integer status;
     Long memberId;
     Long labelId;
