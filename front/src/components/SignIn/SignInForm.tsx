@@ -46,6 +46,7 @@ const SignInForm = ({ signInStatus }: { signInStatus: SignInStatus }) => {
             signInApi(signInRequest)
                 .then((signInResponse: SignInResponse) => {
                     setMemberSignIn(signInResponse.memberId, signInResponse.nickname);
+                    console.log(signInResponse);
                     navigator("/main");
                 })
                 .catch(() => {
