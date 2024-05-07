@@ -37,6 +37,8 @@ import JsonFormatter from 'react-json-formatter'
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
+import BackspaceIcon from '@mui/icons-material/Backspace';
 import {deleteApi, updateApi} from "../request/ApiSpecificationRequest.ts";
 import statusCodeColors from "./StatusCodeColors.tsx";
 import "./HttpMethodRowColors.css"
@@ -281,8 +283,8 @@ const ApiModal = (
                 .catch((e) => {
                     setErrorState({isError: true, errorMessage: e.response.data.title})
                 })
-
-            setIsUpdateMode(false)
+        }else{
+            setErrorState({isError: true, errorMessage: "JSON SCHEMA의 유효성을 확인해주세요!"})
         }
     };
 
@@ -631,21 +633,6 @@ const ApiModal = (
                             >
                                 <DeleteIcon/>
                             </IconButton>
-                            <Button
-                                variant="outlined"
-                                onClick={cancelUpdateApi}
-                                color='secondary'
-                                sx={{width: '25%', height: '55px', display: isUpdateMode ? 'block' : 'none'}}
-                            >
-                                취소
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                onClick={handleUpdateApi}
-                                sx={{width: '25%', height: '55px', display: isUpdateMode ? 'block' : 'none'}}
-                            >
-                                저장
-                            </Button>
 
                             <Dialog
                                 open={isDeleteMode}
@@ -974,6 +961,39 @@ const ApiModal = (
                         {errorState.errorMessage}
                     </Alert>
                 </Snackbar>
+                <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1}}>
+                    <IconButton
+                        sx={{display: isUpdateMode ? 'flex' : 'none', color: 'red', fontSize: 'medium'}}
+                        onClick={cancelUpdateApi}
+                    >
+                        <BackspaceIcon style={{color: 'red'}}/>
+                        취소
+                    </IconButton>
+
+                    <IconButton
+                        sx={{display: isUpdateMode ? 'flex' : 'none', color: '#4F378B', fontSize: 'medium'}}
+                        onClick={handleUpdateApi}
+                    >
+                        <SaveAsIcon style={{color: '#4F378B'}}/>
+                        저장
+                    </IconButton>
+
+                    {/*<Button*/}
+                    {/*    variant="outlined"*/}
+                    {/*    onClick={cancelUpdateApi}*/}
+                    {/*    color='secondary'*/}
+                    {/*    sx={{width: '25%', height: '55px', display: isUpdateMode ? 'block' : 'none'}}*/}
+                    {/*>*/}
+                    {/*    취소*/}
+                    {/*</Button>*/}
+                    {/*<Button*/}
+                    {/*    variant="contained"*/}
+                    {/*    onClick={handleUpdateApi}*/}
+                    {/*    sx={{width: '25%', height: '55px', display: isUpdateMode ? 'block' : 'none'}}*/}
+                    {/*>*/}
+                    {/*    저장*/}
+                    {/*</Button>*/}
+                </Box>
             </Card>
 
         </Modal>
