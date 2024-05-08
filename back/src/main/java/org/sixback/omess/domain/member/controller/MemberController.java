@@ -119,8 +119,6 @@ public class MemberController {
             @Validated
             @RequestParam(required = false) String nickname
     ) {
-        if (memberId == null && email == null && nickname == null)
-            return ResponseEntity.ok().body(Collections.emptyList());
         return ResponseEntity.ok()
                 .body(memberService.searchMember(memberId, email, nickname));
     }
