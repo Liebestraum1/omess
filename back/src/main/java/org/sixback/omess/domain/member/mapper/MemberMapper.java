@@ -29,7 +29,7 @@ public class MemberMapper {
     }
 
     public static GetMemberResponse toGetMemberResponse(Member member) {
-        return new GetMemberResponse(member.getId(), member.getNickname(), member.getEmail());
+        return new GetMemberResponse(member.getId(), member.getNickname(), member.getEmail(), member.getProfile());
     }
 
     public static SignupMemberResponse toSignupMemberResponse(Member member) {
