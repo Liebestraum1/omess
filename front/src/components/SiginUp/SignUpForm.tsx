@@ -1,15 +1,10 @@
-import { Alert, AlertColor, AlertTitle, Box, Button, Snackbar, styled } from "@mui/material";
+import { Alert, AlertTitle, Box, Button, Snackbar, styled } from "@mui/material";
 import { useState } from "react";
 import FormInput from "../Common/FormInput";
 import SignUpFormSubmitButton from "./SignUpFormSubmitButton";
 import { SignUpRequest, emailValidationApi, nicknameValidationApi, signUpApi } from "../../services/SignUp/SignUpApi";
 import useFormListener from "../../hooks/FormListener";
-
-type AlertContent = {
-    severity: AlertColor | undefined;
-    title: string;
-    content: string;
-};
+import { AlertContent } from "../../types/common/Alert";
 
 const SignUpFormBox = styled(Box)({
     display: "flex",

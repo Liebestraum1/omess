@@ -6,7 +6,6 @@ import { useState } from "react";
 const ProfileButton = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { setUserLogout, memberNickname } = useSignInStore();
-    console.log(memberNickname);
 
     const open = Boolean(anchorEl);
     const handleClick = (e: React.MouseEvent<HTMLElement>) => {

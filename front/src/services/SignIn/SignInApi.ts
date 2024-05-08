@@ -1,4 +1,4 @@
-import axios from "../common";
+import client from "../common";
 
 export type SignInRequest = {
     email: string;
@@ -11,6 +11,6 @@ export type SignInResponse = {
 };
 
 export const signInApi = async <T = SignInResponse>(signInRequest: SignInRequest): Promise<T> => {
-    const { data } = await axios.post<T>("/api/v1/members/signin", signInRequest);
+    const { data } = await client.post<T>("/api/v1/members/signin", signInRequest);
     return data;
 };
