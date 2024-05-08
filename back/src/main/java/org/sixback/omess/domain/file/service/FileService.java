@@ -34,15 +34,13 @@ public class FileService {
             try {
                 String path = fileStorageService.uploadFile(fileInfo, referenceType.name());
                 FileInformation fileInformation = fileInfoRepository.save(FileInformation.builder()
-                        .name(fileInfo.getName())
-                        .originalName(fileInfo.getName())
+                        .originalName(fileInfo.getOriginalFilename())
                         .path(path)
-                        .address(fileStorageService.getAddress(path))
-                        .fileExtension(fileInfo.getContentType())
+                        .contentType(fileInfo.getContentType())
                         .referenceId(referenceId)
                         .referenceType(referenceType)
                         .build());
-                result.add(toUploadFileResponse(fileInformation));
+                result.add(toUploadFileResponse(fileInformation, fileStorageService.getAddress(path)));
             } catch (ServerException | InsufficientDataException | ErrorResponseException
                      | IOException | NoSuchAlgorithmException | InvalidKeyException
                      | InvalidResponseException | XmlParserException | InternalException e) {
