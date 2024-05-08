@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.file.service;
 
 import io.minio.errors.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.sixback.omess.domain.file.mapper.FileMapper.toUploadFileResponse;
+import static org.sixback.omess.domain.file.model.enums.FileErrorMessage.FILE_INFO_NOT_FOUND_ERROR;
 
 @Slf4j
 @Service
@@ -67,5 +69,29 @@ public class FileService {
                         fileInfo.getReferenceType(),
                         fileInfo.getReferenceId()))
                 .toList();
+    }
+
+
+    @Transactional
+    public void deleteFileInfos(List<Long> fileInfoIds) {
+        fileInfoIds.forEach(fileInfoId -> {
+            try {
+                FileInformation foundFileInfo = fileInfoRepository.findById(fileInfoId)
+                        .orElseThrow(() -> new EntityNotFoundException(FILE_INFO_NOT_FOUND_ERROR.getMessage()));
+                System.out.println("foundFileInfo = " + foundFileInfo);
+                fileStorageService.deleteFile(foundFileInfo.getPath());
+                fileInfoRepository.delete(foundFileInfo);
+            } catch (ServerException | InsufficientDataException | ErrorResponseException
+                     | IOException | NoSuchAlgorithmException | InvalidKeyException
+                     | InvalidResponseException | XmlParserException | InternalException e) {
+                log.error("exception: 발생 : {}", e.getMessage());
+                log.error("FILE NOT DELETED!!");
+            } catch (PersistenceException e) {
+                log.error("exception: 발생 : {}", e.getMessage());
+                log.error("ENTITY NOT SAVED!!");
+            } catch (Exception e) {
+                log.error("exception: 발생 : {}", e.getMessage());
+            }
+        });
     }
 }
