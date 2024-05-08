@@ -72,7 +72,7 @@ public class KanbanBoardService {
                 .category(kanbanBoard.getCategory())
                 .issues(issues.stream().map(issue -> GetIssueResponse.builder()
                         .issueId(issue.getId())
-                        .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
+                        .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail(), issue.getCharger().getProfile()) : null)
                         .label(issue.getLabel() != null ? GetLabelResponse.builder()
                                 .labelId(issue.getLabel().getId())
                                 .name(issue.getLabel().getName())
@@ -163,7 +163,7 @@ public class KanbanBoardService {
             return GetIssueResponses.builder()
                     .issues(findIssues.stream().map(issue -> GetIssueResponse.builder()
                             .issueId(issue.getId())
-                            .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
+                            .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail(), issue.getCharger().getProfile()) : null)
                             .label(issue.getLabel() != null ? GetLabelResponse.builder()
                                     .labelId(issue.getLabel().getId())
                                     .name(issue.getLabel().getName())
@@ -189,7 +189,7 @@ public class KanbanBoardService {
         if (issue.getPath().equals(path)) {
             return GetIssueDetailResponse.builder()
                     .issueId(issue.getId())
-                    .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
+                    .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail(), issue.getCharger().getProfile()) : null)
                     .label(issue.getLabel() != null ? GetLabelResponse.builder()
                             .labelId(issue.getLabel().getId())
                             .name(issue.getLabel().getName())
@@ -247,7 +247,7 @@ public class KanbanBoardService {
                                     .build()).toList()
                     )
                     .build();
-        }else {
+        } else {
             throw new EntityNotFoundException("잘못된 요청입니다");
         }
     }

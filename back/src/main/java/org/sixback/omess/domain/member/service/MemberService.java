@@ -3,6 +3,8 @@ package org.sixback.omess.domain.member.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sixback.omess.domain.file.model.dto.response.GetFileInfoResponse;
+import org.sixback.omess.domain.file.model.dto.response.UploadFileResponse;
 import org.sixback.omess.domain.file.service.FileService;
 import org.sixback.omess.domain.member.exception.DuplicateEmailException;
 import org.sixback.omess.domain.member.exception.DuplicateNicknameException;
@@ -11,6 +13,7 @@ import org.sixback.omess.domain.member.mapper.MemberMapper;
 import org.sixback.omess.domain.member.model.dto.request.MemberNicknameCheckResponse;
 import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
+import org.sixback.omess.domain.member.model.dto.request.UpdateMemberRequest;
 import org.sixback.omess.domain.member.model.dto.response.GetMemberResponse;
 import org.sixback.omess.domain.member.model.dto.response.MemberEmailCheckResponse;
 import org.sixback.omess.domain.member.model.dto.response.SignInMemberResponse;
@@ -24,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static org.sixback.omess.common.utils.PasswordUtils.encodePassword;
 import static org.sixback.omess.common.utils.PasswordUtils.isNotValidPassword;
+import static org.sixback.omess.domain.file.model.enums.ReferenceType.PROFILE_IMAGE;
 import static org.sixback.omess.domain.member.exception.MemberErrorMessage.*;
 import static org.sixback.omess.domain.member.mapper.MemberMapper.*;
 
@@ -38,7 +43,6 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public GetMemberResponse getMember(Long memberId) {
-        getEntity(memberId);
         return toGetMemberResponse(getEntity(memberId));
     }
 
@@ -76,6 +80,26 @@ public class MemberService {
                 .map(MemberMapper::toGetMemberResponse)
                 .toList();
     }
+
+    @Transactional
+    public void updateMember(Long memberId, UpdateMemberRequest updateMemberRequest) {
+        Member member = getEntity(memberId);
+
+        if (updateMemberRequest.getProfile() != null) {
+            List<Long> deleted = fileService.getFileInfos(PROFILE_IMAGE, String.valueOf(memberId))
+                    .stream()
+                    .map(GetFileInfoResponse::id)
+                    .toList();
+            fileService.deleteFileInfos(deleted);
+            List<UploadFileResponse> newProfile = fileService.uploadFile(List.of(updateMemberRequest.getProfile()), PROFILE_IMAGE, String.valueOf(memberId));
+            member.updateProfile(newProfile.getFirst().address());
+        }
+
+        if (updateMemberRequest.getPassword() != null) {
+            member.updatePassword(encodePassword(updateMemberRequest.getPassword()));
+        }
+    }
+
 
     @Transactional(readOnly = true)
     protected Member getEntity(Long memberId) {

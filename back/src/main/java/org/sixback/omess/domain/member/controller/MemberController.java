@@ -12,6 +12,7 @@ import org.sixback.omess.domain.member.exception.DuplicateNicknameException;
 import org.sixback.omess.domain.member.model.dto.request.MemberNicknameCheckResponse;
 import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
+import org.sixback.omess.domain.member.model.dto.request.UpdateMemberRequest;
 import org.sixback.omess.domain.member.model.dto.response.GetMemberResponse;
 import org.sixback.omess.domain.member.model.dto.response.MemberEmailCheckResponse;
 import org.sixback.omess.domain.member.model.dto.response.SignInMemberResponse;
@@ -23,13 +24,17 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.BindingResultUtils;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.BindException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -121,6 +126,17 @@ public class MemberController {
     ) {
         return ResponseEntity.ok()
                 .body(memberService.searchMember(memberId, email, nickname));
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> updateMember(
+            @Validated
+            UpdateMemberRequest updateMemberRequest,
+            @SessionAttribute Long memberId
+    ) {
+        System.out.println("updateMemberRequest = " + updateMemberRequest);
+        memberService.updateMember(memberId, updateMemberRequest);
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler({DuplicateEmailException.class, DuplicateNicknameException.class})
