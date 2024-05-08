@@ -2,7 +2,14 @@ import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
 import ProjectName from "./ProjectName.tsx";
 import Module from "./Module.tsx";
-import ChatListComponent from "../chat/ChatListComponent.tsx";
+import { useProjectStore } from "../../stores/ProjectStorage.tsx";
+import { useEffect, useState } from "react";
+import { ModuleResponse, getModulesApi } from "../../services/Module/ModuleApi.ts";
+import { Typography } from "@mui/material";
+
+type GroupModules = {
+    [key: string]: ModuleResponse[];
+};
 
 const ModuleSidebarBox = styled(Box)({
     width: 200,
@@ -22,21 +29,42 @@ const ModuleSidebarBox = styled(Box)({
     },
 });
 
-/**
- * ProjectSidebar의 Fab이 보낸 정보를 받아와서 파라미터로 담음
- * 프로젝트 이름, 프로젝트에 포함된 모듈의 리스트
- * 모듈은 모듈 카테고리(어떤 종류의 모듈인지)와 해당 카테고리에 있는 모듈의 리스트(아이템)를 받음
- */
 const ModuleSidebar = () => {
+    const { selectedProjectName, selectedProjectId } = useProjectStore();
+    const [groupedModules, setGroupedModules] = useState<GroupModules>({});
+
+    useEffect(() => {
+        if (selectedProjectId != undefined) {
+            getModulesApi(selectedProjectId).then((data: any) => {
+                const modules = data.reduce((acc: any, module: ModuleResponse) => {
+                    const key = module.category;
+                    if (!acc[key]) {
+                        acc[key] = [];
+                    }
+
+                    acc[key].push(module);
+                    return acc;
+                }, {});
+                setGroupedModules(modules);
+            });
+        }
+    }, [selectedProjectId]);
+
     return (
         <ModuleSidebarBox>
-            <ProjectName projectName={"A301 자율 프로젝트가너무길어지면어떻게될까나"} />
-            <Box display="flex" flexDirection="column">
-                <ChatListComponent projectId={1} />
-            </Box>
-            <Module moduleCategory={"채팅"} moduleItems={["채팅 모듈  1", "채팅 모듈 2"]}></Module>
-            <Module moduleCategory={"일정 관리"} moduleItems={["일정 관리 모듈 1", "일정 관리 모듈 2"]}></Module>
-            <Module moduleCategory={"API 명세서"} moduleItems={["API 명세서 모듈 1", "API 명세서 모듈 2"]}></Module>
+            <ProjectName projectName={selectedProjectName} />
+
+            {Object.keys(groupedModules).length === 0 ? (
+                <Typography> 모듈 생성 </Typography> // TODO => 모듈 생성 버튼
+            ) : (
+                Object.keys(groupedModules).map((key) => (
+                    <Module
+                        moduleCategory={key}
+                        key={key}
+                        moduleItems={groupedModules[key].map((module: ModuleResponse) => module.title)}
+                    ></Module>
+                ))
+            )}
         </ModuleSidebarBox>
     );
 };

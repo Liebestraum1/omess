@@ -5,6 +5,7 @@ import React from "react";
 
 type ProjectFabPropsFromProjectSidebar = {
     fabContent: React.ReactNode;
+    onClick: () => void;
 };
 
 const fabContentTypeGuard = (fabContent: React.ReactNode): React.ReactNode => {
@@ -31,7 +32,7 @@ const fabContentTypeGuard = (fabContent: React.ReactNode): React.ReactNode => {
     }
 };
 
-const ProjectFab = ({ fabContent }: ProjectFabPropsFromProjectSidebar) => {
+const ProjectFab = ({ fabContent, onClick }: ProjectFabPropsFromProjectSidebar) => {
     return (
         <Box
             sx={{
@@ -46,6 +47,7 @@ const ProjectFab = ({ fabContent }: ProjectFabPropsFromProjectSidebar) => {
         >
             <Fab
                 aria-label="add"
+                onClick={onClick}
                 sx={{
                     height: 48,
                     width: 48,

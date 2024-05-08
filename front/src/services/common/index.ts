@@ -2,7 +2,7 @@ import axios from "axios";
 
 import { useSignInStore } from "../../stores/SignInStorage";
 
-const client = axios
+const client = axios;
 client.interceptors.response.use(
     (response) => {
         return response;
