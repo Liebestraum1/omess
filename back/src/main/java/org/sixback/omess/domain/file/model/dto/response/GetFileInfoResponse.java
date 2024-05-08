@@ -6,6 +6,6 @@ public record GetFileInfoResponse(
         Long id,
         String address,
         ReferenceType referenceType,
-        Long referenceId
+        String referenceId
 ) {
 }

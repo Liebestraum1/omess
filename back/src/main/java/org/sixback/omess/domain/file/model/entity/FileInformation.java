@@ -28,7 +28,7 @@ public class FileInformation {
     private String contentType;
 
     @Column(nullable = false)
-    private Long referenceId;
+    private String referenceId;
 
     @Enumerated(STRING)
     private ReferenceType referenceType;
@@ -39,7 +39,7 @@ public class FileInformation {
     @Builder
     public FileInformation(
             Long id, String originalName,
-            String path, String contentType, Long referenceId,
+            String path, String contentType, String referenceId,
             ReferenceType referenceType, boolean isSaved
     ) {
         this.id = id;

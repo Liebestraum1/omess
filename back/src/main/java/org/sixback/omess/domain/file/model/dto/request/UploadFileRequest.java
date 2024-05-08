@@ -15,7 +15,7 @@ public class UploadFileRequest {
     private final ReferenceType referenceType;
 
     @NotNull
-    private final Long referenceId;
+    private final String referenceId;
 
     @NotNull
     private final List<MultipartFile> files;

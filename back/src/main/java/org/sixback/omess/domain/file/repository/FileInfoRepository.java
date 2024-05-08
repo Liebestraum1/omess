@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface FileInfoRepository extends JpaRepository<FileInformation, Long> {
-    List<FileInformation> findALlByReferenceTypeAndReferenceId(ReferenceType referenceType, Long referenceId);
+    List<FileInformation> findALlByReferenceTypeAndReferenceId(ReferenceType referenceType, String referenceId);
 
     List<FileInformation> findAllByReferenceTypeAndReferenceIdIn(ReferenceType referenceType, List<Long> referenceIds);
 }
