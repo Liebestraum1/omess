@@ -164,15 +164,14 @@ CREATE TABLE `path_variable`
 CREATE TABLE `file_information`
 (
     `id`             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    `name`           varchar(50)            NOT NULL,
-    `original_name`  varchar(50)            NOT NULL,
-    `path`           varchar(1000)          NOT NULL,
-    `file_extension` varchar(20)            NOT NULL,
-    `reference_id`   bigint                 NOT NULL,
-    `reference_type` ENUM ('PROFILE_IMAGE') NOT NULL,
-    `is_saved`       bool                   NOT NULL DEFAULT FALSE,
-    created_at       TIMESTAMP                       DEFAULT now(),
-    updated_at       TIMESTAMP                       DEFAULT now() ON UPDATE now()
+    `original_name`  varchar(50)                             NOT NULL,
+    `path`           varchar(1000)                           NOT NULL,
+    `content_type`   varchar(50)                             NOT NULL,
+    `reference_id`   bigint                                  NOT NULL,
+    `reference_type` ENUM ('PROFILE_IMAGE', 'CHAT', 'ISSUE') NOT NULL,
+    `is_saved`       bool                                    NOT NULL DEFAULT FALSE,
+    created_at       TIMESTAMP                                        DEFAULT now(),
+    updated_at       TIMESTAMP                                        DEFAULT now() ON UPDATE now()
 );
 
 CREATE INDEX file_info_index ON file_information (reference_type, reference_id);
