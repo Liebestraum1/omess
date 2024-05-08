@@ -3,9 +3,11 @@ package org.sixback.omess.domain.member.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sixback.omess.domain.file.service.FileService;
 import org.sixback.omess.domain.member.exception.DuplicateEmailException;
 import org.sixback.omess.domain.member.exception.DuplicateNicknameException;
 import org.sixback.omess.domain.member.exception.MemberErrorMessage;
+import org.sixback.omess.domain.member.mapper.MemberMapper;
 import org.sixback.omess.domain.member.model.dto.request.MemberNicknameCheckResponse;
 import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
@@ -14,10 +16,13 @@ import org.sixback.omess.domain.member.model.dto.response.MemberEmailCheckRespon
 import org.sixback.omess.domain.member.model.dto.response.SignInMemberResponse;
 import org.sixback.omess.domain.member.model.dto.response.SignupMemberResponse;
 import org.sixback.omess.domain.member.model.entity.Member;
+import org.sixback.omess.domain.member.repository.MemberQueryRepository;
 import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.sixback.omess.common.utils.PasswordUtils.isNotValidPassword;
 import static org.sixback.omess.domain.member.exception.MemberErrorMessage.*;
@@ -27,7 +32,9 @@ import static org.sixback.omess.domain.member.mapper.MemberMapper.*;
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+    private final FileService fileService;
     private final MemberRepository memberRepository;
+    private final MemberQueryRepository memberQueryRepository;
 
     @Transactional(readOnly = true)
     public GetMemberResponse getMember(Long memberId) {
@@ -60,6 +67,14 @@ public class MemberService {
     public SignInMemberResponse signin(SignInMemberRequest signInMemberRequest) {
         Member member = checkValidSignin(signInMemberRequest);
         return toSignInMemberResponse(member);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetMemberResponse> searchMember(Long memberId, String email, String nickname) {
+        return memberQueryRepository.searchMember(memberId, email, nickname)
+                .stream()
+                .map(MemberMapper::toGetMemberResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
