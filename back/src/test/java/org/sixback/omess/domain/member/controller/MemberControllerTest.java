@@ -382,6 +382,29 @@ class MemberControllerTest {
     @Nested
     @DisplayName("회원 조회 테스트")
     class searchMemberTest {
+        @Test
+        @DisplayName("사용자 사용자 아이디 하나만으로 조회 성공")
+        void searchMember_noArgument_success() throws Exception {
+            // given
+            List<Member> members = new ArrayList<>();
+            Member member1 = makeMember("nickname1", "email1@naver.com", "password123");
+            Member member2 = makeMember("nickname2", "email2@naver.com", "password123");
+            Member member3 = makeMember("nickname3", "email3@naver.com", "password123");
+            members.add(member1);
+            members.add(member2);
+            members.add(member3);
+            memberRepository.saveAll(members);
+
+            Cookie cookie = getSessionCookie("email1@naver.com", "password123");
+
+            // when
+            mockMvc.perform(get("/api/v1/members")
+                            .cookie(cookie))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(3))
+                    .andDo(print());
+        }
+
         @CsvSource(value = {
                 "memberId:0:1", "memberId:1:1", "memberId:-1:0", "memberId:-1:0"}, delimiter = ':')
         @ParameterizedTest
