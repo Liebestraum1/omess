@@ -137,8 +137,6 @@ pipeline {
                 failure {
                     echo "Health check failed"
 
-                    //removeDockerContents(newBackend)
-
                     updateGitlabCommitStatus name: 'healthcheck', state: 'failed'
                 }
             }
