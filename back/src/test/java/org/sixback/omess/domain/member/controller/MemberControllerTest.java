@@ -16,9 +16,8 @@ import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,15 +26,17 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sixback.omess.common.TestUtils.makeMember;
 import static org.sixback.omess.common.exception.ErrorType.*;
+import static org.sixback.omess.common.utils.PasswordUtils.isNotValidPassword;
 import static org.sixback.omess.domain.member.exception.MemberErrorMessage.DUPLICATE_EMAIL;
 import static org.sixback.omess.domain.member.exception.MemberErrorMessage.DUPLICATE_NICKNAME;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -196,8 +197,7 @@ class MemberControllerTest {
                 "1234567890_1234567890_1234567890_:1234567890_1234567890_1234567890_1234567890_1234567890_:1234567890_1234567890_", // all: MAX_LENGTH,
                 "nickname:email@naver.com:pass", // password: MIN_LENGTH
                 "nickname:noEmail:password", // email: EMAIL
-        }, delimiter = ':'
-        )
+        }, delimiter = ':')
         @ParameterizedTest
         void signup_fail_validation(String email, String nickname, String password) throws Exception {
             String signupMemberRequest = objectMapper.writeValueAsString(new SignupMemberRequest(email, nickname, password));
@@ -555,6 +555,115 @@ class MemberControllerTest {
                     .andExpect(jsonPath("instance").value("/api/v1/members"))
                     .andDo(print());
         }
+    }
+
+    @Nested
+    @DisplayName("사용자 수정 테스트")
+    class UpdateTest {
+        @Test
+        @DisplayName("비밀번호만 수정 - 성공")
+        void updateMember_OnlyUpdatePassword_success() throws Exception {
+            // given
+            Member savedMember = makeMember("nickname", "email@naver.com", "password123");
+            memberRepository.save(savedMember);
+            Cookie cookie = getSessionCookie("email@naver.com", "password123");
+
+            // when
+            mockMvc.perform(multipart("/api/v1/members")
+                            .param("password", "password1234")
+                            .contentType(MULTIPART_FORM_DATA)
+                            .cookie(cookie))
+                    .andExpect(status().isOk())
+                    .andDo(print());
+
+            assertThat(isNotValidPassword("password1234", savedMember.getPassword())).isFalse();
+            assertThat(isNotValidPassword("password123", savedMember.getPassword())).isTrue();
+        }
+
+        @Test
+        @DisplayName("프로필 이미지만 수정 - 성공")
+        void updateMember_OnlyUpdateProfile_success() throws Exception {
+            // given
+            Member savedMember = makeMember("nickname", "email@naver.com", "password123");
+            memberRepository.save(savedMember);
+            Cookie cookie = getSessionCookie("email@naver.com", "password123");
+
+            // when
+            MockMultipartFile profile = new MockMultipartFile("profile", "profile", "image/jpeg", "image".getBytes());
+            mockMvc.perform(multipart("/api/v1/members")
+                            .file(profile)
+                            .contentType(MULTIPART_FORM_DATA)
+                            .cookie(cookie))
+                    .andExpect(status().isOk())
+                    .andDo(print());
+            assertThat(savedMember.getProfile()).isNotBlank();
+        }
+
+        @Test
+        @DisplayName("비밀번호, 프로필 함께 수정 - 성공")
+        void updateMember_UpdatePasswordAndProfile_success() throws Exception {
+            // given
+            Member savedMember = makeMember("nickname", "email@naver.com", "password123");
+            memberRepository.save(savedMember);
+            Cookie cookie = getSessionCookie("email@naver.com", "password123");
+
+            // when
+            MockMultipartFile profile = new MockMultipartFile("profile", "profile", "image/jpeg", "image".getBytes());
+            mockMvc.perform(multipart("/api/v1/members")
+                            .file(profile)
+                            .param("password", "password1234")
+                            .contentType(MULTIPART_FORM_DATA)
+                            .cookie(cookie))
+                    .andExpect(status().isOk())
+                    .andDo(print());
+            assertThat(isNotValidPassword("password1234", savedMember.getPassword())).isFalse();
+            assertThat(isNotValidPassword("password123", savedMember.getPassword())).isTrue();
+            assertThat(savedMember.getProfile()).isNotBlank();
+        }
+
+        @Test
+        @DisplayName("인증 - 실패")
+        void updateMember_unAuthorized_fail() throws Exception {
+            // given
+            Member savedMember = makeMember("nickname", "email@naver.com", "password123");
+            memberRepository.save(savedMember);
+
+            // when
+            MockMultipartFile profile = new MockMultipartFile("profile", "profile", "image/jpeg", "image".getBytes());
+            mockMvc.perform(multipart("/api/v1/members")
+                            .file(profile)
+                            .param("password", "password1234")
+                            .contentType(MULTIPART_FORM_DATA))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("status").value(UNAUTHORIZED.value()))
+                    .andExpect(jsonPath("title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("instance").value("/api/v1/members"))
+                    .andDo(print());
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"1234567", "1234567890_1234567890_", ""})
+        @DisplayName("검증 통과 - 실패")
+        void updateMember_validation_fail(String password) throws Exception {
+            // given
+            Member savedMember = makeMember("nickname", "email@naver.com", "password123");
+            memberRepository.save(savedMember);
+            Cookie cookie = getSessionCookie("email@naver.com", "password123");
+
+            // when
+            MockMultipartFile profile = new MockMultipartFile("profile", "profile", "image/jpeg", "image".getBytes());
+            mockMvc.perform(multipart("/api/v1/members")
+                            .file(profile)
+                            .param("password", password)
+                            .contentType(MULTIPART_FORM_DATA)
+                            .cookie(cookie))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("status").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("title").value(VALIDATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("instance").value("/api/v1/members"))
+                    .andDo(print());
+        }
+
     }
 
     private Cookie getSessionCookie(String email, String password) throws Exception {
