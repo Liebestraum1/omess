@@ -167,7 +167,7 @@ CREATE TABLE `file_information`
     `original_name`  varchar(50)                             NOT NULL,
     `path`           varchar(1000)                           NOT NULL,
     `content_type`   varchar(50)                             NOT NULL,
-    `reference_id`   bigint                                  NOT NULL,
+    `reference_id`   varchar(255)                                  NOT NULL,
     `reference_type` ENUM ('PROFILE_IMAGE', 'CHAT', 'ISSUE') NOT NULL,
     `is_saved`       bool                                    NOT NULL DEFAULT FALSE,
     created_at       TIMESTAMP                                        DEFAULT now(),

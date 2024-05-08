@@ -8,7 +8,7 @@ public record UploadFileResponse(
         Long id,
         String address,
         String contentType,
-        Long referenceId,
+        String referenceId,
         ReferenceType referenceType
 ) {
 }

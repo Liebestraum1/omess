@@ -29,7 +29,7 @@ public class FileService {
     private final FileInfoRepository fileInfoRepository;
 
     @Transactional
-    public List<UploadFileResponse> uploadFile(List<MultipartFile> fileInfos, ReferenceType referenceType, Long referenceId) {
+    public List<UploadFileResponse> uploadFile(List<MultipartFile> fileInfos, ReferenceType referenceType, String referenceId) {
         List<UploadFileResponse> result = new ArrayList<>();
         fileInfos.forEach(fileInfo -> {
             try {
@@ -58,7 +58,7 @@ public class FileService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetFileInfoResponse> getFileInfos(ReferenceType referenceType, Long referenceId) {
+    public List<GetFileInfoResponse> getFileInfos(ReferenceType referenceType, String referenceId) {
         return fileInfoRepository.findALlByReferenceTypeAndReferenceId(referenceType, referenceId)
                 .stream()
                 .map(fileInfo -> new GetFileInfoResponse(

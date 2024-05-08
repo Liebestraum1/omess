@@ -31,7 +31,7 @@ public class FileController {
 
     @GetMapping
     public ResponseEntity<List<GetFileInfoResponse>> getFiles(
-            @RequestParam(name = "id") Long referenceId,
+            @RequestParam(name = "id") String referenceId,
             @RequestParam(name = "type") ReferenceType referenceType
     ) {
         List<GetFileInfoResponse> fileInfos = fileService.getFileInfos(referenceType, referenceId);
