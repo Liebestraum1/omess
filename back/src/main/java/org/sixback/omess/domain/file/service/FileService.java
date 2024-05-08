@@ -4,6 +4,7 @@ import io.minio.errors.*;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sixback.omess.domain.file.model.dto.response.GetFileInfoResponse;
 import org.sixback.omess.domain.file.model.dto.response.UploadFileResponse;
 import org.sixback.omess.domain.file.model.entity.FileInformation;
 import org.sixback.omess.domain.file.model.enums.ReferenceType;
@@ -54,5 +55,17 @@ public class FileService {
             }
         });
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetFileInfoResponse> getFileInfos(ReferenceType referenceType, Long referenceId) {
+        return fileInfoRepository.findALlByReferenceTypeAndReferenceId(referenceType, referenceId)
+                .stream()
+                .map(fileInfo -> new GetFileInfoResponse(
+                        fileInfo.getId(),
+                        fileStorageService.getAddress(fileInfo.getPath()),
+                        fileInfo.getReferenceType(),
+                        fileInfo.getReferenceId()))
+                .toList();
     }
 }
