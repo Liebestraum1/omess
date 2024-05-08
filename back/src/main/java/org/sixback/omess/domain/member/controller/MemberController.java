@@ -12,6 +12,7 @@ import org.sixback.omess.domain.member.exception.DuplicateNicknameException;
 import org.sixback.omess.domain.member.model.dto.request.MemberNicknameCheckResponse;
 import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.dto.request.SignupMemberRequest;
+import org.sixback.omess.domain.member.model.dto.response.GetMemberResponse;
 import org.sixback.omess.domain.member.model.dto.response.MemberEmailCheckResponse;
 import org.sixback.omess.domain.member.model.dto.response.SignInMemberResponse;
 import org.sixback.omess.domain.member.model.dto.response.SignupMemberResponse;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -105,6 +107,22 @@ public class MemberController {
         log.debug("memberId: {}", memberId);
         session.invalidate();
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<GetMemberResponse>> searchMember(
+            @RequestParam(required = false) Long memberId,
+            @Length(max = 50)
+            @Validated
+            @RequestParam(required = false) String email,
+            @Length(max = 30)
+            @Validated
+            @RequestParam(required = false) String nickname
+    ) {
+        if (memberId == null && email == null && nickname == null)
+            return ResponseEntity.ok().body(Collections.emptyList());
+        return ResponseEntity.ok()
+                .body(memberService.searchMember(memberId, email, nickname));
     }
 
     @ExceptionHandler({DuplicateEmailException.class, DuplicateNicknameException.class})
