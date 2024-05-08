@@ -7,7 +7,7 @@ import org.sixback.omess.domain.file.model.enums.ReferenceType;
 public record UploadFileResponse(
         Long id,
         String address,
-        String fileExtension,
+        String contentType,
         Long referenceId,
         ReferenceType referenceType
 ) {
