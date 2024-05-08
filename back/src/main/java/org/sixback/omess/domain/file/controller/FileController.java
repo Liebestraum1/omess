@@ -1,14 +1,14 @@
 package org.sixback.omess.domain.file.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.sixback.omess.domain.file.model.dto.response.UploadFileResponse;
 import org.sixback.omess.domain.file.model.dto.request.UploadFileRequest;
+import org.sixback.omess.domain.file.model.dto.response.GetFileInfoResponse;
+import org.sixback.omess.domain.file.model.dto.response.UploadFileResponse;
+import org.sixback.omess.domain.file.model.enums.ReferenceType;
 import org.sixback.omess.domain.file.service.FileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,5 +27,14 @@ public class FileController {
     ) {
         List<UploadFileResponse> uploadFileResponses = fileService.uploadFile(uploadFileRequest.getFiles(), uploadFileRequest.getReferenceType(), uploadFileRequest.getReferenceId());
         return new ResponseEntity<>(uploadFileResponses, CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<GetFileInfoResponse>> getFiles(
+            @RequestParam(name = "id") Long referenceId,
+            @RequestParam(name = "type") ReferenceType referenceType
+    ) {
+        List<GetFileInfoResponse> fileInfos = fileService.getFileInfos(referenceType, referenceId);
+        return ResponseEntity.ok().body(fileInfos);
     }
 }
