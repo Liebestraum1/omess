@@ -1,6 +1,7 @@
 import { Box, styled } from "@mui/material";
 import SignUpTitle from "./SignUpTItle";
 import SignUpForm from "./SignUpForm";
+import { SignUpProps } from "../../types/SignUp/SignUp";
 
 const SignUpBox = styled(Box)({
     display: "flex",
@@ -13,11 +14,11 @@ const SignUpBox = styled(Box)({
     backgroundColor: "white",
 });
 
-const SignUp = () => {
+const SignUp = ({ onClose, showAlert, setAlertContent }: SignUpProps) => {
     return (
         <SignUpBox>
             <SignUpTitle></SignUpTitle>
-            <SignUpForm></SignUpForm>
+            <SignUpForm onClose={onClose} setAlertContent={setAlertContent} showAlert={showAlert}></SignUpForm>
         </SignUpBox>
     );
 };

@@ -1,16 +1,25 @@
-import { Alert, AlertTitle, Box, Button, Snackbar } from "@mui/material";
+import { Alert, AlertTitle, Box, Button, Snackbar, styled } from "@mui/material";
+import SignUpTitle from "./SignUpTItle";
+import SignUpForm from "./SignUpForm";
 import { useState } from "react";
-import SignUpFormModal from "./SignUpFormModal";
 import { AlertContent } from "../../types/common/Alert";
+
+const SignUpBox = styled(Box)({
+    display: "flex",
+    flexDirection: "column",
+    width: "66vh",
+    height: "530px",
+    borderRadius: "8px",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "white",
+});
 
 const alertButton = (action: () => void) => {
     return <Button onClick={action}>확인</Button>;
 };
 
-const SignUpButton = () => {
-    const [open, setOpen] = useState(false);
-    const openSignUpForm = () => setOpen(true);
-    const closeSignUpForm = () => setOpen(false);
+const SignUp = () => {
     const [showAlert, setShowAlert] = useState<boolean>(false);
     const [alertContent, setAlertContent] = useState<AlertContent>({
         severity: undefined,
@@ -19,24 +28,12 @@ const SignUpButton = () => {
     });
 
     return (
-        <Box display={"flex"} flexDirection={"column"}>
-            <Button
-                sx={{
-                    marginTop: "16px",
-                    fontSize: 16,
-                }}
-                variant="contained"
-                onClick={openSignUpForm}
-            >
-                서버 가입
-            </Button>
-
-            <SignUpFormModal
-                open={open}
-                onClose={closeSignUpForm}
-                setAlertContent={(alertContent: AlertContent) => setAlertContent(alertContent)}
+        <SignUpBox>
+            <SignUpTitle></SignUpTitle>
+            <SignUpForm
                 showAlert={() => setShowAlert(true)}
-            />
+                setAlertContent={(alertContent: AlertContent) => setAlertContent(alertContent)}
+            ></SignUpForm>
 
             <Snackbar
                 open={showAlert}
@@ -48,8 +45,8 @@ const SignUpButton = () => {
                     {alertContent.content}
                 </Alert>
             </Snackbar>
-        </Box>
+        </SignUpBox>
     );
 };
 
-export default SignUpButton;
+export default SignUp;

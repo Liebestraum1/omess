@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, Box, Button, Snackbar, styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { useState } from "react";
 import FormInput from "../Common/FormInput";
 import SignUpFormSubmitButton from "./SignUpFormSubmitButton";
@@ -13,7 +13,7 @@ const SignUpFormBox = styled(Box)({
     width: "60%",
 });
 
-const SignUpForm = ({ onClose, setAlertContent, showAlert }: SignUpProps) => {
+const SignUpForm = ({ showAlert, setAlertContent }: SignUpProps) => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [nickname, setNickname] = useState<string>("");
@@ -92,7 +92,6 @@ const SignUpForm = ({ onClose, setAlertContent, showAlert }: SignUpProps) => {
                     title: "서버 가입 성공!",
                     content: "서버 가입에 성공했습니다.",
                 });
-                onClose();
             })
             .catch(() => {
                 setAlertContent({
