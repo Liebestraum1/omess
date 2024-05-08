@@ -16,11 +16,16 @@ import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.sixback.omess.common.TestUtils.makeMember;
 import static org.sixback.omess.common.exception.ErrorType.*;
@@ -292,8 +297,6 @@ class MemberControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.memberId").value(savedMember.getId()))
                     .andExpect(jsonPath("$.nickname").value(savedMember.getNickname()))
-//                    .andExpect(request().sessionAttribute("memberId", is(notNullValue())))
-//                    .andExpect(request().sessionAttribute("SPRING_SECURITY_CONTEXT", is(notNullValue())))
                     .andDo(print());
         }
 
@@ -342,13 +345,14 @@ class MemberControllerTest {
     }
 
     @Nested
+    @DisplayName("로그아웃 테스트")
     class SignoutTest {
         @Test
         @DisplayName("로그아웃 - 성공")
         void signin_success() throws Exception {
             Member member = makeMember("nickname", "e@naver.com", "password123");
             memberRepository.save(member);
-            Cookie cookie = getCookie("e@naver.com", "password123");
+            Cookie cookie = getSessionCookie("e@naver.com", "password123");
 
             // when
             mockMvc.perform(post("/api/v1/members/signout")
@@ -371,10 +375,166 @@ class MemberControllerTest {
                     .andExpect(jsonPath("$.status").value(UNAUTHORIZED.value()))
                     .andExpect(jsonPath("$.instance").value("/api/v1/members/signout"))
                     .andDo(print());
+
         }
     }
 
-    private Cookie getCookie(String email, String password) throws Exception {
+    @Nested
+    @DisplayName("회원 조회 테스트")
+    class searchMemberTest {
+        @CsvSource(value = {
+                "memberId:0:1", "memberId:1:1", "memberId:-1:0", "memberId:-1:0"}, delimiter = ':')
+        @ParameterizedTest
+        @DisplayName("사용자 사용자 아이디 하나만으로 조회 성공")
+        void searchMember_byOnlyMemberId_success(String paramName, int idx, int expect) throws Exception {
+            // given
+            List<Member> members = new ArrayList<>();
+            Member member1 = makeMember("nickname1", "email1@naver.com", "password123");
+            Member member2 = makeMember("nickname2", "email2@naver.com", "password123");
+            Member member3 = makeMember("nickname3", "email3@naver.com", "password123");
+            members.add(member1);
+            members.add(member2);
+            members.add(member3);
+            memberRepository.saveAll(members);
+            Long id;
+            if (idx == -1) {
+                id = -1L;
+            } else {
+                id = members.get(idx).getId();
+            }
+
+            Cookie cookie = getSessionCookie("email1@naver.com", "password123");
+
+            // when
+            mockMvc.perform(get("/api/v1/members")
+                            .param(paramName, String.valueOf(id))
+                            .cookie(cookie))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(expect))
+                    .andDo(print());
+        }
+
+        @CsvSource(value = {
+                "nickname:nick:3", "nickname:nickname1:1", "nickname:notMatched:0", "nickname:nickname0:0",
+                "email:email:3", "email:email1:1", "email:notMatched:0", "email:email@naver.com0:0"
+        }, delimiter = ':')
+        @ParameterizedTest
+        @DisplayName("사용자 닉네임만으로 조회 성공")
+        void searchMember_byOnlyNickname_success(String paramName, String value, int expect) throws Exception {
+            // given
+            List<Member> members = new ArrayList<>();
+            Member member1 = makeMember("nickname1", "email1@naver.com", "password123");
+            Member member2 = makeMember("nickname2", "email2@naver.com", "password123");
+            Member member3 = makeMember("nickname3", "email3@naver.com", "password123");
+
+            members.add(member1);
+            members.add(member2);
+            members.add(member3);
+            memberRepository.saveAll(members);
+            Cookie cookie = getSessionCookie("email1@naver.com", "password123");
+
+            // when
+            mockMvc.perform(get("/api/v1/members")
+                            .param(paramName, value)
+                            .cookie(cookie))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(expect))
+                    .andDo(print());
+        }
+
+        @CsvSource(value = {"email:3", "email1:1", "notMatched:0", "email@naver.com0:0"}, delimiter = ':')
+        @ParameterizedTest
+        @DisplayName("사용자 이메일으로만 조회 성공")
+        void searchMember_byOnlyEmail_success(String nickname, int expect) throws Exception {
+            // given
+            List<Member> members = new ArrayList<>();
+            Member member1 = makeMember("nickname1", "email1@naver.com", "password123");
+            Member member2 = makeMember("nickname2", "email2@naver.com", "password123");
+            Member member3 = makeMember("nickname3", "email3@naver.com", "password123");
+
+            members.add(member1);
+            members.add(member2);
+            members.add(member3);
+            memberRepository.saveAll(members);
+            Cookie cookie = getSessionCookie("email1@naver.com", "password123");
+
+            // when
+            mockMvc.perform(get("/api/v1/members")
+                            .param("email", nickname)
+                            .cookie(cookie))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(expect))
+                    .andDo(print());
+        }
+
+        @CsvSource(value = {"nickname1:email1:1", "nickname1:notMatched:0", "notMatched:email:0", "nickname1:email3@naver.com:0"}, delimiter = ':')
+        @ParameterizedTest
+        @DisplayName("사용자 닉네임과 email으로 조회 성공")
+        void searchMember_byEmailAndNickname_success(String nickname, String email, int expect) throws Exception {
+            // given
+            List<Member> members = new ArrayList<>();
+            Member member1 = makeMember("nickname1", "email1@naver.com", "password123");
+            Member member2 = makeMember("nickname2", "email2@naver.com", "password123");
+            Member member3 = makeMember("nickname3", "email3@naver.com", "password123");
+
+            members.add(member1);
+            members.add(member2);
+            members.add(member3);
+            memberRepository.saveAll(members);
+            Cookie cookie = getSessionCookie("email1@naver.com", "password123");
+
+            // when
+            mockMvc.perform(get("/api/v1/members")
+                            .param("nickname", nickname)
+                            .param("email", email)
+                            .cookie(cookie))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(expect))
+                    .andDo(print());
+        }
+
+        @Test
+        @DisplayName("인증이 안된 사용자 조회 실패")
+        void searchMember_unAuthorized_fail() throws Exception {
+            // given
+            memberRepository.save(makeMember());
+
+            // when
+            mockMvc.perform(get("/api/v1/members")
+                            .param("nickname", "nickname")
+                            .param("email", "email"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(UNAUTHORIZED.value()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/members"))
+                    .andDo(print());
+        }
+
+        @CsvSource(
+                value = {"nickname:1234567890_1234567890_1234567890_", "email:1234567890_1234567890_1234567890_1234567890_1234567890_"},
+                delimiter = ':'
+        )
+        @ParameterizedTest
+        @DisplayName("인수 검증 통과 실패")
+        void searchMember_validation_fail(String paramName, String value) throws Exception {
+            // given
+            Member savedMember = makeMember("nickname", "email@naver.com", "password123");
+            memberRepository.save(savedMember);
+            Cookie cookie = getSessionCookie("email@naver.com", "password123");
+
+            // when
+            mockMvc.perform(get("/api/v1/members")
+                            .param(paramName, value)
+                            .cookie(cookie))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("status").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("title").value(VALIDATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("instance").value("/api/v1/members"))
+                    .andDo(print());
+        }
+    }
+
+    private Cookie getSessionCookie(String email, String password) throws Exception {
         MockHttpServletResponse response = mockMvc.perform(post("/api/v1/members/signin")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new SignInMemberRequest(email, password))))
