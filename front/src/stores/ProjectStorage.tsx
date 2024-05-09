@@ -1,7 +1,5 @@
 import { create } from "zustand";
 import { Project } from "../types/Project/Project";
-import { getProjectApi } from "../services/Project/ProjectApi";
-import ProjectName from "../components/ModuleSidebar/ProjecTyphography";
 
 type ProjectStore = {
     projectList: Array<Project> | undefined;

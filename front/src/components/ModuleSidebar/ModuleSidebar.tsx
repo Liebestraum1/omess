@@ -25,6 +25,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
+import { useModuleStore } from "../../stores/ModuleStorage.tsx";
 
 type GroupModules = {
     [key: string]: ModuleResponse[];
@@ -77,6 +78,7 @@ const ModuleSidebarBox = styled(Box)({
 
 const ModuleSidebar = () => {
     const { selectedProjectName, selectedProjectId } = useProjectStore();
+
     const [groupedModules, setGroupedModules] = useState<GroupModules>({});
     const [openModuleCreationModal, setOpenModuleCreationModal] = useState<boolean>(false);
     const [moduleName, setModuleName] = useState<string>("");
@@ -132,9 +134,10 @@ const ModuleSidebar = () => {
                 <Module
                     moduleCategory={key}
                     key={key}
-                    moduleItems={groupedModules[key].map((module: ModuleResponse) => module.title)}
+                    moduleItems={groupedModules[key].map((module: ModuleResponse) => module)}
                 ></Module>
             ))}
+
             <Modal
                 open={openModuleCreationModal}
                 onClose={() => setOpenModuleCreationModal(false)}

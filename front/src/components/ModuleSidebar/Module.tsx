@@ -3,10 +3,12 @@ import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
 import React from "react";
 import Circle from "@mui/icons-material/Circle";
+import { ModuleResponse } from "../../services/Module/ModuleApi";
+import { useModuleStore } from "../../stores/ModuleStorage";
 
 type moduleProps = {
     moduleCategory: React.ReactNode;
-    moduleItems: Array<React.ReactNode>;
+    moduleItems: Array<ModuleResponse>;
 };
 
 const ModuleCategoryBox = styled(Box)({
@@ -26,7 +28,9 @@ const ModuleItemTypography = styled(Typography)({
     fontSize: 12,
 });
 
-const ModuleItemsTypeGuard = (moduleItems: Array<React.ReactNode>): React.ReactNode => {
+const ModuleItemsTypeGuard = (moduleItems: Array<ModuleResponse>): React.ReactNode => {
+    const { currentModuleContent, setCurrentModuleContent } = useModuleStore();
+
     if (moduleItems === null || moduleItems === undefined || moduleItems.length == 0) {
         return null;
     } else {
@@ -34,9 +38,18 @@ const ModuleItemsTypeGuard = (moduleItems: Array<React.ReactNode>): React.ReactN
             <Box>
                 <List>
                     {moduleItems.map((item, index) => (
-                        <ListItem key={index}>
+                        <ListItem
+                            key={index}
+                            onClick={() => {
+                                setCurrentModuleContent(item.id, item.category);
+                                console.log(currentModuleContent);
+                            }}
+                            sx={{
+                                cursor: "pointer",
+                            }}
+                        >
                             <Circle sx={{ fontSize: 8, marginRight: 1.5, color: "#49454F" }} />
-                            <ModuleItemTypography variant="button">{item}</ModuleItemTypography>
+                            <ModuleItemTypography variant="button">{item.title}</ModuleItemTypography>
                         </ListItem>
                     ))}
                 </List>
