@@ -2,6 +2,9 @@ import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
 import PathBar from "./PathBar";
 import KanbanBoardPage from "../../pages/KanbanBoardPage.tsx";
+import ApiSpecificationComponent from "../ApiSpeification/ApiSpecificationComponent.tsx";
+import { useModuleStore } from "../../stores/ModuleStorage.tsx";
+import { useProjectStore } from "../../stores/ProjectStorage.tsx";
 
 const ModuleContentBox = styled(Box)({
     flex: 7,
@@ -20,10 +23,36 @@ const ModuleContentBox = styled(Box)({
 });
 
 const ModuleContent = () => {
+    const { currentModuleContent } = useModuleStore();
+    const { selectedProjectId } = useProjectStore();
+
+    const DisplayModuleContent = () => {
+        const currentCategory = currentModuleContent?.category;
+        const currentModuleId = currentModuleContent?.moduleId;
+        const currentProjectId = selectedProjectId;
+
+        if (currentProjectId == undefined || currentModuleId == undefined) {
+            return null;
+        }
+
+        switch (currentCategory) {
+            case "일정 관리":
+                return <KanbanBoardPage projectId={currentProjectId} moduleId={currentModuleId}></KanbanBoardPage>;
+            case "API 명세서":
+                return (
+                    <ApiSpecificationComponent
+                        projectId={currentProjectId}
+                        apiSpecificationId={currentModuleId}
+                    ></ApiSpecificationComponent>
+                );
+        }
+        return null;
+    };
+
     return (
         <ModuleContentBox>
             <PathBar />
-            <KanbanBoardPage projectId={28} moduleId={26}/>
+            <DisplayModuleContent></DisplayModuleContent>
         </ModuleContentBox>
     );
 };
