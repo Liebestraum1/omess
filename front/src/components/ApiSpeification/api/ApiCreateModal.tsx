@@ -48,6 +48,9 @@ function CustomNoRowsOverlay() {
 
 const currencies = [
     {
+      value: '선택해주세요'
+    },
+    {
         value: 'GET',
         label: 'GET',
     },
@@ -122,6 +125,8 @@ const ApiCreateModal = (
     const [inputApiQueryParams, setInputApiQueryParams] = useState<QueryParamRow[]>([])
     const [isValidRequestJsonSchema, setIsValidRequestJsonSchema] = useState<boolean>(true);
     const [isValidResponseJsonSchema, setIsValidResponseJsonSchema] = useState<boolean>(true);
+    const [requestJsonSchemaErrorMessage, setRequestJsonSchemaErrorMessage] = useState<string>('');
+    const [responseJsonSchemaErrorMessage, setResponseJsonSchemaErrorMessage] = useState<string>('');
 
     const handleClose = () => {
         setInputApiName('')
@@ -303,9 +308,11 @@ const ApiCreateModal = (
                 if (valid) {
                     setIsValidRequestJsonSchema(true)
                 } else {
+                    setRequestJsonSchemaErrorMessage('JSON SCHEMA DRAFT-07에 부합하지 않는 형식입니다.')
                     setIsValidRequestJsonSchema(false)
                 }
             } catch {
+                setRequestJsonSchemaErrorMessage('JSON 형식이 아닙니다.')
                 setIsValidRequestJsonSchema(false)
             }
         } else {
@@ -324,9 +331,11 @@ const ApiCreateModal = (
                 if (valid) {
                     setIsValidResponseJsonSchema(true)
                 } else {
+                    setResponseJsonSchemaErrorMessage('JSON SCHEMA DRAFT-07에 부합하지 않는 형식입니다.')
                     setIsValidResponseJsonSchema(false)
                 }
             } catch {
+                setResponseJsonSchemaErrorMessage('JSON 형식이 아닙니다.')
                 setIsValidResponseJsonSchema(false)
             }
         } else {
@@ -474,6 +483,7 @@ const ApiCreateModal = (
                             id="outlined-select-currency"
                             select
                             label="HTTP Method"
+                            defaultValue="선택해주세요"
                             onChange={handleChangeMethod}
                             fullWidth
                             sx={{width: '15%', backgroundColor: 'white'}}
@@ -687,7 +697,7 @@ const ApiCreateModal = (
                                 variant="outlined"
                                 error={!isValidRequestJsonSchema}
                                 value={inputApiRequestSchema ? inputApiRequestSchema : ''}
-                                helperText={!isValidRequestJsonSchema ? "유효하지 않은 JSON SCHEMA입니다." : ""}
+                                helperText={!isValidRequestJsonSchema ? requestJsonSchemaErrorMessage : ""}
                                 fullWidth
                                 onChange={handleChangeRequestSchema}
                                 onKeyDown={handleInputRequestSchemaKeyDown}
@@ -730,7 +740,7 @@ const ApiCreateModal = (
                             multiline
                             variant="outlined"
                             error={!isValidResponseJsonSchema}
-                            helperText={!isValidResponseJsonSchema ? "유효하지 않은 JSON SCHEMA입니다." : ""}
+                            helperText={!isValidResponseJsonSchema ? responseJsonSchemaErrorMessage : ""}
                             fullWidth
                             onChange={handleChangeResponseSchema}
                             onKeyDown={handleInputResponseSchemaKeyDown}
