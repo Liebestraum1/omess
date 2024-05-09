@@ -1,7 +1,6 @@
 package org.sixback.omess.domain.file.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.sixback.omess.domain.file.model.dto.request.DeleteFileRequest;
 import org.sixback.omess.domain.file.model.dto.request.UploadFileRequest;
 import org.sixback.omess.domain.file.model.dto.response.GetFileInfoResponse;
 import org.sixback.omess.domain.file.model.dto.response.UploadFileResponse;
@@ -41,11 +40,9 @@ public class FileController {
 
     @DeleteMapping
     public ResponseEntity<Void> deleteFile(
-            @Validated
-            @RequestBody
-            DeleteFileRequest deleteFileRequest
+            @RequestParam("id") List<Long> id
     ) {
-        fileService.deleteFileInfos(deleteFileRequest.getDeleteIds());
+        fileService.deleteFileInfos(id);
         return ResponseEntity.ok().build();
     }
 }
