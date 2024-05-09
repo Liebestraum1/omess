@@ -1,4 +1,4 @@
-import {Box} from "@mui/material";
+import {Avatar, Box} from "@mui/material";
 import {useEffect, useRef, useState} from "react";
 import ChatMessageMenu from "./ChatMessageMenu.tsx";
 import ChatEditingButton from "./ChatEditingButton.tsx";
@@ -7,11 +7,13 @@ import {useChatStorage} from "../../stores/chatStorage.tsx";
 import MDEditor from '@uiw/react-md-editor';
 import '../../styles/MdEditor.css'
 import {ChatMessage} from "../../types/chat/chat.ts";
+import {fileCancel} from "../../services/file/FileApi.ts";
 
 type Props = {
     prevMessage: ChatMessage,
     message: ChatMessage
 }
+const imageExts = ['png', 'jpg', 'jpeg'];
 const ChatMessageComponent = (props: Props) => {
     const {sendMessage} = useChatStorage();
     const [isEditing, setIsEditing] = useState(false);
@@ -22,6 +24,14 @@ const ChatMessageComponent = (props: Props) => {
     const [isSequence, setIsSequence] = useState(false);
     const [isSystem, setIsSystem] = useState(false);
 
+    const extractExt = (address: string) => {
+        const temp = address.split('/');
+        const ext = temp[temp.length - 1].split('.')
+        return ext[ext.length - 1];
+    }
+    const isImage = (ext: string) => {
+        return imageExts.includes(ext);
+    }
 
     function transTime(t: string[]) {
         const str = (parseInt(t[0]) / 12) < 1 ? '오전 ' : '오후 ';
@@ -49,9 +59,11 @@ const ChatMessageComponent = (props: Props) => {
 
     useEffect(() => {
         if (props.prevMessage == null) return;
-        const dateTime = props.prevMessage.createAt.split(' ')
+        const dateTime1 = props.message.createAt.split(' ')
+        const dateTime2 = props.prevMessage.createAt.split(' ')
         setIsSequence(props.message.member.id === props.prevMessage!.member.id
-            && props.prevMessage!.classify === 'USER')
+            && props.prevMessage!.classify === 'USER'
+            && dateTime1[0] === dateTime2[0])
     }, [props.prevMessage?.message]);
 
     const handleInputChange = (e: any) => {
@@ -83,7 +95,8 @@ const ChatMessageComponent = (props: Props) => {
         setIsEditing(false);
     }
 
-    const deleteMessage = () => {
+    const deleteMessage = async () => {
+        await Promise.all(props.message.files.map(file => fileCancel(file.id)));
         const data = {
             type: 'DELETE',
             data: {
@@ -109,61 +122,92 @@ const ChatMessageComponent = (props: Props) => {
     return (
         <Box
             alignItems="center"
+            justifyContent='space-between'
             display="flex"
-            justifyContent="space-between"
             gap={3}
             py={isSequence && !isSystem ? 0 : 1}
-            px={2}
+            px={1}
             className='view-box'
             sx={{
                 '&:hover': {
                     backgroundColor: 'grey.100',
                 }
             }}
-            onMouseEnter={() => setIsView(true)}  // 마우스가 컴포넌트 위로 올라오면 상태를 true로 설정
+            onMouseEnter={() => setIsView(true)}
             onMouseLeave={() => setIsView(false)}
         >
-            {/*<Avatar*/}
-            {/*    src={value.member.}*/}
-            {/*/>*/}
-            {
-                !isEditing ?
-                    <Box
-                        sx={isSystem ? {color: 'grey.500'} : null}
-                    >
-                        <Box display="flex" gap={2}>
-                            {
-                                !isSequence || isSystem ?
-                                    <Box sx={{fontWeight: 'bold'}}>{props.message.member.nickname}</Box> : null
-                            }
-                            <Box>
+            <Box display='flex'
+                 gap={1}
+                 alignItems='start'
+            >
+                {
+                    !isSequence || isSystem ?
+                        <Avatar sx={{width: 48, height: 48}} src={props.message.member.profile}/> :
+                        <Box
+                            className='time-box'
+                            sx={{
+                                width: 48,
+                                height: 48,
+                                opacity: 0,
+                                fontSize: '0.5em',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}>
+                            <span>{nowTime}</span>
+                        </Box>
+                }
+                {
+                    !isEditing ?
+                        <Box
+                            sx={isSystem ? {color: 'grey.500'} : null}
+                        >
+                            <Box display="flex" gap={2}>
                                 {
                                     !isSequence || isSystem ?
-                                        <span>{nowTime}</span> : null
+                                        <Box sx={{fontWeight: 'bold'}}>{props.message.member.nickname}</Box> : null
                                 }
-                                <span
-                                    style={{fontSize: '12px'}}>{isSystem ? ' (시스템 메시지) ' : null}</span>
+                                <Box>
+                                    {
+                                        !isSequence || isSystem ?
+                                            <span>{nowTime}</span> : null
+                                    }
+                                    <span
+                                        style={{fontSize: '12px'}}>{isSystem ? ' (시스템 메시지) ' : null}</span>
+                                </Box>
                             </Box>
-                        </Box>
-                        <Box display='flex'
-                             gap={1}
-                        >
-                            {
-                                isSystem ? <span>{props.message.message}</span>
-                                    :
-                                    <MDEditor.Markdown
-                                        className='markdown-view'
-                                        source={props.message.message}/>
-                            }
-                            <span style={{color: '#E8DEF8'}}>{props.message.isUpdated ? '(수정됨)' : ''}</span>
-                        </Box>
-                    </Box> :
-                    <TextField
-                        ref={inputRef}
-                        value={inputValue}
-                        onChange={(e) => handleInputChange(e)}
-                        label="메시지" sx={{width: '40%'}}/>
-            }
+                            <Box my={1} gap={1}>
+                                {
+                                    isSystem ? <span>{props.message.message}</span>
+                                        :
+                                        <MDEditor.Markdown
+                                            className='markdown-view'
+                                            source={props.message.message}/>
+                                }
+                                <span style={{color: '#bebebe'}}>{props.message.isUpdated ? '(수정됨)' : ''}</span>
+                                {
+                                    props.message.files.length >= 1 ?
+                                        <Box>
+                                            {
+                                                props.message.files.map(value => (
+                                                    isImage(extractExt(value.address)) ?
+                                                        <img src={value.address}/>
+                                                        :
+                                                        <Box>
+                                                            파일 section
+                                                        </Box>
+                                                ))
+                                            }
+                                        </Box> : null
+                                }
+                            </Box>
+                        </Box> :
+                        <TextField
+                            ref={inputRef}
+                            value={inputValue}
+                            onChange={(e) => handleInputChange(e)}
+                            label="메시지" sx={{width: '40%'}}/>
+                }
+            </Box>
             <Box>
                 {
                     props.message.classify === 'USER' ? !isEditing ?

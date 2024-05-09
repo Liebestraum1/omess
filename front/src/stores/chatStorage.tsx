@@ -1,5 +1,5 @@
 import {create} from "zustand";
-import {ChatInfo, ChatMessage, ChatName, Header, ChatMember} from "../types/chat/chat.ts";
+import {ChatInfo, ChatMember, ChatMessage, ChatName, FileInformation, Header} from "../types/chat/chat.ts";
 
 type ChatStorage = {
     chatId: string | null;
@@ -8,9 +8,14 @@ type ChatStorage = {
     client: WebSocket | null;
     members: Array<ChatMember> | null;
     messages: Array<ChatMessage> | null;
+    isEnter: boolean;
+    files: Array<FileInformation> | null;
     pinMessages: Array<ChatMessage> | null;
-    init: (chat: ChatInfo) => void;
+    init: (chat: ChatInfo, memberId: number) => void;
     sendMessage: (data: any) => void;
+    addFile: (filename: FileInformation) => void;
+    removeFile: (fileId: number) => void;
+    resetFile: () => void;
 };
 
 export const useChatStorage = create<ChatStorage>((set, get) => {
@@ -75,7 +80,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
     const membersMessage = (member: ChatMember) => {
         const members = get().members;
         members!.push(member);
-        set({members:members});
+        set({members: members});
     }
 
     const loadPinMessage = (message: ChatMessage) => {
@@ -86,13 +91,15 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
 
     return {
         serverUrl: 'ws://localhost:8081/chat/v1',
+        isEnter: false,
         chatId: null,
         client: null,
         members: null,
         messages: null,
         chatInfo: null,
         pinMessages: null,
-        init: (chat: ChatInfo) => {
+        files: null,
+        init: (chat: ChatInfo, memberId: number) => {
             if (chat == null) {
                 console.log('must have chatInfo')
                 return;
@@ -112,7 +119,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                     const enter = {
                         type: 'ENTER',
                         data: {
-                            memberId: 2,
+                            memberId: memberId,
                             chatId: `${get().chatId}`
                         }
                     };
@@ -120,6 +127,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                     set({messages: []})
                     set({pinMessages: []})
                     set({members: []})
+                    set({files: []})
                 }
             }
 
@@ -133,7 +141,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
             }
 
             client.onmessage = (event) => {
-                if (client.readyState === WebSocket.CONNECTING) return;
+                if (client.readyState !== WebSocket.OPEN) return;
                 const message = JSON.parse(event.data);
                 console.log(message.type, message.data)
                 switch (message.type) {
@@ -165,17 +173,31 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                         loadPinMessage(message.data);
                         break;
                     case "SUCCESS":
+                        set({isEnter: true})
                         console.log("연결 성공")
                         break;
                 }
             };
         },
         sendMessage: (data: any) => {
-            if (get().client == null) {
+            if (get().client == null || get().client!.readyState !== WebSocket.OPEN) {
                 console.error('client 연결 안돼 있음')
             } else {
                 get().client!.send(data)
             }
         },
+        addFile: (file: FileInformation) => {
+            const files = get().files;
+            files!.push(file)
+            set({files: files})
+        },
+        removeFile: (fileId: number) => {
+            const files = get().files;
+            const res = files!.filter(value => value.id !== fileId);
+            set({files: res});
+        },
+        resetFile: () => {
+            set({files: []})
+        }
     }
 });

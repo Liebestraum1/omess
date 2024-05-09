@@ -1,4 +1,4 @@
-import {Button, IconButton} from "@mui/material";
+import {Button} from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 
 const ChatInfoComponent = ({chatId, setIsOpened, setSelectedTab}: {
@@ -12,11 +12,10 @@ const ChatInfoComponent = ({chatId, setIsOpened, setSelectedTab}: {
     }
     return (
         <Button
+            color='secondary'
             onClick={handleSelectedTab}
         >
-            <IconButton aria-label="info" size="small">
-                <InfoIcon/>
-            </IconButton>
+            <InfoIcon/>
         </Button>
     )
 }
