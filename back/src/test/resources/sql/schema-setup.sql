@@ -68,7 +68,7 @@ CREATE TABLE `issue`
     title          VARCHAR(90) NOT NULL,
     content        TEXT        NULL,
     importance     TINYINT(3)  NOT NULL DEFAULT 0,
-    status         TINYINT(3)  NOT NULL DEFAULT 0,
+    status         TINYINT(3)  NOT NULL DEFAULT 1,
     kanbanboard_id BIGINT      NOT NULL,
     charger_id     BIGINT      NULL,
     label_id       BIGINT      NULL,

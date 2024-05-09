@@ -15,6 +15,7 @@ import org.sixback.omess.domain.kanbanboard.service.KanbanBoardService;
 import org.sixback.omess.domain.member.model.dto.response.GetIssueResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -54,6 +55,7 @@ public class KanbanBoardController {
     }
 
     @PostMapping("/{module_id}/issues")
+    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> createIssue(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
@@ -64,6 +66,7 @@ public class KanbanBoardController {
     }
 
     @DeleteMapping("/{module_id}/issues/{issue_id}")
+    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> deleteIssue(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
@@ -75,6 +78,7 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}")
+    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssue(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
@@ -87,6 +91,7 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}/member")
+    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssueMember(@SessionAttribute(name = "memberId") Long memberId,
                                                   @PathVariable("project_id") Long projectId,
                                                   @PathVariable("module_id") Long moduleId,
@@ -99,6 +104,7 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}/importance")
+    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssueImportance(@SessionAttribute(name = "memberId") Long memberId,
                                                       @PathVariable("project_id") Long projectId,
                                                       @PathVariable("module_id") Long moduleId,
@@ -111,6 +117,7 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}/status")
+    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssueStatus(@SessionAttribute(name = "memberId") Long memberId,
                                                   @PathVariable("project_id") Long projectId,
                                                   @PathVariable("module_id") Long moduleId,
@@ -123,6 +130,7 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}/label")
+    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssueLabel(@SessionAttribute(name = "memberId") Long memberId,
                                                  @PathVariable("project_id") Long projectId,
                                                  @PathVariable("module_id") Long moduleId,
@@ -170,6 +178,7 @@ public class KanbanBoardController {
     }
 
     @DeleteMapping("/{module_id}/label/{label_id}")
+    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> deleteLabel(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
