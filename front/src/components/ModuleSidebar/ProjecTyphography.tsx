@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import styled from "@mui/system/styled";
+import { Fragment } from "react/jsx-runtime";
 
 type ProjectNameProps = {
     projectName: React.ReactNode;
@@ -14,21 +15,20 @@ const ProjectNameBox = styled(Box)({
 });
 
 const ProjectNameTypography = styled(Typography)({
-    maxWidth: "100%",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
+    // maxWidth: "100%",
+    // overflow: "hidden",
+    // whiteSpace: "nowrap",
+    // textOverflow: "ellipsis",
     fontSize: "16px",
     color: "#49454F",
     fontWeight: "bold",
-    marginInline: "16px",
 });
 
 const ProjectName = ({ projectName }: ProjectNameProps) => {
     return (
-        <ProjectNameBox>
+        <Fragment>
             <ProjectNameTypography>{projectName}</ProjectNameTypography>
-        </ProjectNameBox>
+        </Fragment>
     );
 };
 

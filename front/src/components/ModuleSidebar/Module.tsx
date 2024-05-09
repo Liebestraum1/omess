@@ -57,12 +57,10 @@ const Module = ({ moduleCategory, moduleItems }: moduleProps) => {
         <Box>
             <ModuleCategoryBox>
                 <Box display={"flex"}>
-                    <ArrowRightIcon />
                     <Typography fontSize={16} fontWeight={"600"} color={"#49454F"}>
                         {moduleCategory}
                     </Typography>
                 </Box>
-                <AddIcon />
             </ModuleCategoryBox>
             {ModuleItemsTypeGuard(moduleItems)}
         </Box>
