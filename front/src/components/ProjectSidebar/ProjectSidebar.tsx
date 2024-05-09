@@ -7,6 +7,7 @@ import { useProjectStore } from "../../stores/ProjectStorage";
 import { Project } from "../../types/Project/Project";
 import ProjectInvitationModal from "./ProjectInvitationModal";
 import { AlertContent } from "../../types/common/Alert";
+import { useModuleStore } from "../../stores/ModuleStorage";
 
 const ProjectSidebarBox = styled(Box)({
     display: "flex",
@@ -37,6 +38,7 @@ const ProjectSidebar = () => {
     //  * 해당 API 결과값을 List로 받기
     //  * 각 Fab은 개별 프로젝트를 조회하는 API를 호출하고, 그 결과값을 ModuleSidebar로 보냄
     const { projectList, setProjectList, setSelectedProjectId, setSelectedProjectName } = useProjectStore();
+    const { resetModuleContent } = useModuleStore();
 
     const [showAlert, setShowAlert] = useState<boolean>(false);
     const [modalOpen, setModalOpen] = useState(false);
@@ -65,6 +67,7 @@ const ProjectSidebar = () => {
                     onClick={() => {
                         setSelectedProjectId(project.projectId);
                         setSelectedProjectName(project.name);
+                        resetModuleContent();
                     }}
                     key={project.projectId}
                 />
