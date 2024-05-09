@@ -2,9 +2,7 @@ import { Divider, List, ListItem, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
 import React from "react";
-import AddIcon from "@mui/icons-material/Add";
 import Circle from "@mui/icons-material/Circle";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 
 type moduleProps = {
     moduleCategory: React.ReactNode;
@@ -14,6 +12,7 @@ type moduleProps = {
 const ModuleCategoryBox = styled(Box)({
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     marginLeft: 8,
     marginRight: 8,
 });
@@ -54,13 +53,16 @@ const ModuleItemsTypeGuard = (moduleItems: Array<React.ReactNode>): React.ReactN
 
 const Module = ({ moduleCategory, moduleItems }: moduleProps) => {
     return (
-        <Box>
+        <Box
+            sx={{
+                marginLeft: "4px",
+                whiteSpace: "nowrap",
+            }}
+        >
             <ModuleCategoryBox>
-                <Box display={"flex"}>
-                    <Typography fontSize={16} fontWeight={"600"} color={"#49454F"}>
-                        {moduleCategory}
-                    </Typography>
-                </Box>
+                <Typography fontSize={16} fontWeight={"500"} color={"#49454F"}>
+                    {moduleCategory}
+                </Typography>
             </ModuleCategoryBox>
             {ModuleItemsTypeGuard(moduleItems)}
         </Box>

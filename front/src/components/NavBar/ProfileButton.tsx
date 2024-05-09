@@ -2,6 +2,7 @@ import { Avatar, Fade, Menu, MenuItem } from "@mui/material";
 import { useSignInStore } from "../../stores/SignInStorage";
 import { Fragment } from "react/jsx-runtime";
 import { useState } from "react";
+import { signOutApi } from "../../services/SignIn/SignInApi";
 
 const ProfileButton = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -43,7 +44,11 @@ const ProfileButton = () => {
                 <MenuItem
                     onClick={() => {
                         handleClose();
-                        setUserLogout();
+                        signOutApi()
+                            .then(() => {
+                                setUserLogout();
+                            })
+                            .catch();
                     }}
                 >
                     Logout
