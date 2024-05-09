@@ -8,6 +8,7 @@ type ModuleContentRequest = {
 type ModuleStore = {
     currentModuleContent: ModuleContentRequest | undefined;
     setCurrentModuleContent: (moduleId: number, category: string) => void;
+    resetModuleContent: () => void;
 };
 
 export const useModuleStore = create<ModuleStore>((set) => ({
@@ -19,6 +20,12 @@ export const useModuleStore = create<ModuleStore>((set) => ({
                 moduleId: moduleId,
                 category: category,
             },
+        }));
+    },
+
+    resetModuleContent: () => {
+        set(() => ({
+            currentModuleContent: undefined,
         }));
     },
 }));
