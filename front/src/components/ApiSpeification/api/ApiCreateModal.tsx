@@ -48,7 +48,7 @@ function CustomNoRowsOverlay() {
 
 const currencies = [
     {
-      value: '선택해주세요'
+        value: '선택해주세요'
     },
     {
         value: 'GET',
@@ -459,337 +459,342 @@ const ApiCreateModal = (
     },);
 
     return (
-        <Modal
-            open={open}
-            onClose={handleClose}
-        >
-            <Card variant='outlined' sx={modalStyle}
-                  style={{backgroundColor: '#E8DEF8', display: open ? 'block' : 'none'}}>
-                <CardContent
-                    sx={{
-                        borderWidth: '1px',
-                        borderStyle: 'solid',
-                        borderColor: '#E8DEF8',
-                        borderRadius: '4px'
-                    }}
-                >
-                    <Box
+        <Box>
+            <Modal
+                open={open}
+                onClose={handleClose}
+            >
+                <Card variant='outlined' sx={modalStyle}
+                      style={{backgroundColor: '#E8DEF8', display: open ? 'block' : 'none'}}>
+                    <CardContent
                         sx={{
-                            display: 'flex',
-                            alignItems: 'center'
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            borderColor: '#E8DEF8',
+                            borderRadius: '4px'
                         }}
                     >
-                        <TextField
-                            id="outlined-select-currency"
-                            select
-                            label="HTTP Method"
-                            defaultValue="선택해주세요"
-                            onChange={handleChangeMethod}
-                            fullWidth
-                            sx={{width: '15%', backgroundColor: 'white'}}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
                         >
-                            {currencies.map((option) => (
-                                <MenuItem key={option.value} value={option.value}
-                                          sx={{alignItems: 'center', justifyContent: 'center'}}>
-                                    <Box
-                                        sx={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            width: '65%',
-                                            padding: '6px 20px',
-                                            textTransform: 'uppercase',
-                                            borderRadius: '4px',
-                                            backgroundColor: methodColors[`${option.label}-BADGE`],
-                                            color: 'white',
-                                        }}
-                                    >
-                                        <Typography variant="h6" component="div">
-                                            {option.label}
-                                        </Typography>
-                                    </Box>
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                            <TextField
+                                id="outlined-select-currency"
+                                select
+                                label="HTTP Method"
+                                defaultValue="선택해주세요"
+                                onChange={handleChangeMethod}
+                                fullWidth
+                                sx={{width: '15%', backgroundColor: 'white'}}
+                            >
+                                {currencies.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}
+                                              sx={{alignItems: 'center', justifyContent: 'center'}}>
+                                        <Box
+                                            sx={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                width: '65%',
+                                                padding: '6px 20px',
+                                                textTransform: 'uppercase',
+                                                borderRadius: '4px',
+                                                backgroundColor: methodColors[`${option.label}-BADGE`],
+                                                color: 'white',
+                                            }}
+                                        >
+                                            <Typography variant="h6" component="div">
+                                                {option.label}
+                                            </Typography>
+                                        </Box>
+                                    </MenuItem>
+                                ))}
+                            </TextField>
 
 
-                        <Box sx={{ml: 1}}>
+                            <Box sx={{ml: 1}}>
+                                <TextField
+                                    fullWidth
+                                    label="API 이름(최대 20자)"
+                                    variant="outlined"
+                                    value={inputApiName}
+                                    onChange={handleChangeName}
+                                    inputProps={{
+                                        maxLength: 20
+                                    }}
+                                    sx={{backgroundColor: 'white'}}
+                                />
+                            </Box>
+                        </Box>
+
+                        <Divider sx={{my: 2}}/>
+
+                        <TextField
+                            fullWidth
+                            label="API 설명(최대 50자)"
+                            variant="outlined"
+                            value={inputApiDescription}
+                            onChange={handleChangeDescription}
+                            inputProps={{
+                                maxLength: 50
+                            }}
+                            sx={{backgroundColor: 'white'}}
+                        />
+
+                        <Box sx={{mt: 2}}>
+                            <Typography variant='h5' component='div'>
+                                Endpoint
+                            </Typography>
                             <TextField
                                 fullWidth
-                                label="API 이름(최대 20자)"
                                 variant="outlined"
-                                value={inputApiName}
-                                onChange={handleChangeName}
+                                value={inputApiEndpoint}
+                                onChange={handleChangeEndpoint}
                                 inputProps={{
-                                    maxLength: 20
+                                    maxLength: 2000
                                 }}
                                 sx={{backgroundColor: 'white'}}
                             />
                         </Box>
-                    </Box>
 
-                    <Divider sx={{my: 2}}/>
+                        <Divider sx={{my: 2}}/>
 
-                    <TextField
-                        fullWidth
-                        label="API 설명(최대 50자)"
-                        variant="outlined"
-                        value={inputApiDescription}
-                        onChange={handleChangeDescription}
-                        inputProps={{
-                            maxLength: 50
-                        }}
-                        sx={{backgroundColor: 'white'}}
-                    />
+                        <Box>
+                            <Typography variant='h5' component='div'>
+                                Request
+                            </Typography>
+                            <Box sx={{mt: 2}}>
+                                <Typography variant='h6' component='div'>
+                                    Request Headers
+                                </Typography>
+                                <DataGrid
+                                    autoHeight={inputApiRequestHeaders.length !== 0}
+                                    rows={inputApiRequestHeaders}
+                                    columns={requestHeadersColumns as GridColDef<GridRowModel>[]}
+                                    hideFooter={true}
+                                    hideFooterPagination={true}
+                                    disableRowSelectionOnClick
+                                    disableColumnMenu={true}
+                                    disableColumnResize={true}
+                                    disableColumnSelector={true}
+                                    disableColumnSorting={true}
+                                    slots={{noRowsOverlay: CustomNoRowsOverlay}}
+                                    sx={{
+                                        width: '100%',
+                                        "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                                            outline: "none",
+                                        },
+                                        '& .MuiDataGrid-cell': {
+                                            borderRight: '1px solid #ccc',
+                                        }
+                                    }}
+                                    processRowUpdate={handleRequestHeaderRowUpdate}
+                                />
+                                <Chip
+                                    icon={<AddCircleIcon style={{color: '#4F378B'}}/>}
+                                    label='추가'
+                                    onClick={() => addRowToInputApiRequestHeaders()}
+                                    sx={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '8%',
+                                        backgroundColor: 'transparent',
+                                        mt: 1
+                                    }}
+                                />
+                            </Box>
 
-                    <Box sx={{mt: 2}}>
+                            <Box sx={{mt: 2}}>
+                                <Typography variant='h6' component='div'>
+                                    Path Variables
+                                </Typography>
+                                <DataGrid
+                                    autoHeight={inputApiPathVariables.length !== 0}
+                                    rows={inputApiPathVariables}
+                                    columns={pathVariablesColumns as GridColDef<GridRowModel>[]}
+                                    hideFooter={true}
+                                    hideFooterPagination={true}
+                                    disableRowSelectionOnClick
+                                    disableColumnMenu={true}
+                                    disableColumnResize={true}
+                                    disableColumnSelector={true}
+                                    disableColumnSorting={true}
+                                    slots={{noRowsOverlay: CustomNoRowsOverlay}}
+                                    sx={{
+                                        width: '100%',
+                                        "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                                            outline: "none",
+                                        },
+                                        '& .MuiDataGrid-cell': {
+                                            borderRight: '1px solid #ccc',
+                                        }
+                                    }}
+                                    processRowUpdate={handlePathVariableRowUpdate}
+                                />
+                                <Chip
+                                    icon={<AddCircleIcon style={{color: '#4F378B'}}/>}
+                                    label='추가'
+                                    onClick={() => addRowToInputApiPathVariables()}
+                                    sx={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '8%',
+                                        backgroundColor: 'transparent',
+                                        mt: 1
+                                    }}
+                                />
+                            </Box>
+
+                            <Box sx={{mt: 2}}>
+                                <Typography variant='h6' component='div'>
+                                    Query Parameters
+                                </Typography>
+                                <DataGrid
+                                    autoHeight={inputApiQueryParams.length !== 0}
+                                    rows={inputApiQueryParams}
+                                    columns={queryParamsColumns as GridColDef<GridRowModel>[]}
+                                    hideFooter={true}
+                                    hideFooterPagination={true}
+                                    disableRowSelectionOnClick
+                                    disableColumnMenu={true}
+                                    disableColumnResize={true}
+                                    disableColumnSelector={true}
+                                    disableColumnSorting={true}
+                                    slots={{noRowsOverlay: CustomNoRowsOverlay}}
+                                    sx={{
+                                        width: '100%',
+                                        "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                                            outline: "none",
+                                        },
+                                        '& .MuiDataGrid-cell': {
+                                            borderRight: '1px solid #ccc',
+                                        }
+                                    }}
+                                    processRowUpdate={handleQueryParamRowUpdate}
+                                />
+
+                                <Chip
+                                    icon={<AddCircleIcon style={{color: '#4F378B'}}/>}
+                                    label='추가'
+                                    onClick={() => addRowToInputApiQueryParams()}
+                                    sx={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '8%',
+                                        backgroundColor: 'transparent',
+                                        mt: 1
+                                    }}
+                                />
+                            </Box>
+
+                            <Box sx={{mt: 2}}>
+                                <Typography variant='h6' component='div'>
+                                    Request Body JSON SCHEMA
+                                </Typography>
+                                <TextField
+                                    multiline
+                                    variant="outlined"
+                                    error={!isValidRequestJsonSchema}
+                                    value={inputApiRequestSchema ? inputApiRequestSchema : ''}
+                                    helperText={!isValidRequestJsonSchema ? requestJsonSchemaErrorMessage : ""}
+                                    fullWidth
+                                    onChange={handleChangeRequestSchema}
+                                    onKeyDown={handleInputRequestSchemaKeyDown}
+                                    sx={{backgroundColor: 'white'}}
+                                />
+                                <Button variant='contained' style={{backgroundColor: '#4F378B'}} sx={{mt: 1}}
+                                        disabled={!isValidRequestJsonSchema} onClick={requestJsonSchemaFormatting}>
+                                    Formatting
+                                </Button>
+                            </Box>
+                        </Box>
+
+                        <Divider sx={{my: 2}}/>
+
+
                         <Typography variant='h5' component='div'>
-                            Endpoint
+                            Response
                         </Typography>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            value={inputApiEndpoint}
-                            onChange={handleChangeEndpoint}
-                            inputProps={{
-                                maxLength: 2000
-                            }}
-                            sx={{backgroundColor: 'white'}}
-                        />
-                    </Box>
 
-                    <Divider sx={{my: 2}}/>
-
-                    <Box>
-                        <Typography variant='h5' component='div'>
-                            Request
-                        </Typography>
                         <Box sx={{mt: 2}}>
                             <Typography variant='h6' component='div'>
-                                Request Headers
+                                Status Code
                             </Typography>
-                            <DataGrid
-                                autoHeight={inputApiRequestHeaders.length !== 0}
-                                rows={inputApiRequestHeaders}
-                                columns={requestHeadersColumns as GridColDef<GridRowModel>[]}
-                                hideFooter={true}
-                                hideFooterPagination={true}
-                                disableRowSelectionOnClick
-                                disableColumnMenu={true}
-                                disableColumnResize={true}
-                                disableColumnSelector={true}
-                                disableColumnSorting={true}
-                                slots={{noRowsOverlay: CustomNoRowsOverlay}}
-                                sx={{
-                                    width: '100%',
-                                    "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                                        outline: "none",
-                                    },
-                                    '& .MuiDataGrid-cell': {
-                                        borderRight: '1px solid #ccc',
-                                    }
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                type='number'
+                                onChange={handleChangeStatusCode}
+                                inputProps={{
+                                    maxLength: 3
                                 }}
-                                processRowUpdate={handleRequestHeaderRowUpdate}
-                            />
-                            <Chip
-                                icon={<AddCircleIcon style={{color: '#4F378B'}}/>}
-                                label='추가'
-                                onClick={() => addRowToInputApiRequestHeaders()}
-                                sx={{
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '8%',
-                                    backgroundColor: 'transparent',
-                                    mt: 1
-                                }}
+                                sx={{backgroundColor: 'white'}}
                             />
                         </Box>
 
                         <Box sx={{mt: 2}}>
                             <Typography variant='h6' component='div'>
-                                Path Variables
-                            </Typography>
-                            <DataGrid
-                                autoHeight={inputApiPathVariables.length !== 0}
-                                rows={inputApiPathVariables}
-                                columns={pathVariablesColumns as GridColDef<GridRowModel>[]}
-                                hideFooter={true}
-                                hideFooterPagination={true}
-                                disableRowSelectionOnClick
-                                disableColumnMenu={true}
-                                disableColumnResize={true}
-                                disableColumnSelector={true}
-                                disableColumnSorting={true}
-                                slots={{noRowsOverlay: CustomNoRowsOverlay}}
-                                sx={{
-                                    width: '100%',
-                                    "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                                        outline: "none",
-                                    },
-                                    '& .MuiDataGrid-cell': {
-                                        borderRight: '1px solid #ccc',
-                                    }
-                                }}
-                                processRowUpdate={handlePathVariableRowUpdate}
-                            />
-                            <Chip
-                                icon={<AddCircleIcon style={{color: '#4F378B'}}/>}
-                                label='추가'
-                                onClick={() => addRowToInputApiPathVariables()}
-                                sx={{
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '8%',
-                                    backgroundColor: 'transparent',
-                                    mt: 1
-                                }}
-                            />
-                        </Box>
-
-                        <Box sx={{mt: 2}}>
-                            <Typography variant='h6' component='div'>
-                                Query Parameters
-                            </Typography>
-                            <DataGrid
-                                autoHeight={inputApiQueryParams.length !== 0}
-                                rows={inputApiQueryParams}
-                                columns={queryParamsColumns as GridColDef<GridRowModel>[]}
-                                hideFooter={true}
-                                hideFooterPagination={true}
-                                disableRowSelectionOnClick
-                                disableColumnMenu={true}
-                                disableColumnResize={true}
-                                disableColumnSelector={true}
-                                disableColumnSorting={true}
-                                slots={{noRowsOverlay: CustomNoRowsOverlay}}
-                                sx={{
-                                    width: '100%',
-                                    "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                                        outline: "none",
-                                    },
-                                    '& .MuiDataGrid-cell': {
-                                        borderRight: '1px solid #ccc',
-                                    }
-                                }}
-                                processRowUpdate={handleQueryParamRowUpdate}
-                            />
-
-                            <Chip
-                                icon={<AddCircleIcon style={{color: '#4F378B'}}/>}
-                                label='추가'
-                                onClick={() => addRowToInputApiQueryParams()}
-                                sx={{
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '8%',
-                                    backgroundColor: 'transparent',
-                                    mt: 1
-                                }}
-                            />
-                        </Box>
-
-                        <Box sx={{mt: 2}}>
-                            <Typography variant='h6' component='div'>
-                                Request Body JSON SCHEMA
+                                Response Body JSON SCHEMA
                             </Typography>
                             <TextField
                                 multiline
                                 variant="outlined"
-                                error={!isValidRequestJsonSchema}
-                                value={inputApiRequestSchema ? inputApiRequestSchema : ''}
-                                helperText={!isValidRequestJsonSchema ? requestJsonSchemaErrorMessage : ""}
+                                error={!isValidResponseJsonSchema}
+                                helperText={!isValidResponseJsonSchema ? responseJsonSchemaErrorMessage : ""}
                                 fullWidth
-                                onChange={handleChangeRequestSchema}
-                                onKeyDown={handleInputRequestSchemaKeyDown}
+                                onChange={handleChangeResponseSchema}
+                                onKeyDown={handleInputResponseSchemaKeyDown}
                                 sx={{backgroundColor: 'white'}}
                             />
-                            <Button variant='contained' style={{backgroundColor: '#4F378B'}} sx={{mt: 1}} disabled={!isValidRequestJsonSchema} onClick={requestJsonSchemaFormatting}>
+                            <Button variant='contained' style={{backgroundColor: '#4F378B'}} sx={{mt: 1}}
+                                    disabled={!isValidResponseJsonSchema} onClick={responseJsonSchemaFormatting}>
                                 Formatting
                             </Button>
                         </Box>
-                    </Box>
-
-                    <Divider sx={{my: 2}}/>
+                    </CardContent>
 
 
-                    <Typography variant='h5' component='div'>
-                        Response
-                    </Typography>
-
-                    <Box sx={{mt: 2}}>
-                        <Typography variant='h6' component='div'>
-                            Status Code
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            type='number'
-                            onChange={handleChangeStatusCode}
-                            inputProps={{
-                                maxLength: 3
-                            }}
-                            sx={{backgroundColor: 'white'}}
-                        />
-                    </Box>
-
-                    <Box sx={{mt: 2}}>
-                        <Typography variant='h6' component='div'>
-                            Response Body JSON SCHEMA
-                        </Typography>
-                        <TextField
-                            multiline
-                            variant="outlined"
-                            error={!isValidResponseJsonSchema}
-                            helperText={!isValidResponseJsonSchema ? responseJsonSchemaErrorMessage : ""}
-                            fullWidth
-                            onChange={handleChangeResponseSchema}
-                            onKeyDown={handleInputResponseSchemaKeyDown}
-                            sx={{backgroundColor: 'white'}}
-                        />
-                        <Button variant='contained' style={{backgroundColor: '#4F378B'}} sx={{mt: 1}} disabled={!isValidResponseJsonSchema} onClick={responseJsonSchemaFormatting}>
-                            Formatting
+                    <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1}}>
+                        <Button
+                            startIcon={<BackspaceIcon style={{color: 'red'}}/>}
+                            sx={{display: 'flex', color: 'red', fontSize: 'medium'}}
+                            onClick={handleClose}
+                        >
+                            취소
+                        </Button>
+                        <Button
+                            startIcon={<SaveAsIcon style={{color: '#4F378B'}}/>}
+                            sx={{display: 'flex', color: '#4F378B', fontSize: 'medium'}}
+                            onClick={handleCreateApi}
+                        >
+                            저장
                         </Button>
                     </Box>
-                </CardContent>
+                </Card>
 
-                <Snackbar
-                    open={errorState.isError}
-                    autoHideDuration={2000}
+            </Modal>
+            <Snackbar
+                open={errorState.isError}
+                autoHideDuration={2000}
+                onClose={() => {
+                    setErrorState({isError: false, errorMessage: ''})
+                }}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+            >
+                <Alert
+                    severity="error"
                     onClose={() => {
                         setErrorState({isError: false, errorMessage: ''})
                     }}
-                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                    variant="filled"
+                    sx={{width: '100%'}}
                 >
-                    <Alert
-                        severity="error"
-                        onClose={() => {
-                            setErrorState({isError: false, errorMessage: ''})
-                        }}
-                        variant="filled"
-                        sx={{width: '100%'}}
-                    >
-                        {errorState.errorMessage}
-                    </Alert>
-                </Snackbar>
-                <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1}}>
-                    <Button
-                        startIcon={<BackspaceIcon style={{color: 'red'}}/>}
-                        sx={{display: 'flex', color: 'red', fontSize: 'medium'}}
-                        onClick={handleClose}
-                    >
-                        취소
-                    </Button>
-                    <Button
-                        startIcon={<SaveAsIcon style={{color: '#4F378B'}}/>}
-                        sx={{display: 'flex', color: '#4F378B', fontSize: 'medium'}}
-                        onClick={handleCreateApi}
-                    >
-                        저장
-                    </Button>
-                </Box>
-            </Card>
-
-        </Modal>
+                    {errorState.errorMessage}
+                </Alert>
+            </Snackbar>
+        </Box>
     )
 }
 
