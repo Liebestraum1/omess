@@ -34,7 +34,6 @@ public class ModuleController {
 
     @GetMapping("/modulecategory")
     public ResponseEntity<List<GetModuleCategoryResponse>> getModuleCategories(
-            @SessionAttribute(name = "memberId") Long memberId,
             @PathVariable("project_id") Long projectId) {
 
         return ResponseEntity.ok().body(moduleService.getModuleCategories());
