@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import {
-    Alert,
+    Alert, Button,
     Card,
     CardContent,
     Chip,
@@ -20,7 +20,7 @@ import {
     RequestHeader,
     RequestHeaderRow
 } from "../../../types/api-specification/ApiSpecification.ts";
-import methodColors from "./HttpMethodModalColor.tsx"
+import methodColors from "../HttpMethodModalColor.tsx"
 import TextField from "@mui/material/TextField";
 import {
     DataGrid,
@@ -31,7 +31,7 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import BackspaceIcon from '@mui/icons-material/Backspace';
 import {createApi} from "../request/ApiSpecificationRequest.ts";
-import "./HttpMethodRowColors.css"
+import "../HttpMethodRowColors.css"
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import Ajv from "ajv";
 import draft7MetaSchema from "ajv/lib/refs/json-schema-draft-07.json";
@@ -438,6 +438,14 @@ const ApiCreateModal = (
 
     const ajv = new Ajv({allErrors: true});
 
+    const requestJsonSchemaFormatting = () => {
+        setInputApiRequestSchema(JSON.stringify(JSON.parse(inputApiRequestSchema), null, 4))
+    }
+
+    const responseJsonSchemaFormatting = () => {
+        setInputApiResponseSchema(JSON.stringify(JSON.parse(inputApiResponseSchema), null, 4))
+    }
+
     useEffect(() => {
     },);
 
@@ -567,8 +575,10 @@ const ApiCreateModal = (
                                     "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
                                         outline: "none",
                                     },
+                                    '& .MuiDataGrid-cell': {
+                                        borderRight: '1px solid #ccc',
+                                    }
                                 }}
-                                getRowClassName={() => 'EDIT-ROW'}
                                 processRowUpdate={handleRequestHeaderRowUpdate}
                             />
                             <Chip
@@ -606,9 +616,10 @@ const ApiCreateModal = (
                                     "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
                                         outline: "none",
                                     },
+                                    '& .MuiDataGrid-cell': {
+                                        borderRight: '1px solid #ccc',
+                                    }
                                 }}
-
-                                getRowClassName={() => 'EDIT-ROW'}
                                 processRowUpdate={handlePathVariableRowUpdate}
                             />
                             <Chip
@@ -646,9 +657,10 @@ const ApiCreateModal = (
                                     "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
                                         outline: "none",
                                     },
+                                    '& .MuiDataGrid-cell': {
+                                        borderRight: '1px solid #ccc',
+                                    }
                                 }}
-
-                                getRowClassName={() => 'EDIT-ROW'}
                                 processRowUpdate={handleQueryParamRowUpdate}
                             />
 
@@ -681,6 +693,9 @@ const ApiCreateModal = (
                                 onKeyDown={handleInputRequestSchemaKeyDown}
                                 sx={{backgroundColor: 'white'}}
                             />
+                            <Button variant='contained' style={{backgroundColor: '#4F378B'}} sx={{mt: 1}} disabled={!isValidRequestJsonSchema} onClick={requestJsonSchemaFormatting}>
+                                Formatting
+                            </Button>
                         </Box>
                     </Box>
 
@@ -721,6 +736,9 @@ const ApiCreateModal = (
                             onKeyDown={handleInputResponseSchemaKeyDown}
                             sx={{backgroundColor: 'white'}}
                         />
+                        <Button variant='contained' style={{backgroundColor: '#4F378B'}} sx={{mt: 1}} disabled={!isValidResponseJsonSchema} onClick={responseJsonSchemaFormatting}>
+                            Formatting
+                        </Button>
                     </Box>
                 </CardContent>
 
@@ -744,21 +762,20 @@ const ApiCreateModal = (
                     </Alert>
                 </Snackbar>
                 <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1}}>
-                    <IconButton
+                    <Button
+                        startIcon={<BackspaceIcon style={{color: 'red'}}/>}
                         sx={{display: 'flex', color: 'red', fontSize: 'medium'}}
                         onClick={handleClose}
                     >
-                        <BackspaceIcon style={{color: 'red'}}/>
                         취소
-                    </IconButton>
-
-                    <IconButton
+                    </Button>
+                    <Button
+                        startIcon={<SaveAsIcon style={{color: '#4F378B'}}/>}
                         sx={{display: 'flex', color: '#4F378B', fontSize: 'medium'}}
                         onClick={handleCreateApi}
                     >
-                        <SaveAsIcon style={{color: '#4F378B'}}/>
                         저장
-                    </IconButton>
+                    </Button>
                 </Box>
             </Card>
 
