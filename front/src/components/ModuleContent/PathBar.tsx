@@ -7,7 +7,7 @@ const PathBarBox = styled(Box)({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fef7ff",
-    height: "32px",
+    height: "48px",
 });
 
 const PathBar = () => {

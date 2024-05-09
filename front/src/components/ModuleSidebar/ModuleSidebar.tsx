@@ -47,7 +47,10 @@ const ModuleSidebarTitleBox = styled(Box)({
     justifyContent: "space-between",
     alignItems: "center",
     paddingInline: "16px",
-    paddingTop: "12px",
+    height: "48px",
+    backgroundColor: "#dbc6f7",
+    marginBottom: "16px",
+    whiteSpace: "nowrap",
 });
 
 const ModuleSidebarTitle = styled(Typography)({

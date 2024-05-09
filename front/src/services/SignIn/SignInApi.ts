@@ -14,3 +14,8 @@ export const signInApi = async <T = SignInResponse>(signInRequest: SignInRequest
     const { data } = await client.post<T>("/api/v1/members/signin", signInRequest);
     return data;
 };
+
+export const signOutApi = async <T = SignInResponse>(): Promise<T> => {
+    const { data } = await client.post<T>("/api/v1/members/signout");
+    return data;
+};
