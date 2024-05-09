@@ -74,15 +74,15 @@ public class WebSocketSessionService {
                 }).subscribe();
     }
 
-    public Long findMemberId(WebSocketSession session) {
+    public Mono<Long> findMemberId(WebSocketSession session) {
         ChatUser chatUser = ChatUser.of(session);
         ChatRoom chatRoom = users.get(chatUser);
-        return chatRoom.findChatUser(session).getMemberId();
+        return Mono.just(chatRoom.findChatUser(session).getMemberId());
     }
 
-    public String findChatId(WebSocketSession session) {
+    public Mono<String> findChatId(WebSocketSession session) {
         ChatUser chatUser = ChatUser.of(session);
         ChatRoom chatRoom = users.get(chatUser);
-        return chatRoom.getChatId();
+        return Mono.just(chatRoom.getChatId());
     }
 }

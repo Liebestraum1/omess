@@ -34,7 +34,7 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
                 .map(this::validate)
                 .flatMap(o -> process(session, o))
                 .flatMap(o -> after(session, o))
-                .doOnError((error) -> error.printStackTrace())
+                .doOnError(Throwable::printStackTrace)
                 .doFinally(type -> sessionService.leave(session))
                 .then();
     }
@@ -76,49 +76,70 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
         if (request instanceof EnterRequestMessage enter) {
             return sessionService.enter(session, enter);
         } else if (request instanceof SendRequestMessage send) {
-            String chatId = sessionService.findChatId(session);
-            Long memberId = sessionService.findMemberId(session);
+            Mono<String> chatIdMono = sessionService.findChatId(session);
+            Mono<Long> memberIdMono = sessionService.findMemberId(session);
+            return Mono.zip(chatIdMono, memberIdMono)
+                    .flatMapMany(tuple -> {
+                        String chatId = tuple.getT1();
+                        Long memberId = tuple.getT2();
+                        return chatWebSocketService.saveChatMessage(chatId, memberId, send);
+                    });
 
-            return chatWebSocketService.saveChatMessage(chatId, memberId, send);
         } else if (request instanceof UpdateRequestMessage update) {
-            Long memberId = sessionService.findMemberId(session);
+            Mono<Long> memberIdMono = sessionService.findMemberId(session);
 
-            return chatWebSocketService.updateChatMessage(memberId, update.getMessageId(), update.getMessage());
+            return memberIdMono
+                    .flatMapMany(memberId ->
+                            chatWebSocketService.updateChatMessage(memberId, update.getMessageId(), update.getMessage())
+                    );
         } else if (request instanceof DeleteRequestMessage delete) {
 
-            Long memberId = sessionService.findMemberId(session);
+            Mono<Long> memberIdMono = sessionService.findMemberId(session);
 
-            return chatWebSocketService.deleteChatMessage(memberId, delete.getMessageId());
+            return memberIdMono.flatMapMany(memberId ->
+                    chatWebSocketService.deleteChatMessage(memberId, delete.getMessageId())
+            );
         } else if (request instanceof LoadRequestMessage load) {
 
-            String chatId = sessionService.findChatId(session);
+            Mono<String> chatIdMono = sessionService.findChatId(session);
 
-            return chatWebSocketService.loadChatHistory(chatId, load.getOffset());
+            return chatIdMono.flatMapMany(chatId ->
+                    chatWebSocketService.loadChatHistory(chatId, load.getOffset())
+            );
         } else if (request instanceof PinRequestMessage pin) {
 
-            Long memberId = sessionService.findMemberId(session);
+            Mono<Long> memberIdMono = sessionService.findMemberId(session);
 
-            return chatWebSocketService.pinChatMessage(memberId, pin.getMessageId());
+            return memberIdMono.flatMapMany(memberId ->
+                    chatWebSocketService.pinChatMessage(memberId, pin.getMessageId())
+            );
         } else if (request instanceof HeaderRequestMessage header) {
 
-            String chatId = sessionService.findChatId(session);
-            Long memberId = sessionService.findMemberId(session);
+            Mono<String> chatIdMono = sessionService.findChatId(session);
+            Mono<Long> memberIdMono = sessionService.findMemberId(session);
 
-            return chatWebSocketService.registerHeader(chatId, memberId, header.getDetail());
+            return Mono.zip(chatIdMono, memberIdMono).flatMapMany(tuple -> {
+                String chatId = tuple.getT1();
+                Long memberId = tuple.getT2();
+                return chatWebSocketService.registerHeader(chatId, memberId, header.getDetail());
+            });
         } else if (request instanceof ChatNameRequestMessage chatName) {
+            Mono<String> chatIdMono = sessionService.findChatId(session);
+            Mono<Long> memberIdMono = sessionService.findMemberId(session);
 
-            String chatId = sessionService.findChatId(session);
-            Long memberId = sessionService.findMemberId(session);
-
-            return chatWebSocketService.modifyChatName(chatId, memberId, chatName.getName());
+            return Mono.zip(chatIdMono, memberIdMono).flatMapMany(tuple -> {
+                String chatId = tuple.getT1();
+                Long memberId = tuple.getT2();
+                return chatWebSocketService.modifyChatName(chatId, memberId, chatName.getName());
+            });
         } else if (request instanceof PinListRequestMessage pinList) {
             int offset = pinList.getOffset();
-            String chatId = sessionService.findChatId(session);
-
-            return chatWebSocketService.loadPinMessages(chatId, offset);
+            Mono<String> chatIdMono = sessionService.findChatId(session);
+            return chatIdMono.flatMapMany(chatId ->
+                    chatWebSocketService.loadPinMessages(chatId, offset));
         } else if (request instanceof EmptyRequestMessage empty) {
-            String chatId = sessionService.findChatId(session);
-            return chatWebSocketService.loadChatMembers(chatId);
+            Mono<String> chatIdMono = sessionService.findChatId(session);
+            return chatIdMono.flatMapMany(chatWebSocketService::loadChatMembers);
         }
         throw new TypeNotPresentException("REQUEST", new Throwable("type not present..."));
     }
