@@ -16,7 +16,8 @@ public class ChatMember {
     @Setter
     private ChatRole role;
 
-    public ChatMember(Long memberId) {
+    public ChatMember(Long memberId, ChatRole role) {
         this.memberId = memberId;
+        this.role = role;
     }
 }

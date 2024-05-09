@@ -34,7 +34,7 @@ public class ChatWebSocketService {
      * 채팅 메시지를 DB에 저장하는 기능
      */
     public Flux<ResponseMessage> saveChatMessage(String chatId, Long memberId, SendRequestMessage message) {
-        ChatMessage chatMessage = ChatMessageMapper.toUserMessage(chatId, memberId, message.getMessage());
+        ChatMessage chatMessage = ChatMessageMapper.toUserMessage(chatId, memberId, message.getMessage(), message.getFiles());
         return chatMessageRepository.save(chatMessage)
                 .flatMap(c -> memberService
                         .findById(memberId)
@@ -186,4 +186,5 @@ public class ChatWebSocketService {
                 ).map(chatMessageDto -> ResponseMessage.ok(LOAD_PIN, chatMessageDto))
                 .doOnComplete(() -> log.info("핀 내역 불러오기 성공 !!!"));
     }
+
 }
