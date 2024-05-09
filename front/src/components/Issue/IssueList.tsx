@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid';
 type IssueListProp = {
     title: string;
     issues: IssueProp[];
-    handleClickOpen: (issueId:number) => void;
+    handleClickOpen: () => void;
     handleClickOpenCreate: () => void;
 };
 
@@ -18,8 +18,8 @@ const IssueList = ({title, issues, handleClickOpen, handleClickOpenCreate}: Issu
             <Box style={{backgroundColor: "#F7F8F9"}} padding={1} height={"100%"}>
                 <Typography style={{padding: 10}}> {title} </Typography>
                 <Stack spacing={3}>
-                    {issues.map((issue) => (
-                        <IssueCard issue={issue} handleClickOpen={handleClickOpen}/>
+                    {Array.isArray(issues) && issues.map((issue) => (
+                        <IssueCard key={issue.issueId} issue={issue} handleClickOpen={handleClickOpen}/>
                     ))}
 
                 </Stack>

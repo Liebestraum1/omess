@@ -1,53 +1,88 @@
 import Box from "@mui/material/Box";
 import {
-    Backdrop, Button,
-    Modal,
+    Backdrop, Button, IconButton,
+    Modal, Snackbar,
     TextField,
     Typography
 } from "@mui/material";
 
-import {ChangeEvent, useEffect, useState} from "react";
+import {ChangeEvent, Fragment, useEffect, useState} from "react";
 import MDEditor from "@uiw/react-md-editor";
+import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
+import {UpdateIssueRequest} from "../../../types/Issue/UpdateIssueRequest.ts";
+import CloseIcon from '@mui/icons-material/Close';
 
 type IssueDetailModalProp = {
     open: boolean;
     onClose: () => void;
-    issueId: number;
+    originTitle: string;
+    originContent: string;
 };
 
-const IssueUpdateModal = ({open, onClose}: IssueDetailModalProp) => {
+const IssueUpdateModal = ({open, onClose, originTitle, originContent}: IssueDetailModalProp) => {
     const [title, setTitle] = useState<string>("");
     const [md, setMd] = useState<string | undefined>("");
-
+    const {updateIssue, kanbanBoardId, issueId, setIssuedId} = useKanbanBoardStore();
     const onCloseModal = () => {
+        setIssuedId(null);
         onClose();
     }
     const handleChangeTitle = (event: ChangeEvent<HTMLInputElement>) => {
         setTitle(event.target.value);
     };
 
-    // FixMe 이슈 생성  api 호출
-    const onClickCreateIssue = () => {
-        console.log(title + md);
+    const setIssueInfo = () => {
+        setTitle(originTitle);
+        setMd(originContent ? originContent : "");
     }
 
-    // FixMe 이슈 상세 조회 api 호출
     useEffect(() => {
-        if(open){
-            setTitle(" [Back-End] 회원 가입 api 구현");
-            setMd("## 이메일, 비밀번호, 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기 이메일, 비밀번호,\n" +
-                " 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호, 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호,\n \n" +
-                " 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, \n \n" +
-                " - 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호, 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호,\n \n" +
-                " - 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호, 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기이메일, 비밀번호,\n \n" +
-                " 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기 닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 \n \n " +
-                "기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 \n \n " +
-                "입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, \n \n " +
-                "전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, 성별, 전화번호 입력받는 회원가입 기능 구현하기닉네임, \n \n" +
-                " 성별, 전화번호 입력받는 회원가입 기능 구현하기")
+        setIssueInfo();
+    }, [originTitle, originContent]);
+
+    function onClickCreateIssue() {
+        const updateIssueRequest: UpdateIssueRequest = {
+            title: title,
+            content: md ? md : "",
         }
 
-    }, [open]);
+        if (kanbanBoardId && issueId) {
+            if (!title) {
+                handleClick();
+            } else {
+                updateIssue(28, kanbanBoardId, issueId, updateIssueRequest);
+
+                onCloseModal();
+            }
+
+        }
+    }
+
+    // 유효성 검사
+    const [snackbarOpen, setsnackbarOpen] = useState(false);
+    const handleClick = () => {
+        setsnackbarOpen(true);
+    };
+
+    const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setsnackbarOpen(false);
+    };
+    const action = (
+        <Fragment>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+            >
+                <CloseIcon fontSize="small"/>
+            </IconButton>
+        </Fragment>
+    );
 
     return (
         <Box>
@@ -78,7 +113,8 @@ const IssueUpdateModal = ({open, onClose}: IssueDetailModalProp) => {
                 }}>
                     <Box paddingBottom={2}>
                         <Typography fontWeight="bold" paddingBottom={1}>제목</Typography>
-                        <TextField id="standard-basic" onChange={handleChangeTitle} fullWidth defaultValue={title}> </TextField>
+                        <TextField id="standard-basic" onChange={handleChangeTitle} fullWidth
+                                   defaultValue={title}> </TextField>
                     </Box>
                     <Box sx={{
                         maxHeight: 500, // 최대 높이 설정
@@ -98,6 +134,13 @@ const IssueUpdateModal = ({open, onClose}: IssueDetailModalProp) => {
                     </Box>
                 </Box>
             </Modal>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                message="제목은 공백일 수 없습니다."
+                action={action}
+            />
         </Box>
     );
 }

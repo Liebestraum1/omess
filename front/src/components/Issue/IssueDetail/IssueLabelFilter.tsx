@@ -11,24 +11,30 @@ import {
 import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
 import {useEffect, useState} from "react";
 import {ColorArr} from "../../../services/common/Color.ts";
+import {LabelProp} from "../../../types/Label/Label.ts";
 
 type IssueLabelFilterProp = {
-    labelId: number;
+    labelId: number | null;
 }
 
 const IssueLabelFilter = ({labelId}: IssueLabelFilterProp) => {
-    const labels = useKanbanBoardStore(state => state.labels);
-    const [selectedLabel, setSelectedLabel] = useState('');
+
+    const {kanbanBoardId, labels, updateIssueLabel, issueId} = useKanbanBoardStore();
+    const [selectedLabel, setSelectedLabel] = useState("");
     const [colorArr, setColorArr] = useState<string[]>([]);
 
     const handleChange = (event: SelectChangeEvent<string>) => {
-        // FixMe 이슈 라벨 수정 api 호출
-        setSelectedLabel(event.target.value);
+        if (kanbanBoardId && issueId) {
+            setSelectedLabel(event.target.value);
+
+            updateIssueLabel(28, kanbanBoardId, issueId, parseInt(event.target.value))
+        }
     };
 
     useEffect(() => {
-        setSelectedLabel(labelId.toString());
+        setSelectedLabel(labelId ? labelId.toString() : "0");
     }, [labelId]);
+
 
     useEffect(() => {
         setColorArr(ColorArr);
@@ -50,26 +56,27 @@ const IssueLabelFilter = ({labelId}: IssueLabelFilterProp) => {
                         [`&.${outlinedInputClasses.focused} .${outlinedInputClasses.notchedOutline}`]: {border: 'none'}, // 포커스 시 테두리 제거
                     }}
                 >
-                    <MenuItem value="">
-                        <Box display={"flex"} justifyContent="space-between" alignItems="center" width={90}>
+                    <MenuItem value={0}>
+                        <Box display={"flex"} justifyContent="space-between" alignItems="center" width={100}>
                             <Typography> 선택해 주세요 </Typography>
                         </Box>
                     </MenuItem>
-                    {labels.map((label) => (
-                        <MenuItem key={label.labelId} value={label.labelId}>
-                            <Box display={"flex"} justifyContent="space-between" alignItems="center" width={90}>
-                                <Chip label={label.name} sx={{
-                                    width: 80,
-                                    borderColor: colorArr[label.labelId % 20], // 테두리 색상
-                                    backgroundColor: colorArr[label.labelId % 20],
-                                    '&:hover': {
-                                        backgroundColor: colorArr[label.labelId % 20], // 호버 시 배경 색상 추가
-                                        color: 'white' // 호버 시 글자 색상 변경
-                                    }
-                                }}/>
-                            </Box>
-                        </MenuItem>
-                    ))}
+                    {labels && labels.map((label: LabelProp) => {
+                        return (
+                            <MenuItem key={label.labelId} value={label.labelId}>
+                                <Box display={"flex"} justifyContent="space-between" alignItems="center" width={100}>
+                                    <Chip label={label.name} sx={{
+                                        width: 80,
+                                        borderColor: colorArr[label.labelId % 20], // 테두리 색상
+                                        backgroundColor: colorArr[label.labelId % 20],
+                                        '&:hover': {
+                                            backgroundColor: colorArr[label.labelId % 20], // 호버 시 배경 색상 추가
+                                            color: 'white' // 호버 시 글자 색상 변경
+                                        }
+                                    }}/>
+                                </Box>
+                            </MenuItem>);
+                    })}
                 </Select>
             </FormControl>
 

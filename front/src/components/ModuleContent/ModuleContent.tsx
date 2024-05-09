@@ -23,7 +23,7 @@ const ModuleContent = () => {
     return (
         <ModuleContentBox>
             <PathBar />
-            <KanbanBoardPage moduleId={1}/>
+            <KanbanBoardPage projectId={28} moduleId={26}/>
         </ModuleContentBox>
     );
 };

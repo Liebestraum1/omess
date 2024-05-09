@@ -42,7 +42,7 @@ const LabelFilter = () => {
                             <Typography> 선택해 주세요 </Typography>
                         </Box>
                     </MenuItem>
-                    {labels.map((label) => (
+                    {Array.isArray(labels) && labels.map((label) => (
                         <MenuItem key={label.labelId} value={label.labelId}>
                             <Box display={"flex"} justifyContent="space-between" alignItems="center" width={90}>
                                 <Chip label={label.name} sx={{

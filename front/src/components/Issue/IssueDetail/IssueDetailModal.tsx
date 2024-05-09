@@ -20,43 +20,20 @@ import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
 
 type IssueDetailModalProp = {
     open: boolean;
-    issueId: number;
     onClose: () => void;
 };
 
-const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
-    const {getIssueDetail, kanbanBoardId} = useKanbanBoardStore();
+const IssueDetailModal = ({open, onClose}: IssueDetailModalProp) => {
+    const {
+        getIssueDetail,
+        deleteIssue,
+        updateIssueImportance,
+        kanbanBoardId,
+        issueId,
+        setIssuedId
+    } = useKanbanBoardStore();
     const [openUpdate, setOpenUpdate] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-    // 메뉴 여닫기
-    const handleClickOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleCloseMenu = () => {
-        setAnchorEl(null);
-    };
-
-    // 수정하기
-
-    const handleClickOpen = () => {
-        handleCloseMenu();
-        onClose();
-        setOpenUpdate(true);
-    }
-
-    const handleClose = () => {
-        setOpenUpdate(false);
-    }
-
-
-    //삭제하기
-    const handleClickDelete = () => {
-        handleCloseMenu();
-        // FixMe 이슈 삭제 api 호출
-    }
-
     const [issueDetail, setIssueDetail] = useState<IssueDetailProp>({
         issueId: 0,
         title: "",
@@ -74,13 +51,60 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
         status: 0
     });
 
+    // 메뉴 여닫기
+    const handleClickOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
+    };
+
+    const handelDetailClose = () => {
+        setIssuedId(null);
+        onClose();
+    }
+
+    // 수정하기
+    const handleClickOpen = () => {
+        handleCloseMenu();
+        onClose();
+        setOpenUpdate(true);
+    }
+
+    const handleClose = () => {
+        setIssuedId(null);
+        setOpenUpdate(false);
+    }
+
+
+    // 이슈 중요도 수정
+    const onClickRating = (newValue: number | null) => {
+        if (kanbanBoardId && issueId && newValue) {
+            updateIssueImportance(28, kanbanBoardId, issueId, newValue);
+            setIssueDetail({
+                ...issueDetail,
+                importance: newValue
+            })
+        }
+    }
+
+
+    //삭제하기
+    const handleClickDelete = () => {
+        handleCloseMenu();
+        if (kanbanBoardId && issueId) {
+            deleteIssue(28, kanbanBoardId, issueId);
+            setIssuedId(null);
+            onClose();
+        }
+    }
     const getDetail = async () => {
-        if(kanbanBoardId && issueId > 0){
-            const response = await getIssueDetail(1, kanbanBoardId, issueId);
+        if (kanbanBoardId && issueId && issueId > 0) {
+            const response = await getIssueDetail(28, kanbanBoardId, issueId);
 
             setIssueDetail(response);
         }
-
     }
 
     useEffect(() => {
@@ -89,9 +113,6 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
         }
     }, [issueId]);
 
-    const onClickRating = () => {
-        // FixMe 이슈 중요도 수정 api 호출
-    }
 
     return (
         <Box>
@@ -99,7 +120,7 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
                 aria-labelledby="transition-modal-title"
                 aria-describedby="transition-modal-description"
                 open={open}
-                onClose={onClose}
+                onClose={handelDetailClose}
                 closeAfterTransition
                 slots={{backdrop: Backdrop}}
                 slotProps={{
@@ -121,7 +142,7 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
                     overflowY: 'auto' // 스크롤 활성화
                 }}>
                     <Box display={"flex"} justifyContent={"space-between"}>
-                        <Typography variant="h4" paddingBottom={3}> {issueId} {issueDetail!.title} </Typography>
+                        <Typography variant="h4" paddingBottom={3}> {issueDetail!.title} </Typography>
                         <Box>
                             <Button
                                 id="basic-button"
@@ -161,13 +182,15 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
                             </Box>
                         </Grid>
                         <Grid item xs={2} paddingLeft={1}>
-                            <Box>
-                                <IssueChargerFilter id={issueDetail!.charger.id}/>
-                                <IssueLabelFilter labelId={issueDetail!.label.labelId}/>
+                            <Box justifyContent={"center"}>
+                                <IssueChargerFilter id={issueDetail.charger?.id || null}/>
+                                <IssueLabelFilter labelId={issueDetail?.label?.labelId || null}/>
                                 <IssueStatusFilter status={issueDetail!.status}/>
-                                <Box paddingLeft={5.5}>
-                                    <Rating name="read-only" size="large" defaultValue={issueDetail!.importance}
-                                            onChange={onClickRating} max={3}/>
+                                <Box paddingLeft={7}>
+                                    <Rating name="read-only" size="large" value={issueDetail.importance}
+                                            onChange={(event, newValue) => {
+                                                onClickRating(newValue);
+                                            }} max={3}/>
                                 </Box>
                             </Box>
                         </Grid>
@@ -175,7 +198,8 @@ const IssueDetailModal = ({open, issueId, onClose}: IssueDetailModalProp) => {
                 </Box>
             </Modal>
 
-            <IssueUpdateModal open={openUpdate} onClose={handleClose} issueId={issueId}/>
+            <IssueUpdateModal open={openUpdate} onClose={handleClose} originContent={issueDetail.content}
+                              originTitle={issueDetail.title}/>
         </Box>
     );
 }

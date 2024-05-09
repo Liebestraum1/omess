@@ -12,24 +12,28 @@ import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
 import {useEffect, useState} from "react";
 
 type ChargerFilterPros = {
-    id: number;
+    id: number | null;
 }
 
-const ChargerFilter = ({id}  : ChargerFilterPros) => {
-    const projectMembers = useKanbanBoardStore(state => state.projectMembers);
-    const [selectedMember, setSelectedMember] = useState('');
+const ChargerFilter = ({id}: ChargerFilterPros) => {
+    const {kanbanBoardId, projectMembers, updateIssueMember, issueId} = useKanbanBoardStore();
+    const [selectedMember, setSelectedMember] = useState("");
     const handleChange = (event: SelectChangeEvent<string>) => {
-        // FixMe 이슈 담당자 수정 api 호출
-        setSelectedMember(event.target.value);
+        if (kanbanBoardId && issueId) {
+            setSelectedMember(event.target.value);
+
+            updateIssueMember(28, kanbanBoardId, issueId, parseInt(event.target.value))
+        }
     };
 
     useEffect(() => {
-        setSelectedMember(id.toString());
-    }, [setSelectedMember]);
+        // id가 있으면 해당 id를 문자열로 변환, 없으면 빈 문자열 설정
+        setSelectedMember(id ? id.toString() : "0");
+    }, [id]);
 
 
     return (
-        <Box >
+        <Box>
             {/** 담당자 필터 */}
             <FormControl sx={{m: 1, minWidth: 120}} size={"small"}>
                 <Select
@@ -43,16 +47,16 @@ const ChargerFilter = ({id}  : ChargerFilterPros) => {
                         [`&.${outlinedInputClasses.focused} .${outlinedInputClasses.notchedOutline}`]: {border: 'none'}, // 포커스 시 테두리 제거
                     }}
                 >
-                    <MenuItem value="">
-                        <Box display={"flex"} justifyContent="space-between" alignItems="center" width={90}
+                    <MenuItem value={0}>
+                        <Box display={"flex"} justifyContent="space-between" alignItems="center" width={100}
                              height={32}>
                             <Typography> 선택해 주세요 </Typography>
                         </Box>
                     </MenuItem>
                     {projectMembers.map((member) => (
                         <MenuItem key={member.id} value={member.id}>
-                            <Box display={"flex"} justifyContent="space-between" alignItems="center" width={90}>
-                                <Avatar sx={{ width: 32, height: 32 }} alt="프로필 이미지" src={member.profile} />
+                            <Box display={"flex"} justifyContent="space-between" alignItems="center" width={100}>
+                                <Avatar sx={{width: 32, height: 32}} alt="프로필 이미지" src={member.profile}/>
                                 <Typography>{member.nickname}</Typography>
                             </Box>
                         </MenuItem>
