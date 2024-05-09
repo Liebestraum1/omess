@@ -20,6 +20,7 @@ export type ChatMember = {
     id: number,
     email: string,
     nickname: string,
+    profile: string | undefined,
     role: string
 }
 
@@ -30,5 +31,11 @@ export type ChatMessage = {
     message: string,
     createAt: string,
     isUpdated: boolean,
-    isPined: boolean
+    isPined: boolean,
+    files: Array<FileInformation>
+}
+
+export type FileInformation = {
+    id: number,
+    address: string
 }

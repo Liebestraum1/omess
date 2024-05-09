@@ -17,10 +17,20 @@ export const fileUpload = async (props: Props, onProgress: (percent: number) => 
             'Content-Type': 'multipart/form-data'
         },
         onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-            console.log("진행 중...")
             const total = progressEvent.total ?? 1;
             const percentCompleted = Math.round((progressEvent.loaded * 100) / total);
             onProgress(percentCompleted);
         }
     });
 };
+
+export const fileCancel = async (fileId: number)=> {
+    return await client.delete('/api/v1/files', {
+        params: {
+            id: fileId
+        },
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+}

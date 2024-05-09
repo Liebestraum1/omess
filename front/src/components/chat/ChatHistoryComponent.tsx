@@ -5,7 +5,7 @@ import {useEffect, useRef} from "react";
 import {useChatStorage} from "../../stores/chatStorage.tsx";
 
 const ChatHistoryComponent = () => {
-    const {messages, sendMessage} = useChatStorage();
+    const {messages, sendMessage, isEnter} = useChatStorage();
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const {ref, inView} = useInView({
@@ -16,7 +16,7 @@ const ChatHistoryComponent = () => {
 
     // 스크롤이 상단에 도달했을 때 추가 메시지 로드
     useEffect(() => {
-        if (inView) {
+        if (inView && isEnter) {
             sendMessage(JSON.stringify({
                 type: 'LOAD',
                 data: {
@@ -24,7 +24,7 @@ const ChatHistoryComponent = () => {
                 }
             }));
         }
-    }, [inView]);
+    }, [inView, isEnter]);
 
     return (
         <Box

@@ -10,50 +10,59 @@ import ChatFileInput from "./ChatFileInputComponent.tsx";
 
 
 const ChatEditorComponent = () => {
-    const {sendMessage} = useChatStorage();
+    const {sendMessage, files, resetFile} = useChatStorage();
 
-    const [value, setValue] = useState<string | undefined>(undefined);
+    const [value, setValue] = useState<string | undefined>('');
     const [isActive, setIsActive] = useState<boolean>(false);
-    const [files, setFiles] = useState<Array<File>>([]);
+    const [selectedFiles, setSelectedFiles] = useState<Array<File>>([]);
     const [alert, setAlert] = useState<string>('');
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const maxSize = 50 * 1024 * 1024; // 50MB in bytes
         const newFiles: File[] = []
-        const selectedFiles = event.target.files;
+        const selected = event.target.files;
+        const sLength = selected == null ? 0 : selected.length;
         setAlert('');
-        if (selectedFiles) {
-            Array.from(selectedFiles).forEach(file => {
+        if (selected && selectedFiles.length + sLength < 10) {
+            Array.from(selected).forEach(file => {
                 if (file.size > maxSize) {
-                    setAlert(prev => prev + file.name + ' ');
+                    let alertMessage = alert === '' ? '50MB 이상인 파일을 업로드 못했습니다: ' : alert;
+                    alertMessage += file.name;
+                    setAlert(alertMessage);
                 } else {
                     newFiles.push(file)
                 }
             });
-            setFiles(prev => [...prev, ...newFiles])
+            setSelectedFiles(prev => [...prev, ...newFiles])
+        } else if (selectedFiles.length + sLength > 10) {
+            setAlert('파일 업로드는 10 개의 파일로 제한됩니다.')
         }
+        event.target.value = ''
     };
 
     useEffect(() => {
-        if (value == null || undefined) return;
+        if (value == null) return;
         if (value!.length >= 1) {
             setIsActive(true);
         } else {
             setIsActive(false);
         }
-    }, [value]);
+    }, [value, selectedFiles]);
 
     const send = () => {
         if (!isActive) return;
         const data = {
             type: 'SEND',
             data: {
-                message: value
+                message: value,
+                files: files
             }
         }
-        setValue('')
         sendMessage(JSON.stringify(data))
+        setValue('')
         setIsActive(false);
+        resetFile();
+        setSelectedFiles([]);
     }
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) { //shift + enter, alt + enter?? x + enter 면 다됨 난 그냥 엔터만
@@ -103,8 +112,8 @@ const ChatEditorComponent = () => {
                 overflow='auto'
             >
                 {
-                    files.map((file) => (
-                        <ChatFileInput file={file}/>
+                    selectedFiles.map((file, idx) => (
+                        <ChatFileInput key={idx} file={file} setFiles={setSelectedFiles}/>
                     ))
                 }
             </Box>
@@ -132,7 +141,7 @@ const ChatEditorComponent = () => {
                     alert === '' ? null
                         :
                         <p style={{color: '#EB4646'}}>
-                            50MB 이상인 파일을 업로드 못했습니다: {alert}
+                            {alert}
                         </p>
                 }
             </Box>

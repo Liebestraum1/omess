@@ -31,12 +31,18 @@ const ChatRoomHeader = ({setIsOpened, selectedTab, setSelectedTab}: {
                         <Tab value="pin" label="핀"/>
                     </Tabs>
                 </Box>
-                <Button
-                    color='inherit'
-                    onClick={() => setIsOpened(false)}
+                <Box
+                    display='flex'
+                    justifyContent='center'
+                    alignItems='center'
                 >
-                    <CloseIcon/>
-                </Button>
+                    <Button
+                        color='inherit'
+                        onClick={() => setIsOpened(false)}
+                    >
+                        <CloseIcon/>
+                    </Button>
+                </Box>
             </Box>
             <Divider/>
         </Box>

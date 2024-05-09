@@ -64,6 +64,10 @@
     background-color: #F5F5F5
 }
 
+.view-box:hover .time-box{
+    opacity: 100;
+}
+
 .wmde-markdown code {
     color: #ffffff;
 }
