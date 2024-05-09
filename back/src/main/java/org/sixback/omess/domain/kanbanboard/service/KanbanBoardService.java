@@ -128,7 +128,7 @@ public class KanbanBoardService {
 
         return GetIssueResponse.builder()
                 .issueId(issue.getId())
-                .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail()) : null)
+                .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail(), issue.getCharger().getProfile()) : null)
                 .label(issue.getLabel() != null ? GetLabelResponse.builder()
                         .labelId(issue.getLabel().getId())
                         .name(issue.getLabel().getName())

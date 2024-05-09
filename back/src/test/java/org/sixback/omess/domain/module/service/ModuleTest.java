@@ -66,7 +66,8 @@ public class ModuleTest {
 
         for (int i = 0; i < 10; i++) {
             WriteKanbanBoardRequest writeKanbanBoardRequest = new WriteKanbanBoardRequest();
-            writeKanbanBoardRequest.setTitle("칸반보드 " + i);
+            writeKanbanBoardRequest.setName("칸반보드");
+            writeKanbanBoardRequest.setCategory("kanbanboards");
 
             kanbanBoardService.createKanbanBoard(member.getId(), project.getId(), writeKanbanBoardRequest);
         }

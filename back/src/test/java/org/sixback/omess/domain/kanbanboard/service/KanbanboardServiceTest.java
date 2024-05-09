@@ -85,7 +85,8 @@ public class KanbanboardServiceTest {
         projectMemberRepository.save(projectMember);
 
         WriteKanbanBoardRequest writeKanbanBoardRequest = new WriteKanbanBoardRequest();
-        writeKanbanBoardRequest.setTitle("칸반보드");
+        writeKanbanBoardRequest.setName("칸반보드");
+        writeKanbanBoardRequest.setCategory("kanbanboards");
 
         kanbanBoardService.createKanbanBoard(member.getId(), project.getId(), writeKanbanBoardRequest);
 
