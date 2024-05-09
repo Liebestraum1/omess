@@ -72,3 +72,35 @@ export type Api = {
     queryParams: QueryParam[],
     pathVariables: PathVariable[]
 }
+
+export type RequestHeaderTestRow = {
+    id: number,
+    headerKey: string,
+    headerValue: string
+}
+
+export type PathVariableTestRow = {
+    id: number,
+    name: string,
+    value: string,
+    description: string
+}
+
+export type QueryParamTestRow = {
+    id: number,
+    name: string,
+    value: string,
+    description: string
+}
+
+export type RequestBodyFormDataRow = {
+    id: number,
+    key: string,
+    type: string
+}
+
+export type RequestBodyFormData = {
+    id: number,
+    key: string,
+    value: FileList | string | null
+}

@@ -26,7 +26,7 @@ import {
     RequestHeader,
     RequestHeaderRow
 } from "../../../types/api-specification/ApiSpecification.ts";
-import methodColors from "./HttpMethodModalColor.tsx"
+import methodColors from "../HttpMethodModalColor.tsx"
 import TextField from "@mui/material/TextField";
 import {
     DataGrid,
@@ -40,8 +40,8 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import BackspaceIcon from '@mui/icons-material/Backspace';
 import {deleteApi, updateApi} from "../request/ApiSpecificationRequest.ts";
-import statusCodeColors from "./StatusCodeColors.tsx";
-import "./HttpMethodRowColors.css"
+import statusCodeColors from "../StatusCodeColors.tsx";
+import "../HttpMethodRowColors.css"
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import Ajv from "ajv";
 import draft7MetaSchema from "ajv/lib/refs/json-schema-draft-07.json";
@@ -140,6 +140,8 @@ const ApiInfoAndUpdateModal = (
 
     const [isValidRequestJsonSchema, setIsValidRequestJsonSchema] = useState<boolean>(true);
     const [isValidResponseJsonSchema, setIsValidResponseJsonSchema] = useState<boolean>(true);
+    const [requestJsonSchemaErrorMessage, setRequestJsonSchemaErrorMessage] = useState<string>('');
+    const [responseJsonSchemaErrorMessage, setResponseJsonSchemaErrorMessage] = useState<string>('');
 
     const handleClose = () => {
         setIsDeleteMode(false)
@@ -274,7 +276,7 @@ const ApiInfoAndUpdateModal = (
             }));
 
             updateApi(projectId, apiSpecificationId, domainId, api.apiId, inputApiMethod, inputApiName, inputApiDescription, inputApiEndpoint, inputApiStatusCode,
-                inputApiRequestSchema, inputApiResponseSchema, toRequestHeaders, toPathVariables, toQueryParams)
+                inputApiRequestSchema, inputApiResponseSchema, toRequestHeaders, toQueryParams, toPathVariables)
                 .then(() => {
                     setIsUpdateMode(false)
                     handleClose()
@@ -306,11 +308,17 @@ const ApiInfoAndUpdateModal = (
         setInputApiMethod(api.method)
         setInputApiDescription(api.description)
         setInputApiEndpoint(api.endpoint)
-        setInputApiRequestSchema(api.requestSchema)
-        setInputApiResponseSchema(api.responseSchema)
         setInputApiStatusCode(api.statusCode)
         setIsValidRequestJsonSchema(true)
         setIsValidResponseJsonSchema(true)
+
+        if(api.requestSchema !== '' && api.requestSchema !== null){
+            setInputApiRequestSchema(JSON.stringify(JSON.parse(api.requestSchema), null, 4))
+        }
+
+        if(api.responseSchema !== '' && api.responseSchema !== null){
+            setInputApiResponseSchema(JSON.stringify(JSON.parse(api.responseSchema), null, 4))
+        }
     }
 
     const handleChangeMethod = (event: ChangeEvent<HTMLInputElement>) => {
@@ -343,13 +351,14 @@ const ApiInfoAndUpdateModal = (
                 if (valid) {
                     setIsValidRequestJsonSchema(true)
                 } else {
+                    setRequestJsonSchemaErrorMessage('JSON SCHEMA DRAFT-07에 부합하지 않는 형식입니다.')
                     setIsValidRequestJsonSchema(false)
                 }
             } catch {
+                setRequestJsonSchemaErrorMessage('JSON 형식이 아닙니다.')
                 setIsValidRequestJsonSchema(false)
             }
         } else {
-
             setIsValidRequestJsonSchema(true)
         }
     }
@@ -365,9 +374,11 @@ const ApiInfoAndUpdateModal = (
                 if (valid) {
                     setIsValidResponseJsonSchema(true)
                 } else {
+                    setResponseJsonSchemaErrorMessage('JSON SCHEMA DRAFT-07에 부합하지 않는 형식입니다.')
                     setIsValidResponseJsonSchema(false)
                 }
             } catch {
+                setResponseJsonSchemaErrorMessage('JSON 형식이 아닙니다.')
                 setIsValidResponseJsonSchema(false)
             }
         } else {
@@ -507,6 +518,14 @@ const ApiInfoAndUpdateModal = (
 
     const deleteInputApiQueryParamsRow = (id: number) => {
         setInputApiQueryParams((inputApiQueryParams.filter(row => row.id !== id)))
+    }
+
+    const requestJsonSchemaFormatting = () => {
+        setInputApiRequestSchema(JSON.stringify(JSON.parse(inputApiRequestSchema), null, 4))
+    }
+
+    const responseJsonSchemaFormatting = () => {
+        setInputApiResponseSchema(JSON.stringify(JSON.parse(inputApiResponseSchema), null, 4))
     }
 
     const ajv = new Ajv({allErrors: true});
@@ -724,11 +743,13 @@ const ApiInfoAndUpdateModal = (
                                     "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
                                         outline: "none",
                                     },
+                                    '& .MuiDataGrid-cell': {
+                                        borderRight: '1px solid #ccc',
+                                    }
                                 }}
                                 columnVisibilityModel={{
                                     remove: isUpdateMode
                                 }}
-                                getRowClassName={() => isUpdateMode ? 'EDIT-ROW' : ''}
                                 processRowUpdate={handleRequestHeaderRowUpdate}
                             />
                             <Chip
@@ -767,11 +788,13 @@ const ApiInfoAndUpdateModal = (
                                     "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
                                         outline: "none",
                                     },
+                                    '& .MuiDataGrid-cell': {
+                                        borderRight: '1px solid #ccc',
+                                    }
                                 }}
                                 columnVisibilityModel={{
                                     remove: isUpdateMode
                                 }}
-                                getRowClassName={() => isUpdateMode ? 'EDIT-ROW' : ''}
                                 processRowUpdate={handlePathVariableRowUpdate}
                             />
                             <Chip
@@ -810,11 +833,13 @@ const ApiInfoAndUpdateModal = (
                                     "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
                                         outline: "none",
                                     },
+                                    '& .MuiDataGrid-cell': {
+                                        borderRight: '1px solid #ccc',
+                                    }
                                 }}
                                 columnVisibilityModel={{
                                     remove: isUpdateMode
                                 }}
-                                getRowClassName={() => isUpdateMode ? 'EDIT-ROW' : ''}
                                 processRowUpdate={handleQueryParamRowUpdate}
                             />
 
@@ -851,17 +876,27 @@ const ApiInfoAndUpdateModal = (
                                 </Typography>
                             </Box>
 
-                            <TextField
-                                multiline
-                                variant="outlined"
-                                error={!isValidRequestJsonSchema}
-                                value={inputApiRequestSchema ? inputApiRequestSchema : ''}
-                                helperText={!isValidRequestJsonSchema ? "유효하지 않은 JSON SCHEMA입니다." : ""}
-                                fullWidth
-                                onChange={handleChangeRequestSchema}
-                                onKeyDown={handleInputRequestSchemaKeyDown}
-                                sx={{display: isUpdateMode ? 'block' : 'none', backgroundColor: 'white'}}
-                            />
+                            <Box
+                                sx={{display: isUpdateMode ? 'block' : 'none'}}
+                            >
+                                <TextField
+                                    multiline
+                                    variant="outlined"
+                                    error={!isValidRequestJsonSchema}
+                                    value={inputApiRequestSchema ? inputApiRequestSchema : ''}
+                                    helperText={!isValidRequestJsonSchema ? requestJsonSchemaErrorMessage : ""}
+                                    fullWidth
+                                    onChange={handleChangeRequestSchema}
+                                    onKeyDown={handleInputRequestSchemaKeyDown}
+                                    sx={{ backgroundColor: 'white'}}
+                                />
+                                <Button
+                                    variant='contained'
+                                    style={{backgroundColor: methodColors[`${api.method}-BADGE`]}}
+                                    sx={{mt: 1}} disabled={!isValidRequestJsonSchema} onClick={requestJsonSchemaFormatting}>
+                                    Formatting
+                                </Button>
+                            </Box>
                         </Box>
                     </Box>
 
@@ -928,17 +963,27 @@ const ApiInfoAndUpdateModal = (
                             </Typography>
 
                         </Box>
-                        <TextField
-                            multiline
-                            variant="outlined"
-                            error={!isValidResponseJsonSchema}
-                            value={inputApiResponseSchema ? inputApiResponseSchema : ''}
-                            helperText={!isValidResponseJsonSchema ? "유효하지 않은 JSON SCHEMA입니다." : ""}
-                            fullWidth
-                            onChange={handleChangeResponseSchema}
-                            onKeyDown={handleInputResponseSchemaKeyDown}
-                            sx={{display: isUpdateMode ? 'block' : 'none', backgroundColor: 'white'}}
-                        />
+                        <Box
+                            sx={{display: isUpdateMode ? 'block' : 'none'}}
+                        >
+                            <TextField
+                                multiline
+                                variant="outlined"
+                                error={!isValidResponseJsonSchema}
+                                value={inputApiResponseSchema ? inputApiResponseSchema : ''}
+                                helperText={!isValidResponseJsonSchema ? responseJsonSchemaErrorMessage : ""}
+                                fullWidth
+                                onChange={handleChangeResponseSchema}
+                                onKeyDown={handleInputResponseSchemaKeyDown}
+                                sx={{backgroundColor: 'white'}}
+                            />
+                            <Button
+                                variant='contained'
+                                style={{backgroundColor: methodColors[`${api.method}-BADGE`]}}
+                                sx={{mt: 1}} disabled={!isValidResponseJsonSchema} onClick={responseJsonSchemaFormatting}>
+                                Formatting
+                            </Button>
+                        </Box>
                     </Box>
                 </CardContent>
 
@@ -962,21 +1007,21 @@ const ApiInfoAndUpdateModal = (
                     </Alert>
                 </Snackbar>
                 <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1}}>
-                    <IconButton
+                    <Button
+                        startIcon={<BackspaceIcon style={{color: 'red'}}/>}
                         sx={{display: isUpdateMode ? 'flex' : 'none', color: 'red', fontSize: 'medium'}}
                         onClick={cancelUpdateApi}
                     >
-                        <BackspaceIcon style={{color: 'red'}}/>
                         취소
-                    </IconButton>
+                    </Button>
 
-                    <IconButton
+                    <Button
+                        startIcon={<SaveAsIcon style={{color: '#4F378B'}}/>}
                         sx={{display: isUpdateMode ? 'flex' : 'none', color: '#4F378B', fontSize: 'medium'}}
                         onClick={handleUpdateApi}
                     >
-                        <SaveAsIcon style={{color: '#4F378B'}}/>
                         저장
-                    </IconButton>
+                    </Button>
                 </Box>
             </Card>
 

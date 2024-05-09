@@ -2,16 +2,17 @@ import Box from '@mui/material/Box';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import {Api, ApiSummary} from "../../../types/api-specification/ApiSpecification.ts";
 import {useEffect, useState} from "react";
-import {Button} from "@mui/material";
+import {Button, IconButton} from "@mui/material";
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import ApiInfoAndUpdateModal from "./ApiInfoAndUpdateModal.tsx";
-import methodColors from "./HttpMethodModalColor.tsx"
+import methodColors from "../HttpMethodModalColor.tsx"
 import {loadApi} from "../request/ApiSpecificationRequest.ts";
-import "./HttpMethodRowColors.css"
+import "../HttpMethodRowColors.css"
+import ApiTestModal from "../test/ApiTestModal.tsx";
 
 function CustomNoRowsOverlay() {
     return null;
 }
-
 
 const ApiListComponent = ({projectId, apiSpecificationId, domainId, onChildChange, apis}:
                               {projectId: number, apiSpecificationId: number, domainId: number, onChildChange: () => void, apis: ApiSummary[], }) => {
@@ -31,6 +32,7 @@ const ApiListComponent = ({projectId, apiSpecificationId, domainId, onChildChang
         statusCode: 0
     })
     const [isOpenApiModal, setIsOpenApiModal] = useState<boolean>(false);
+    const [isOpenApiTestModal, setIsOpenApiTestModal] = useState<boolean>(false);
 
     const handleOpenApiModal = async (rowData: ApiSummary) => {
         const data = await loadApi(projectId, apiSpecificationId, domainId, rowData.apiId).then().catch()
@@ -42,11 +44,22 @@ const ApiListComponent = ({projectId, apiSpecificationId, domainId, onChildChang
         setIsOpenApiModal(isOpen)
     }
 
+    const handleOpenApiTestModal = async (rowData: ApiSummary) => {
+        const data = await loadApi(projectId, apiSpecificationId, domainId, rowData.apiId).then().catch()
+        setApi(data);
+        setIsOpenApiTestModal(true)
+    }
+
+    const changeApiTestModalOpen = (isOpen: boolean) => {
+        setIsOpenApiTestModal(isOpen)
+    }
+
 
     const columns: GridColDef<ApiSummary>[] = [
         {
             field: 'method',
             headerName: 'Method',
+            flex: 1,
             renderCell: (params) => (
                 <Box
                     // variant="contained"
@@ -75,30 +88,45 @@ const ApiListComponent = ({projectId, apiSpecificationId, domainId, onChildChang
             field: 'name',
             headerName: '이름',
             type: 'string',
-            width: 250,
+            flex: 2,
         },
         {
             field: 'endpoint',
             headerName: 'Endpoint',
             type: 'string',
-            width: 400,
+            flex: 4,
         },
         {
-            field: 'statusCode',
-            headerName: '상태 코드',
-            type: 'number',
-            width: 150,
+            field: 'test',
+            headerName: 'API Test',
+            headerAlign: 'center',
             disableColumnMenu: true,
-            resizable: false
+            resizable: false,
+            sortable: false,
+            align: 'center',
+            flex:1,
+            renderCell: (params) => (
+                <IconButton
+                    onClick={() => handleOpenApiTestModal(params.row)}
+                >
+                    <PlayCircleIcon fontSize='large' style={{color: '#72B545'}}/>
+                </IconButton>
+
+            ),
         },
         {
             field: 'detail',
-            headerName: '',
+            headerName: '상세',
+            headerAlign: 'center',
+            disableColumnMenu: true,
+            resizable: false,
+            sortable: false,
+            align: 'center',
+            flex:1,
             renderCell: (params) => (
                 <Button
                     variant="outlined"
                     size="small"
-                    style={{ marginLeft: 16 }}
                     sx={{
                         backgroundColor: '#4F378B',
                         '&:hover': {
@@ -161,6 +189,12 @@ const ApiListComponent = ({projectId, apiSpecificationId, domainId, onChildChang
                 onChildChange={onChildChange}
                 changeOpen={changeApiModalOpen}
             />
+            <ApiTestModal
+                api={api}
+                open={isOpenApiTestModal}
+                changeOpen={changeApiTestModalOpen}
+            />
+
         </>
     )
 }
