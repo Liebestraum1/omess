@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import axios from "axios";
 import {
     Alert,
     Button,
@@ -34,7 +35,7 @@ import "../HttpMethodRowColors.css"
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import Ajv from "ajv";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import {JSONSchemaFaker}  from 'json-schema-faker';
+import {JSONSchemaFaker} from 'json-schema-faker';
 import RequestBodyForFormData from "./RequestBodyForFormData.tsx";
 
 interface ErrorState {
@@ -76,7 +77,7 @@ const ApiTestModal = (
         isError: false,
         errorMessage: ''
     })
-
+    const [testFired, setTestFired] = useState<boolean>(false)
     const [inputHost, setInputHost] = useState<string>('')
     const [inputApiEndpoint, setInputApiEndpoint] = useState<string>('')
     const [inputApiRequestSchema, setInputApiRequestSchema] = useState<string>('')
@@ -89,10 +90,19 @@ const ApiTestModal = (
     const [isValidResponseJsonSchema, setIsValidResponseJsonSchema] = useState<boolean>(true);
     const [requestBodyJsonErrorMessage, setRequestBodyJsonErrorMessage] = useState<string>('');
     const [selectedRadio, setSelectedRadioValue] = useState('none');
-
+    const [responseStatusCode, setResponseStatusCode] = useState<number>(0)
+    const [responseBody, setResponseBody] = useState<object>({})
+    const [responseBodyJsonErrorMessage, setResponseBodyJsonErrorMessage] = useState<string[]>([]);
+    const [isValidStatusCode, setIsValidStatusCode] = useState<boolean>(true);
+    const [testAlert, setTestAlert] = useState<boolean>(false)
     const handleClose = () => {
         setInputRequestBodyFormData([])
         setSelectedRadioValue('none')
+        setInputApiEndpoint('')
+        setIsValidStatusCode(true);
+        setIsValidResponseJsonSchema(true)
+        setTestFired(false)
+        setTestAlert(false)
         changeOpen(false)
     }
 
@@ -190,62 +200,62 @@ const ApiTestModal = (
         numberStyle: {color: 'darkorange'}
     }
 
-    async function buildFetch(): Promise<void> {
-        const headersObject = inputApiRequestHeaders.reduce((acc, current) => {
-            acc[current.headerKey] = current.headerValue;
-            return acc;
-        }, {} as Record<string, string>);
-
-        const formData = new FormData();
-        if(selectedRadio == 'multipart/form-data'){
-            inputRequestBodyFormData.forEach((row) => {
-                if(row.value instanceof FileList){
-                    for (let i = 0; i < row.value.length; i++) {
-                        formData.append(row.key, row.value[i])
-                    }
-                }else if(typeof row.value === 'string'){
-                    formData.append(row.key, row.value)
-                }
-            })
-        }
-
-        try {
-            const response = await fetch(inputHost + inputApiEndpoint, {
-                method: api.method, // 또는 'POST', 'PUT' 등 요청 메서드에 맞게 설정
-                headers: headersObject,
-                body: JSON.parse(inputRequestBodyJson)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.status}`);
-            }
-
-            const responseData = await response.json();
-            console.log(responseData);
-        } catch (error) {
-            console.error("Fetching error:", error);
-        }
-    }
-
     const fireTestRequest = async () => {
-        if (!isValidRequestJsonSchema || !isValidResponseJsonSchema || inputHost == '') {
-            if (!isValidRequestJsonSchema || !isValidResponseJsonSchema) {
-                setErrorState({isError: true, errorMessage: "JSON SCHEMA의 유효성을 확인해주세요!"})
+        if (!isValidRequestJsonSchema || inputHost == '') {
+            if (!isValidRequestJsonSchema ) {
+                setErrorState({isError: true, errorMessage: "Request Body의 JSON SCHEMA의 유효성을 확인해주세요!"})
             } else {
                 setErrorState({isError: true, errorMessage: "Host 주소를 입력해주세요!"})
             }
             return;
         }
 
-        const response = await fetch(inputHost + inputApiEndpoint, {
-            method: api.method, // HTTP 메소드 설정
-            headers: {
-                'Content-Type': 'application/json', // 요청 헤더 설정
-            },
+        setTestFired(true);
+        setTestAlert(true)
+        axios({
+            method: api.method,
+            url: inputHost + inputApiEndpoint,
+            data: JSON.parse(inputRequestBodyJson),
+            withCredentials: true
+        }).then(response => {
+            setResponseStatusCode(response.status)
+            setResponseBody(response.data)
+            compareToResponse(response.status, response.data)
+
+        }).catch(error => {
+            setResponseStatusCode(error.response.status)
+            if (typeof (error.response.data) === 'object') {
+                setResponseBody(error.response.data)
+            }
+            compareToResponse(error.response.status, error.response.data)
         });
 
-        console.log(response)
     };
+
+    const compareToResponse = (statusCode: number, body: object | string) => {
+        if (responseBodySchemaValidator !== undefined) {
+            const valid = responseBodySchemaValidator(body);
+            if (valid) {
+                setIsValidResponseJsonSchema(true)
+            } else {
+                setIsValidResponseJsonSchema(false)
+                let errorCnt = 1
+                const errorList: string[] = []
+                responseBodySchemaValidator.errors?.forEach((value) => {
+                        errorList.push(`${errorCnt++}. Caused By : ` + `[${value.keyword}]` + ' ' + value.dataPath + ' ' + value.message)
+                    }
+                )
+                setResponseBodyJsonErrorMessage(errorList)
+            }
+        }
+
+        if (statusCode !== api.statusCode) {
+            setIsValidStatusCode(false);
+        }else{
+            setIsValidStatusCode(true)
+        }
+
+    }
 
     const initUpdateInfos = () => {
         setInputApiEndpoint(api.endpoint)
@@ -253,7 +263,7 @@ const ApiTestModal = (
         setIsValidRequestJsonSchema(true)
         setIsValidResponseJsonSchema(true)
 
-        if(api.requestSchema !== '' && api.requestSchema !== null){
+        if (api.requestSchema !== '' && api.requestSchema !== null) {
             setInputRequestBodyJson(JSON.stringify(JSONSchemaFaker.generate(JSON.parse(api.requestSchema)), null, 4))
         }
     }
@@ -266,17 +276,17 @@ const ApiTestModal = (
         setInputApiEndpoint(event.target.value)
     }
 
-    const requestBodySchemaValidator = useMemo(() =>{
-        if(api.requestSchema !== '' && api.requestSchema !== null){
+    const requestBodySchemaValidator = useMemo(() => {
+        if (api.requestSchema !== '' && api.requestSchema !== null) {
             return ajv.compile(JSON.parse(api.requestSchema))
         }
-    }, [])
+    }, [api])
 
-    const responseBodySchemaValidator = useMemo(() =>{
-        if(api.responseSchema !== '' && api.responseSchema !== null){
+    const responseBodySchemaValidator = useMemo(() => {
+        if (api.responseSchema !== '' && api.responseSchema !== null) {
             return ajv.compile(JSON.parse(api.responseSchema))
         }
-    }, [])
+    }, [api])
 
     const handleChangeRequestBodyJson = (event: ChangeEvent<HTMLInputElement>) => {
         setInputRequestBodyJson(event.target.value)
@@ -284,12 +294,12 @@ const ApiTestModal = (
             let parsing;
             try {
                 parsing = JSON.parse(event.target.value)
-                if(requestBodySchemaValidator !== undefined){
+                if (requestBodySchemaValidator !== undefined) {
                     const valid = requestBodySchemaValidator(parsing)
                     if (valid) {
                         setIsValidRequestJsonSchema(true)
                     } else {
-                        let errorMessage =''
+                        let errorMessage = ''
                         requestBodySchemaValidator.errors?.forEach((value) =>
                             errorMessage += value.dataPath + ' ' + value.keyword + ' ' + value.message
                         )
@@ -298,7 +308,7 @@ const ApiTestModal = (
                     }
                 }
 
-            } catch(e) {
+            } catch (e) {
                 setRequestBodyJsonErrorMessage("JSON 형식이 아닙니다.")
                 setIsValidRequestJsonSchema(false)
             }
@@ -354,7 +364,7 @@ const ApiTestModal = (
         const queryParamStartIndexFromApiEndpoint = api.endpoint.indexOf('?')
         const queryParamStartIndexFromInputApiEndpoint = inputApiEndpoint.indexOf('?')
 
-        if(queryParamStartIndexFromApiEndpoint !== -1){
+        if (queryParamStartIndexFromApiEndpoint !== -1) {
             newApiEndpoint = newApiEndpoint.substring(0, queryParamStartIndexFromApiEndpoint)
         }
 
@@ -365,7 +375,7 @@ const ApiTestModal = (
             }
         )
 
-        if(queryParamStartIndexFromInputApiEndpoint !== -1 ){
+        if (queryParamStartIndexFromInputApiEndpoint !== -1) {
             newApiEndpoint += inputApiEndpoint.substring(queryParamStartIndexFromInputApiEndpoint)
         }
 
@@ -388,21 +398,21 @@ const ApiTestModal = (
         let newApiEndpoint = inputApiEndpoint
         const idx = inputApiEndpoint.indexOf('?')
 
-        if(idx == -1){
+        if (idx == -1) {
             newApiEndpoint += '?'
             updatedRows.forEach(value => {
                     newApiEndpoint += `${value.name}=${value.value}&`
                 }
             )
-        }else{
-            newApiEndpoint = inputApiEndpoint.substring(0, idx+1)
+        } else {
+            newApiEndpoint = inputApiEndpoint.substring(0, idx + 1)
             updatedRows.forEach(value => {
                     newApiEndpoint += `${value.name}=${value.value}&`
                 }
             )
         }
 
-        newApiEndpoint = newApiEndpoint.substring(0, newApiEndpoint.length-1)
+        newApiEndpoint = newApiEndpoint.substring(0, newApiEndpoint.length - 1)
 
         setInputApiEndpoint(newApiEndpoint);
 
@@ -455,261 +465,382 @@ const ApiTestModal = (
     }, [api]);
 
     return (
-        <Modal
-            open={open}
-            onClose={handleClose}
-        >
-            <Card variant='outlined' sx={modalStyle}
-                  style={{backgroundColor: methodColors[`${api.method}-MODAL`], display: open ? 'block' : 'none'}}>
-                <CardContent
-                    sx={{
-                        borderWidth: '1px',
-                        borderStyle: 'solid',
-                        borderColor: methodColors[`${api.method}-BADGE`],
-                        borderRadius: '4px'
-                    }}
-                >
-                    <Box
+        <Box>
+            <Modal
+                open={open}
+                onClose={handleClose}
+            >
+                <Card variant='outlined' sx={modalStyle}
+                      style={{backgroundColor: methodColors[`${api.method}-MODAL`], display: open ? 'block' : 'none'}}>
+                    <CardContent
                         sx={{
-                            display: 'flex',
-                            alignItems: 'center'
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            borderColor: methodColors[`${api.method}-BADGE`],
+                            borderRadius: '4px'
                         }}
                     >
                         <Box
                             sx={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '10%',
-                                padding: '6px 20px',
-                                fontSize: '0.875rem',
-                                fontWeight: '700',
-                                lineHeight: '1.75',
-                                marginRight: '1%',
-                                textTransform: 'uppercase',
-                                borderRadius: '4px',
-                                backgroundColor: methodColors[`${api.method}-BADGE`],
-                                color: 'white',
+                                display: 'flex',
+                                alignItems: 'center'
                             }}
                         >
-                            <Typography variant="h5" component="div">
-                                {api.method}
-                            </Typography>
-                        </Box>
-
-                        <Box sx={{ml: 1}}>
-                            <Typography variant="h5" component="div">
-                                {api.name}
-                            </Typography>
-                        </Box>
-                    </Box>
-
-                    <Divider sx={{my: 2}}/>
-                    <Typography variant="body1">
-                        {api.description}
-                    </Typography>
-
-                    <Box sx={{mt: 2}}>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            value={inputHost}
-                            label="Host (e.g. http://localhost:8080)"
-                            required={true}
-                            onChange={handleChangeHost}
-                            inputProps={{
-                                maxLength: 2000
-                            }}
-                            sx={{
-                                backgroundColor: 'white',
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        border: 'none',
-                                    },
-                                },
-                            }}
-                        />
-                    </Box>
-
-                    <Divider sx={{my: 2}}/>
-
-                    <Box sx={{mt: 2}}>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            label="Endpoint"
-                            value={inputApiEndpoint}
-                            onChange={handleChangeEndpoint}
-                            inputProps={{
-                                maxLength: 2000
-                            }}
-                            sx={{
-                                backgroundColor: 'white',
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        border: 'none',
-                                    },
-                                },
-                            }}
-                        />
-                    </Box>
-
-                    <Divider sx={{my: 2}}/>
-
-                    <Box>
-                        <Box sx={{mt: 2}}>
-                            <Typography variant='h6' component='div'>
-                                Request Headers
-                            </Typography>
-                            <DataGrid
-                                autoHeight={inputApiRequestHeaders.length !== 0}
-                                rows={inputApiRequestHeaders}
-                                columns={requestHeadersColumns as GridColDef<GridRowModel>[]}
-                                hideFooter={true}
-                                hideFooterPagination={true}
-                                disableColumnMenu={true}
-                                disableColumnSorting={true}
-                                disableRowSelectionOnClick={true}
-                                slots={{noRowsOverlay: CustomNoRowsOverlay}}
+                            <Box
                                 sx={{
-                                    width: '100%',
-                                    "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                                        outline: "none",
-                                    },
-                                    '& .MuiDataGrid-cell': {
-                                        borderRight: '1px solid #ccc',
-                                    },
-                                }}
-                                processRowUpdate={handleRequestHeaderRowUpdate}
-                            />
-                            <Chip
-                                icon={<AddCircleIcon style={{color: methodColors[`${api.method}-BADGE`]}}/>}
-                                label='추가'
-                                onClick={() => addRowToInputApiRequestHeaders()}
-                                sx={{
-                                    display: 'flex',
+                                    display: 'inline-flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    width: '8%',
-                                    backgroundColor: 'transparent',
-                                    mt: 1
+                                    width: '10%',
+                                    padding: '6px 20px',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '700',
+                                    lineHeight: '1.75',
+                                    marginRight: '1%',
+                                    textTransform: 'uppercase',
+                                    borderRadius: '4px',
+                                    backgroundColor: methodColors[`${api.method}-BADGE`],
+                                    color: 'white',
                                 }}
-                            />
-                        </Box>
-
-                        <Box sx={{mt: 2}}>
-                            <Typography variant='h6' component='div'>
-                                Path Variables
-                            </Typography>
-                            <DataGrid
-                                autoHeight={inputApiPathVariables.length !== 0}
-                                rows={inputApiPathVariables}
-                                columns={pathVariablesColumns as GridColDef<GridRowModel>[]}
-                                hideFooter={true}
-                                hideFooterPagination={true}
-                                disableColumnMenu={true}
-                                disableColumnSorting={true}
-                                disableRowSelectionOnClick={true}
-                                slots={{noRowsOverlay: CustomNoRowsOverlay}}
-                                sx={{
-                                    width: '100%',
-                                    "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                                        outline: "none",
-                                    },
-                                    '& .MuiDataGrid-cell': {
-                                        borderRight: '1px solid #ccc',
-                                    }
-                                }}
-                                processRowUpdate={handlePathVariableRowUpdate}
-                            />
-                        </Box>
-
-                        <Box sx={{mt: 2}}>
-                            <Typography variant='h6' component='div'>
-                                Query Parameters
-                            </Typography>
-                            <DataGrid
-                                autoHeight={inputApiQueryParams.length !== 0}
-                                rows={inputApiQueryParams}
-                                columns={queryParamsColumns as GridColDef<GridRowModel>[]}
-                                hideFooter={true}
-                                hideFooterPagination={true}
-                                disableColumnMenu={true}
-                                disableColumnSorting={true}
-                                disableRowSelectionOnClick={true}
-                                slots={{noRowsOverlay: CustomNoRowsOverlay}}
-                                sx={{
-                                    width: '100%',
-                                    "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                                        outline: "none",
-                                    },
-                                    '& .MuiDataGrid-cell': {
-                                        borderRight: '1px solid #ccc',
-                                    }
-                                }}
-                                processRowUpdate={handleQueryParamRowUpdate}
-                            />
-                        </Box>
-
-                        <Box sx={{mt: 2}}>
-                            <Typography variant='h6' component='div'>
-                                Request Body
-                            </Typography>
-                            <FormControl>
-                                <RadioGroup
-                                    row
-                                    aria-labelledby="demo-row-radio-buttons-group-label"
-                                    name="row-radio-buttons-group"
-                                    defaultValue='none'
-                                >
-                                    <FormControlLabel value="multipart/form-data" control={<Radio onChange={handleRadioChange}/>} label="form-data"  />
-                                    <FormControlLabel value="application/json" control={<Radio onChange={handleRadioChange}/>} label="json" />
-                                    <FormControlLabel value="none" control={<Radio  onChange={handleRadioChange}/>} label="없음"/>
-                                </RadioGroup>
-                            </FormControl>
-
-                            <Box
-                                sx={{display: selectedRadio === 'application/json' ? 'flex' : 'none', justifyContent: 'space-between'}}
                             >
-                                <Box sx={{width: '49%'}}>
-                                    <Typography variant='body1' component='div'>
-                                        Request Body JSON
-                                    </Typography>
-                                    <TextField
-                                        multiline
-                                        variant="outlined"
-                                        error={!isValidRequestJsonSchema}
-                                        value={inputApiRequestSchema ? inputRequestBodyJson : ''}
-                                        helperText={!isValidRequestJsonSchema ? requestBodyJsonErrorMessage : ""}
-                                        fullWidth
-                                        onChange={handleChangeRequestBodyJson}
-                                        onKeyDown={handleInputRequestBodyJsonKeyDown}
-                                        sx={{
-                                            borderRadius: '4px',
-                                            backgroundColor: 'white',
-                                            '& .MuiOutlinedInput-root': {
-                                                '& fieldset': {
-                                                    border: 'none',
+                                <Typography variant="h5" component="div">
+                                    {api.method}
+                                </Typography>
+                            </Box>
+
+                            <Box sx={{ml: 1}}>
+                                <Typography variant="h5" component="div">
+                                    {api.name}
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Divider sx={{my: 2}}/>
+                        <Typography variant="body1">
+                            {api.description}
+                        </Typography>
+
+                        <Box sx={{mt: 2}}>
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                value={inputHost}
+                                label="Host (e.g. http://localhost:8080)"
+                                required={true}
+                                onChange={handleChangeHost}
+                                inputProps={{
+                                    maxLength: 2000
+                                }}
+                                sx={{
+                                    backgroundColor: 'white',
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': {
+                                            border: 'none',
+                                        },
+                                    },
+                                }}
+                            />
+                        </Box>
+
+                        <Divider sx={{my: 2}}/>
+
+                        <Box sx={{mt: 2}}>
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                label="Endpoint"
+                                value={inputApiEndpoint}
+                                onChange={handleChangeEndpoint}
+                                inputProps={{
+                                    maxLength: 2000
+                                }}
+                                sx={{
+                                    backgroundColor: 'white',
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': {
+                                            border: 'none',
+                                        },
+                                    },
+                                }}
+                            />
+                        </Box>
+
+                        <Divider sx={{my: 2}}/>
+
+                        <Box>
+                            <Box sx={{mt: 2}}>
+                                <Typography variant='h6' component='div'>
+                                    Request Headers
+                                </Typography>
+                                <DataGrid
+                                    autoHeight={inputApiRequestHeaders.length !== 0}
+                                    rows={inputApiRequestHeaders}
+                                    columns={requestHeadersColumns as GridColDef<GridRowModel>[]}
+                                    hideFooter={true}
+                                    hideFooterPagination={true}
+                                    disableColumnMenu={true}
+                                    disableColumnSorting={true}
+                                    disableRowSelectionOnClick={true}
+                                    slots={{noRowsOverlay: CustomNoRowsOverlay}}
+                                    sx={{
+                                        width: '100%',
+                                        "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                                            outline: "none",
+                                        },
+                                        '& .MuiDataGrid-cell': {
+                                            borderRight: '1px solid #ccc',
+                                        },
+                                    }}
+                                    processRowUpdate={handleRequestHeaderRowUpdate}
+                                />
+                                <Chip
+                                    icon={<AddCircleIcon style={{color: methodColors[`${api.method}-BADGE`]}}/>}
+                                    label='추가'
+                                    onClick={() => addRowToInputApiRequestHeaders()}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '8%',
+                                        backgroundColor: 'transparent',
+                                        mt: 1
+                                    }}
+                                />
+                            </Box>
+
+                            <Box sx={{mt: 2}}>
+                                <Typography variant='h6' component='div'>
+                                    Path Variables
+                                </Typography>
+                                <DataGrid
+                                    autoHeight={inputApiPathVariables.length !== 0}
+                                    rows={inputApiPathVariables}
+                                    columns={pathVariablesColumns as GridColDef<GridRowModel>[]}
+                                    hideFooter={true}
+                                    hideFooterPagination={true}
+                                    disableColumnMenu={true}
+                                    disableColumnSorting={true}
+                                    disableRowSelectionOnClick={true}
+                                    slots={{noRowsOverlay: CustomNoRowsOverlay}}
+                                    sx={{
+                                        width: '100%',
+                                        "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                                            outline: "none",
+                                        },
+                                        '& .MuiDataGrid-cell': {
+                                            borderRight: '1px solid #ccc',
+                                        }
+                                    }}
+                                    processRowUpdate={handlePathVariableRowUpdate}
+                                />
+                            </Box>
+
+                            <Box sx={{mt: 2}}>
+                                <Typography variant='h6' component='div'>
+                                    Query Parameters
+                                </Typography>
+                                <DataGrid
+                                    autoHeight={inputApiQueryParams.length !== 0}
+                                    rows={inputApiQueryParams}
+                                    columns={queryParamsColumns as GridColDef<GridRowModel>[]}
+                                    hideFooter={true}
+                                    hideFooterPagination={true}
+                                    disableColumnMenu={true}
+                                    disableColumnSorting={true}
+                                    disableRowSelectionOnClick={true}
+                                    slots={{noRowsOverlay: CustomNoRowsOverlay}}
+                                    sx={{
+                                        width: '100%',
+                                        "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                                            outline: "none",
+                                        },
+                                        '& .MuiDataGrid-cell': {
+                                            borderRight: '1px solid #ccc',
+                                        }
+                                    }}
+                                    processRowUpdate={handleQueryParamRowUpdate}
+                                />
+                            </Box>
+
+                            <Box sx={{mt: 2}}>
+                                <Typography variant='h6' component='div'>
+                                    Request Body
+                                </Typography>
+                                <FormControl>
+                                    <RadioGroup
+                                        row
+                                        aria-labelledby="demo-row-radio-buttons-group-label"
+                                        name="row-radio-buttons-group"
+                                        defaultValue='none'
+                                    >
+                                        <FormControlLabel value="multipart/form-data"
+                                                          control={<Radio onChange={handleRadioChange}/>}
+                                                          label="form-data"/>
+                                        <FormControlLabel value="application/json"
+                                                          control={<Radio onChange={handleRadioChange}/>} label="json"/>
+                                        <FormControlLabel value="none" control={<Radio onChange={handleRadioChange}/>}
+                                                          label="없음"/>
+                                    </RadioGroup>
+                                </FormControl>
+
+                                <Box
+                                    sx={{
+                                        display: selectedRadio === 'application/json' ? 'flex' : 'none',
+                                        justifyContent: 'space-between'
+                                    }}
+                                >
+                                    <Box sx={{width: '49%'}}>
+                                        <Typography variant='body1' component='div'>
+                                            Request Body JSON
+                                        </Typography>
+                                        <TextField
+                                            multiline
+                                            variant="outlined"
+                                            error={!isValidRequestJsonSchema}
+                                            value={inputApiRequestSchema ? inputRequestBodyJson : ''}
+                                            helperText={!isValidRequestJsonSchema ? requestBodyJsonErrorMessage : ""}
+                                            fullWidth
+                                            onChange={handleChangeRequestBodyJson}
+                                            onKeyDown={handleInputRequestBodyJsonKeyDown}
+                                            sx={{
+                                                borderRadius: '4px',
+                                                backgroundColor: 'white',
+                                                '& .MuiOutlinedInput-root': {
+                                                    '& fieldset': {
+                                                        border: 'none',
+                                                    },
                                                 },
-                                            },
-                                        }}
-                                    />
-                                    <Button variant='contained' style={{backgroundColor: methodColors[`${api.method}-BADGE`]}} sx={{mt: 1}} disabled={!isValidRequestJsonSchema} onClick={requestBodyFormatting}>
-                                        Formatting
-                                    </Button>
+                                            }}
+                                        />
+                                        <Button variant='contained'
+                                                style={{backgroundColor: methodColors[`${api.method}-BADGE`]}}
+                                                sx={{mt: 1}} disabled={!isValidRequestJsonSchema}
+                                                onClick={requestBodyFormatting}>
+                                            Formatting
+                                        </Button>
+                                    </Box>
+
+                                    <Box sx={{width: '49%'}}>
+                                        <Typography variant='body1' component='div'>
+                                            Request Body JSON SCHEMA
+                                        </Typography>
+                                        <Box sx={{
+                                            backgroundColor: 'white',
+                                            borderRadius: '4px',
+                                        }}>
+                                            <Typography variant='body1' component='div'>
+                                                {api.requestSchema ?
+                                                    <JsonFormatter json={api.requestSchema} tabWith={4}
+                                                                   jsonStyle={jsonStyle}/>
+                                                    : "없음"
+                                                }
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                                {selectedRadio === 'multipart/form-data' ?
+                                    <RequestBodyForFormData isShow={selectedRadio === 'multipart/form-data'}
+                                                            method={api.method}
+                                                            inputRequestBodyFormData={inputRequestBodyFormData}
+                                                            setInputRequestBodyFormData={setInputRequestBodyFormData}/>
+                                    : null}
+                            </Box>
+                        </Box>
+                        <Divider sx={{my: 2}}/>
+
+                    </CardContent>
+
+                    <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1}}>
+                        <Button
+                            startIcon={<PlayCircleIcon fontSize='large' style={{color: '#72B545'}}/>}
+                            sx={{display: 'flex', color: 'white', fontSize: 'medium', backgroundColor: '#356b0e'}}
+                            onClick={fireTestRequest}
+                            size='large'
+                        >
+                            테스트
+                        </Button>
+                    </Box>
+
+                    <Box sx={{display: testFired ? 'block' : 'none'}}>
+                        <Typography variant='h5' component='div'>
+                            Test Result
+                        </Typography>
+
+                        <Box sx={{
+                            mt: 2,
+                            backgroundColor: 'white',
+                            borderColor: isValidStatusCode && isValidResponseJsonSchema ? 'green' : 'red',
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            borderRadius: '4px',
+                            alignItems: 'space-between'
+                        }}
+                        >
+                            <Box
+                                sx={{padding: 2}}
+                            >
+                                <Typography variant='h6' color={isValidStatusCode && isValidResponseJsonSchema ? 'green' : 'red'}>
+                                    결과 : {isValidStatusCode && isValidResponseJsonSchema ? 'Success' : 'Fail'}
+                                </Typography>
+                                <Box sx={{padding: 2}}>
+                                    <Typography variant='body1' color={isValidStatusCode ? 'green' : 'red'} >
+                                        StatusCode : {isValidStatusCode ? "응답 코드가 일치합니다." : "응답코드가 불일치합니다."}
+                                    </Typography>
+                                    <Typography variant='body1' sx={{mt: 2}} component='div' color={isValidResponseJsonSchema ? 'green' : 'red'}>
+                                        Response Body :
+                                        {isValidResponseJsonSchema ?
+                                            "정의된 Schema에 부합합니다."  :  "정의된 Schema에 일치하지 않습니다."
+                                        }
+
+                                        {
+                                            isValidResponseJsonSchema ? null :
+                                            responseBodyJsonErrorMessage.map((message, index) => (
+                                                <Typography sx={{ml: 4, mt: 2}} variant='body1' key={index} component='div'>{message}</Typography>
+                                            ))
+                                        }
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+
+                        <Box sx={{mt: 2, display: 'flex', justifyContent: 'space-between'}}>
+                            <Box sx={{width: "49%"}}>
+                                <Typography variant='h6' component='div'>
+                                    Response Status Code
+                                </Typography>
+                                <Box
+                                    sx={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '5%',
+                                        padding: '6px 20px',
+                                        fontSize: '0.875rem',
+                                        fontWeight: '700',
+                                        lineHeight: '1.75',
+                                        marginRight: '1%',
+                                        textTransform: 'uppercase',
+                                        borderRadius: '4px',
+                                        backgroundColor: statusCodeColors[Math.floor(responseStatusCode / 100)],
+                                        color: 'white',
+                                    }}
+                                >
+                                    <Typography variant='body1'>
+                                        {responseStatusCode}
+                                    </Typography>
                                 </Box>
 
-                                <Box sx={{width: '49%'}}>
-                                    <Typography variant='body1' component='div'>
-                                        Request Body JSON SCHEMA
+                                <Box>
+                                    <Typography variant='h6' component='div'>
+                                        Response Body
                                     </Typography>
                                     <Box sx={{
                                         backgroundColor: 'white',
                                         borderRadius: '4px',
                                     }}>
                                         <Typography variant='body1' component='div'>
-                                            {api.requestSchema ?
-                                                <JsonFormatter json={api.requestSchema} tabWith={4}
+                                            {responseBody ?
+                                                <JsonFormatter json={JSON.parse(JSON.stringify(responseBody))} tabWith={4}
                                                                jsonStyle={jsonStyle}/>
                                                 : "없음"
                                             }
@@ -717,93 +848,96 @@ const ApiTestModal = (
                                     </Box>
                                 </Box>
                             </Box>
-                            {selectedRadio === 'multipart/form-data' ? <RequestBodyForFormData isShow={selectedRadio === 'multipart/form-data'} method={api.method} inputRequestBodyFormData={inputRequestBodyFormData} setInputRequestBodyFormData={setInputRequestBodyFormData}/>
-                                : null}
+                            <Box sx={{width : '49%'}}>
+                                <Typography variant='h6' component='div'>
+                                    Expected Status Code
+                                </Typography>
+                                <Box
+                                    sx={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '5%',
+                                        padding: '6px 20px',
+                                        fontSize: '0.875rem',
+                                        fontWeight: '700',
+                                        lineHeight: '1.75',
+                                        marginRight: '1%',
+                                        textTransform: 'uppercase',
+                                        borderRadius: '4px',
+                                        backgroundColor: statusCodeColors[Math.floor(api.statusCode / 100)],
+                                        color: 'white',
+                                    }}
+                                >
+                                    <Typography variant='body1'>
+                                        {api.statusCode}
+                                    </Typography>
+                                </Box>
+
+
+                                <Box>
+                                    <Typography variant='h6' component='div'>
+                                        Response Body JSON SCHEMA
+                                    </Typography>
+                                    <Box sx={{
+                                        backgroundColor: 'white',
+                                        borderRadius: '4px',
+                                    }}>
+                                        <Typography variant='body1' component='div'>
+                                            {api.responseSchema ?
+                                                <JsonFormatter json={api.responseSchema} tabWith={4}
+                                                               jsonStyle={jsonStyle}/>
+                                                : "없음"
+                                            }
+                                        </Typography>
+                                    </Box>
+
+
+                                </Box>
+                            </Box>
                         </Box>
                     </Box>
-                    <Divider sx={{my: 2}}/>
-                    <Typography variant='h5' component='div'>
-                        Response
-                    </Typography>
-
-                    <Box sx={{mt: 2}}>
-                        <Typography variant='h6' component='div'>
-                            Status Code
-                        </Typography>
-                        <Box
-                            sx={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '5%',
-                                padding: '6px 20px',
-                                fontSize: '0.875rem',
-                                fontWeight: '700',
-                                lineHeight: '1.75',
-                                marginRight: '1%',
-                                textTransform: 'uppercase',
-                                borderRadius: '4px',
-                                backgroundColor: statusCodeColors[Math.floor(api.statusCode / 100)],
-                                color: 'white',
-                            }}
-                        >
-                            <Typography variant='body1'>
-                                {api.statusCode}
-                            </Typography>
-                        </Box>
-                    </Box>
-
-                    <Box sx={{mt: 2}}>
-                        <Typography variant='h6' component='div'>
-                            Response Body JSON SCHEMA
-                        </Typography>
-                        <Box sx={{
-                            backgroundColor: 'white',
-                            borderRadius: '4px',
-                        }}>
-                            <Typography variant='body1' component='div'>
-                                {api.responseSchema ?
-                                    <JsonFormatter json={api.responseSchema} tabWith={4}
-                                                   jsonStyle={jsonStyle}/>
-                                    : "없음"
-                                }
-                            </Typography>
-
-                        </Box>
-                    </Box>
-                </CardContent>
-
-                <Snackbar
-                    open={errorState.isError}
-                    autoHideDuration={2000}
+                </Card>
+            </Modal>
+            <Snackbar
+                open={errorState.isError}
+                autoHideDuration={2000}
+                onClose={() => {
+                    setErrorState({isError: false, errorMessage: ''})
+                }}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+            >
+                <Alert
+                    severity="error"
                     onClose={() => {
                         setErrorState({isError: false, errorMessage: ''})
                     }}
-                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                    variant="filled"
+                    sx={{width: '100%'}}
                 >
-                    <Alert
-                        severity="error"
-                        onClose={() => {
-                            setErrorState({isError: false, errorMessage: ''})
-                        }}
-                        variant="filled"
-                        sx={{width: '100%'}}
-                    >
-                        {errorState.errorMessage}
-                    </Alert>
-                </Snackbar>
-                <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1}}>
-                    <Button
-                        startIcon={<PlayCircleIcon fontSize='large' style={{color: '#72B545'}}/>}
-                        sx={{display: 'flex', color: 'white', fontSize: 'medium', backgroundColor: '#356b0e'}}
-                        onClick={fireTestRequest}
-                        size='large'
-                    >
-                        테스트
-                    </Button>
-                </Box>
-            </Card>
-        </Modal>
+                    {errorState.errorMessage}
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={testAlert}
+                autoHideDuration={2000}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                onClose={() => {
+                    setTestAlert(false)
+                }}
+            >
+                <Alert
+                    severity="success"
+                    variant="filled"
+                    sx={{width: '100%'}}
+                    onClose={() => {
+                        setTestAlert(false)
+                    }}
+                >
+                    "아래에서 테스트 결과를 확인해주세요!"
+                </Alert>
+            </Snackbar>
+        </Box>
     )
 }
 
