@@ -10,16 +10,13 @@ import {useKanbanBoardStore} from "../../stores/KanbanBoardStorage.tsx";
 const KanbanBoard = () => {
     
     // 이슈 디테일 모달
-    const [selectedIssue, setSelectedIssue] = useState(0);
     const [open, setOpen] = useState(false);
 
-    const handleClickOpen = (issueId: number) => {
-        setSelectedIssue(issueId);
+    const handleClickOpen = () => {
         setOpen(true);
     }
 
     const handleClose = () => {
-        setSelectedIssue(0);
         setOpen(false);
     }
 
@@ -39,6 +36,8 @@ const KanbanBoard = () => {
     const [Beforeproceeding, setBeforeproceeding] = useState<IssueProp[]>([])
     const [Proceeding, setProceeding] = useState<IssueProp[]>([])
     const [Complete, setComplete] = useState<IssueProp[]>([])
+
+
     useEffect(() => {
         if (issues) {
             setBeforeproceeding(issues.filter(issue => issue.status === 1));
@@ -63,7 +62,7 @@ const KanbanBoard = () => {
                            handleClickOpenCreate={handleClickOpenCreate}/>
 
             </Grid>
-            <IssueDetailModal open={open} issueId={selectedIssue} onClose={handleClose}/>
+            <IssueDetailModal open={open} onClose={handleClose}/>
             <IssueCreateModal open={openCreate} onClose={handleCloseOpenCreate}/>
         </Box>
     );

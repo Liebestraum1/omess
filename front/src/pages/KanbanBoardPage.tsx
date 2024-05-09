@@ -12,6 +12,7 @@ import {CompatClient, Stomp} from "@stomp/stompjs";
 
 
 type KanbanBoardProps = {
+    projectId: number;
     moduleId: number;
 }
 
@@ -35,7 +36,7 @@ const projectMembers: MemberProp[] = [
     },
 ]
 
-const KanbanBoardPage = ({moduleId}: KanbanBoardProps) => {
+const KanbanBoardPage = ({projectId, moduleId}: KanbanBoardProps) => {
     const {
         setprojectMembers,
         selectedLabel,
@@ -45,20 +46,18 @@ const KanbanBoardPage = ({moduleId}: KanbanBoardProps) => {
         getIssues,
         getLabels,
         setKanbanBoardId,
-        kanbanBoardId
+        kanbanBoardId,
     } = useKanbanBoardStore();
-    const serverUrl = "localhost:8080/api/v1"
+    const serverUrl = "localhost:8080"
 
     useEffect(() => {
-        console.log(moduleId)
         setKanbanBoardId(moduleId);
-        console.log(kanbanBoardId)
-        if(kanbanBoardId){
-            getKanbanBoard(1, kanbanBoardId);
-            getLabels(1, kanbanBoardId);
+        if (kanbanBoardId) {
+            getKanbanBoard(28, kanbanBoardId);
+            getLabels(28, kanbanBoardId);
             setprojectMembers(projectMembers);
         }
-    }, [kanbanBoardId, setKanbanBoardId, getKanbanBoard, getLabels, setprojectMembers]);
+    }, [moduleId]);
 
 
     // stomp 칸반보드 구독
@@ -71,7 +70,8 @@ const KanbanBoardPage = ({moduleId}: KanbanBoardProps) => {
             {},
             () => {
                 stompClient.current && stompClient.current.subscribe('/sub/kanbanRoom/' + kanbanBoardId, () => {
-                    getIssues(1, moduleId, selectedMember, selectedLabel, selectedImpotance);
+                    console.log("스톰프 왔다 이슈 목록 바꿔라")
+                    getIssues(28, moduleId, selectedMember, selectedLabel, selectedImpotance);
                 });
             })
     }, [kanbanBoardId, stompClient, getIssues, selectedMember, selectedLabel, selectedImpotance]);
@@ -90,11 +90,8 @@ const KanbanBoardPage = ({moduleId}: KanbanBoardProps) => {
                 {},
                 JSON.stringify(issueRequest)
             );
-            console.log('Message sent!');
-        } else if (!stompClient) {
-            console.log('Not connected to WebSocket');
         } else {
-            console.log('ss');
+            console.log('Not connected to WebSocket');
         }
     };
 

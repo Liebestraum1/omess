@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import {useEffect, useState} from "react";
+import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
 
 type IssueStatusFilterProp = {
     status: number;
@@ -15,10 +16,14 @@ type IssueStatusFilterProp = {
 
 const IssueStatusFilter = ({status}: IssueStatusFilterProp) => {
 
+    const {kanbanBoardId, updateIssueStatus, issueId} = useKanbanBoardStore();
     const [selectedStatus, setSelectedStatus] = useState('');
     const handleChange = (event: SelectChangeEvent<string>) => {
-        // FixMe 이슈 상태 수정 api 호출
-        setSelectedStatus(event.target.value);
+        if (kanbanBoardId && issueId) {
+            setSelectedStatus(event.target.value);
+
+            updateIssueStatus(28, kanbanBoardId, issueId, parseInt(event.target.value))
+        }
     };
 
     useEffect(() => {
@@ -28,7 +33,7 @@ const IssueStatusFilter = ({status}: IssueStatusFilterProp) => {
     return (
         <Box>
             {/** 중요도 필터 */}
-            <FormControl sx={{m: 1, minWidth: 120, paddingLeft: 2}} size={"small"}>
+            <FormControl sx={{m: 1, minWidth: 120, paddingLeft: 3.3}} size={"small"}>
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"

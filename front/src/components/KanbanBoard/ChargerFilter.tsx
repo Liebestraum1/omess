@@ -4,7 +4,7 @@ import {useKanbanBoardStore} from "../../stores/KanbanBoardStorage.tsx";
 import {useState} from "react";
 
 const ChargerFilter = () => {
-    const {projectMembers, setSelectedMember, kanbanBoardId} = useKanbanBoardStore();
+    const { projectMembers, setSelectedMember, kanbanBoardId} = useKanbanBoardStore();
     const [selectedMember, setSelectedMemberLocal] = useState('');
 
     const handleChange = (event: SelectChangeEvent<string>) => {

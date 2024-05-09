@@ -27,7 +27,7 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
     const [importance, setImportance] = useState<number | null>(null);
     const [charger, setCharger] = useState<number | null>(null);
     const [label, setLabel] = useState<number | null>(null);
-    const {createIssue} = useKanbanBoardStore();
+    const {createIssue, kanbanBoardId} = useKanbanBoardStore();
     const projectId = 1;
     const onCloseModal = () => {
         setMd("");
@@ -38,11 +38,11 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
     };
 
     const onClickCreateIssue = () => {
-        if(status && importance){
-            if(md === undefined){
+        if (status && importance) {
+            if (md === undefined) {
                 setMd("");
             }
-            const writeIssueRequest : CreateIssueProp = {
+            const writeIssueRequest: CreateIssueProp = {
                 title: title,
                 content: md!,
                 importance: importance,
@@ -50,13 +50,15 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
                 memberId: charger,
                 labelId: label
             }
-            createIssue(projectId, writeIssueRequest);
-        }else{
+            if (kanbanBoardId) {
+                createIssue(projectId, kanbanBoardId, writeIssueRequest);
+            }
+        } else {
             // FixMe 에러 처리
         }
-       
+
     }
-    
+
     return (
         <Box>
             <Modal
@@ -105,9 +107,10 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
                             <IssueCreateChargerFilter onChangeCharger={setCharger}/>
                             <IssueCreateLabelFilter onChangeLabel={setLabel}/>
                             <IssueCreateImportanceFilter onChangeImportance={setImportance}/>
-                            <IssueCreateStatusFilter onChangeStatus={setStatus} />
+                            <IssueCreateStatusFilter onChangeStatus={setStatus}/>
                         </Box>
-                        <Button variant="outlined" color="secondary"  sx={{height: 49, paddingTop: 1.1}} onClick={onClickCreateIssue}> 이슈 생성 </Button>
+                        <Button variant="outlined" color="secondary" sx={{height: 49, paddingTop: 1.1}}
+                                onClick={onClickCreateIssue}> 이슈 생성 </Button>
                     </Box>
                 </Box>
             </Modal>
