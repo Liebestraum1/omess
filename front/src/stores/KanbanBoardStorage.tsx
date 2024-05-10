@@ -11,9 +11,10 @@ import {CompatClient} from "@stomp/stompjs";
 
 type KanbanBoardStorage = {
     // 전역 변수
+    currentProjectId: number | null;
     kanbanBoardId: number | null;
     issueId: number | null;
-    clent: CompatClient | null;
+    client: CompatClient | null;
     issues: IssueProp[];
     labels: LabelProp[];
     projectMembers: MemberProp[];
@@ -22,8 +23,10 @@ type KanbanBoardStorage = {
     selectedImpotance: number | null;
 
     // 전역 변수 setter
+    setCurrentProjectId: (projectId: number) => void;
     setKanbanBoardId: (kanbanBoardId: number) => void;
     setIssuedId: (issueId: number | null) => void;
+    setClient: (client: CompatClient | null) => void;
     setIssues: (issues: IssueProp[]) => void;
     setLabels: (labels: LabelProp[]) => void;
     setprojectMembers: (projectMembers: MemberProp[]) => void;
@@ -43,13 +46,15 @@ type KanbanBoardStorage = {
     updateIssueMember: (projectId: number, moduleId: number, issueId: number, chargerId: number) => void;
     updateIssue: (projectId: number, moduleId: number, issueId: number, updateIssueRequest: UpdateIssueRequest) => void;
     deleteIssue: (projectId: number, moduleId: number, issueId: number) => void;
+    sendStomp: () => void;
 }
 
 export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     // 전역 변수
+    currentProjectId: null,
     kanbanBoardId: null,
     issueId: null,
-    clent: null,
+    client: null,
     issues: [],
     labels: [],
     projectMembers: [],
@@ -58,8 +63,23 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     selectedImpotance: null,
 
     // 전역 변수 setter
+    setCurrentProjectId: (currentProjectId: number) => set({currentProjectId}),
     setKanbanBoardId: (kanbanBoardId: number) => set({kanbanBoardId}),
     setIssuedId: (issueId: number | null) => set({issueId}),
+    setClient: (client: CompatClient | null) => {
+        set({client})
+        get().client!.connect(
+            {},
+            () => {
+                get().client && get().currentProjectId && get().kanbanBoardId &&
+                get().client!.subscribe('/sub/kanbanRoom/' + get().kanbanBoardId,
+                    (message) => {
+                        get().getIssues(get().currentProjectId!, parseInt(message.body), get().selectedMember, get().selectedLabel, get().selectedImpotance);
+                    }
+                );
+            }
+        )
+    },
     setIssues: (issues: IssueProp[]) => set({issues}),
     setLabels: (labels: LabelProp[]) => set({labels}),
     setprojectMembers: (projectMembers: MemberProp[]) => set({projectMembers}),
@@ -110,12 +130,10 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     },
 
     createIssue: async (projectId: number, moduleId: number, writeIssueRequest: CreateIssueProp) => {
-        await axios.post(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/label`,
-            {
-                writeIssueRequest: writeIssueRequest
-            }
+        await axios.post(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues`,
+            writeIssueRequest
         ).then(() => {
-            get().getIssues(projectId, moduleId, get().selectedMember, get().selectedLabel, get().selectedImpotance);
+            get().sendStomp();
         });
     },
 
@@ -134,7 +152,9 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
             {
                 labelId: labelId
             }
-        )
+        ).then(() => {
+            get().sendStomp();
+        })
     },
 
     updateIssueStatus: async (projectId: number, moduleId: number, issueId: number, status: number) => {
@@ -142,7 +162,9 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
             {
                 status: status
             }
-        )
+        ).then(() => {
+            get().sendStomp();
+        })
     },
 
     updateIssueImportance: async (projectId: number, moduleId: number, issueId: number, importance: number) => {
@@ -150,7 +172,9 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
             {
                 importance: importance
             }
-        )
+        ).then(() => {
+            get().sendStomp();
+        })
     },
 
     updateIssueMember: async (projectId: number, moduleId: number, issueId: number, chargerId: number) => {
@@ -158,16 +182,34 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
             {
                 chargerId: chargerId
             }
-        )
+        ).then(() => {
+            get().sendStomp();
+        })
     },
 
     updateIssue: async (projectId: number, moduleId: number, issueId: number, updateIssueRequest: UpdateIssueRequest) => {
         await axios.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`,
             updateIssueRequest
-        )
+        ).then(() => {
+            get().sendStomp();
+        })
     },
 
     deleteIssue: async (projectId: number, moduleId: number, issueId: number) => {
         await axios.delete(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`)
+            .then(() => {
+                get().sendStomp();
+            })
     },
+
+    sendStomp: () => {
+        if (get().client && get().client?.connected) {
+            // STOMP 메시지 전송
+            get().client?.send('/pub/kanbanboards/' + get().kanbanBoardId,
+                {},
+            );
+        } else {
+            console.log('Not connected to WebSocket');
+        }
+    }
 }));

@@ -1,12 +1,12 @@
 import Box from "@mui/material/Box";
 import {
-    Backdrop, Button,
-    Modal,
+    Backdrop, Button, IconButton,
+    Modal, Snackbar,
     TextField,
     Typography
 } from "@mui/material";
 
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, Fragment, useState} from "react";
 import MDEditor from "@uiw/react-md-editor";
 import IssueCreateStatusFilter from "./IssueCreateStatusFilter.tsx";
 import IssueCreateImportanceFilter from "./IssueCreateImportanceFilter.tsx";
@@ -14,6 +14,7 @@ import IssueCreateChargerFilter from "./IssueCreateChargerFilter.tsx";
 import IssueCreateLabelFilter from "./IssueCreateLabelFilter.tsx";
 import {CreateIssueProp} from "../../../types/Issue/CreateIssue.ts";
 import {useKanbanBoardStore} from "../../../stores/KanbanBoardStorage.tsx";
+import CloseIcon from "@mui/icons-material/Close";
 
 type IssueDetailModalProp = {
     open: boolean;
@@ -28,7 +29,7 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
     const [charger, setCharger] = useState<number | null>(null);
     const [label, setLabel] = useState<number | null>(null);
     const {createIssue, kanbanBoardId} = useKanbanBoardStore();
-    const projectId = 1;
+    const projectId = 28;
     const onCloseModal = () => {
         setMd("");
         onClose();
@@ -38,7 +39,7 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
     };
 
     const onClickCreateIssue = () => {
-        if (status && importance) {
+        if (status && importance && title) {
             if (md === undefined) {
                 setMd("");
             }
@@ -51,13 +52,50 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
                 labelId: label
             }
             if (kanbanBoardId) {
+                console.log(writeIssueRequest);
                 createIssue(projectId, kanbanBoardId, writeIssueRequest);
+                onCloseModal();
             }
-        } else {
-            // FixMe 에러 처리
+        } else if (!title) {
+            setMessage("제목은 공백일 수 없습니다.")
+            handleClick();
+        } else if (!status) {
+            setMessage("진행 상태는 공백일 수 없습니다.")
+            handleClick();
+        } else if (!importance) {
+            setMessage("중요도는 공백일 수 없습니다.")
+            handleClick();
         }
 
     }
+
+    // 유효성 검사
+    const [snackbarOpen, setsnackbarOpen] = useState(false);
+    const [message, setMessage] = useState("");
+    const handleClick = () => {
+        setsnackbarOpen(true);
+    };
+
+    const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setsnackbarOpen(false);
+    };
+
+    const action = (
+        <Fragment>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+            >
+                <CloseIcon fontSize="small"/>
+            </IconButton>
+        </Fragment>
+    );
 
     return (
         <Box>
@@ -114,6 +152,13 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
                     </Box>
                 </Box>
             </Modal>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                message={message}
+                action={action}
+            />
         </Box>
     );
 }

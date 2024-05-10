@@ -16,13 +16,13 @@ type ChargerFilterPros = {
 }
 
 const ChargerFilter = ({id}: ChargerFilterPros) => {
-    const {kanbanBoardId, projectMembers, updateIssueMember, issueId} = useKanbanBoardStore();
+    const {currentProjectId, kanbanBoardId, projectMembers, updateIssueMember, issueId} = useKanbanBoardStore();
     const [selectedMember, setSelectedMember] = useState("");
     const handleChange = (event: SelectChangeEvent<string>) => {
-        if (kanbanBoardId && issueId) {
+        if (currentProjectId && kanbanBoardId && issueId) {
             setSelectedMember(event.target.value);
 
-            updateIssueMember(28, kanbanBoardId, issueId, parseInt(event.target.value))
+            updateIssueMember(currentProjectId, kanbanBoardId, issueId, parseInt(event.target.value))
         }
     };
 

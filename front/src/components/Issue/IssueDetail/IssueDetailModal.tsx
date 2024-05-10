@@ -25,6 +25,7 @@ type IssueDetailModalProp = {
 
 const IssueDetailModal = ({open, onClose}: IssueDetailModalProp) => {
     const {
+        currentProjectId,
         getIssueDetail,
         deleteIssue,
         updateIssueImportance,
@@ -80,8 +81,8 @@ const IssueDetailModal = ({open, onClose}: IssueDetailModalProp) => {
 
     // 이슈 중요도 수정
     const onClickRating = (newValue: number | null) => {
-        if (kanbanBoardId && issueId && newValue) {
-            updateIssueImportance(28, kanbanBoardId, issueId, newValue);
+        if (currentProjectId && kanbanBoardId && issueId && newValue) {
+            updateIssueImportance(currentProjectId, kanbanBoardId, issueId, newValue);
             setIssueDetail({
                 ...issueDetail,
                 importance: newValue
@@ -93,15 +94,15 @@ const IssueDetailModal = ({open, onClose}: IssueDetailModalProp) => {
     //삭제하기
     const handleClickDelete = () => {
         handleCloseMenu();
-        if (kanbanBoardId && issueId) {
-            deleteIssue(28, kanbanBoardId, issueId);
+        if (currentProjectId && kanbanBoardId && issueId) {
+            deleteIssue(currentProjectId, kanbanBoardId, issueId);
             setIssuedId(null);
             onClose();
         }
     }
     const getDetail = async () => {
-        if (kanbanBoardId && issueId && issueId > 0) {
-            const response = await getIssueDetail(28, kanbanBoardId, issueId);
+        if (currentProjectId && kanbanBoardId && issueId && issueId > 0) {
+            const response = await getIssueDetail(currentProjectId, kanbanBoardId, issueId);
 
             setIssueDetail(response);
         }

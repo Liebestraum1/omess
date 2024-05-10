@@ -4,14 +4,14 @@ import {useState} from "react";
 import {useKanbanBoardStore} from "../../stores/KanbanBoardStorage.tsx";
 
 const ImpotanceFilter = () => {
-    const {setSelectedImpotance, kanbanBoardId} = useKanbanBoardStore();
+    const {setSelectedImpotance, kanbanBoardId, currentProjectId} = useKanbanBoardStore();
     const [selectedImpotance, setSelectedImpotanceLocal] = useState('');
     const handleChange = (event: SelectChangeEvent<string>) => {
         setSelectedImpotanceLocal(event.target.value);
-        if (event.target.value == "" && kanbanBoardId) {
-            setSelectedImpotance(null, 1, kanbanBoardId);
-        } else if(kanbanBoardId){
-            setSelectedImpotance(parseInt(event.target.value), 1, kanbanBoardId);
+        if (event.target.value == "" && kanbanBoardId && currentProjectId) {
+            setSelectedImpotance(null, currentProjectId, kanbanBoardId);
+        } else if(kanbanBoardId && currentProjectId){
+            setSelectedImpotance(parseInt(event.target.value), currentProjectId, kanbanBoardId);
         }
     };
     return (

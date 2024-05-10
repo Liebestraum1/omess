@@ -16,13 +16,13 @@ type IssueStatusFilterProp = {
 
 const IssueStatusFilter = ({status}: IssueStatusFilterProp) => {
 
-    const {kanbanBoardId, updateIssueStatus, issueId} = useKanbanBoardStore();
+    const {currentProjectId, kanbanBoardId, updateIssueStatus, issueId} = useKanbanBoardStore();
     const [selectedStatus, setSelectedStatus] = useState('');
     const handleChange = (event: SelectChangeEvent<string>) => {
-        if (kanbanBoardId && issueId) {
+        if (currentProjectId && kanbanBoardId && issueId) {
             setSelectedStatus(event.target.value);
 
-            updateIssueStatus(28, kanbanBoardId, issueId, parseInt(event.target.value))
+            updateIssueStatus(currentProjectId, kanbanBoardId, issueId, parseInt(event.target.value))
         }
     };
 
