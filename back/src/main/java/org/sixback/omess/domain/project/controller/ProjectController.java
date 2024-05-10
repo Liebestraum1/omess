@@ -6,10 +6,13 @@ import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.InviteProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.UpdateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.response.CreateProjectResponse;
+import org.sixback.omess.domain.project.model.response.GetMembersInProjectResponse;
 import org.sixback.omess.domain.project.service.ProjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -36,6 +39,13 @@ public class ProjectController {
     ) {
         GetProjectMembersResponse getProjectMembersResponse = projectService.getProjects(memberId);
         return ResponseEntity.ok(getProjectMembersResponse);
+    }
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<List<GetMembersInProjectResponse>> getMembersInProject(
+            @PathVariable("projectId") Long projectId
+    ) {
+        return ResponseEntity.ok(projectService.getMembers(projectId));
     }
 
     @PatchMapping("/{projectId}")

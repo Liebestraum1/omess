@@ -5,12 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.service.MemberService;
 import org.sixback.omess.domain.project.dto.response.GetProjectMembersResponse;
+import org.sixback.omess.domain.project.mapper.ProjectMapper;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.InviteProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.UpdateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.response.CreateProjectResponse;
 import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.model.entity.ProjectMember;
+import org.sixback.omess.domain.project.model.response.GetMembersInProjectResponse;
 import org.sixback.omess.domain.project.repository.ProjectMemberRepository;
 import org.sixback.omess.domain.project.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.sixback.omess.domain.member.mapper.MemberMapper.toMember;
@@ -75,4 +78,13 @@ public class ProjectService {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(""));
     }
+
+    public List<GetMembersInProjectResponse> getMembers(Long projectId) {
+        return projectMemberRepository.findAllByProject_Id(projectId)
+                .stream()
+                .map(ProjectMapper::toGetMembersInProjectResponse)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
 }
