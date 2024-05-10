@@ -212,14 +212,48 @@ const ApiTestModal = (
 
         setTestFired(true);
         setTestAlert(true)
-        
-        //FIXME: axios 입력값 기반으로 동적 수정
-        axios({
+
+        const axiosConfig : {
+            method: string,
+            url: string,
+            withCredentials: boolean,
+            headers?: { [header: string] : string}
+            data?: FormData | object
+        } = {
             method: api.method,
             url: inputHost + inputApiEndpoint,
-            data: JSON.parse(inputRequestBodyJson),
-            withCredentials: true
-        }).then(response => {
+            withCredentials: true,
+        }
+
+        if (inputApiRequestHeaders.length !== 0) {
+            axiosConfig.headers = {}; // headers 객체 초기화
+
+            // headers 배열 순회하여 axiosConfig.headers에 추가
+            inputApiRequestHeaders.forEach(header => {
+                axiosConfig.headers![header.headerKey] = header.headerValue;
+            });
+        }
+
+        if(selectedRadio === 'application/json'){
+            axiosConfig.data = JSON.parse(inputRequestBodyJson)
+        }else if(selectedRadio === 'multipart/form-data'){
+            const formData = new FormData()
+            inputRequestBodyFormData.forEach(formDataRow => {
+                console.log(formDataRow.key)
+                console.log(formDataRow.value)
+                if(formDataRow.value instanceof FileList){
+                    for (let i = 0; i < formDataRow.value.length; i++) {
+                        formData.append(formDataRow.key, formDataRow.value[i])
+                    }
+                }else if(typeof formDataRow.value === 'string'){
+                    formData.append(formDataRow.key, formDataRow.value)
+                }
+            })
+
+            axiosConfig.data = formData
+        }
+
+        axios(axiosConfig).then(response => {
             setResponseStatusCode(response.status)
             setResponseBody(response.data)
             compareToResponse(response.status, response.data)
