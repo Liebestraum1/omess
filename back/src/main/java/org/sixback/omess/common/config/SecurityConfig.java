@@ -40,7 +40,7 @@ public class SecurityConfig {
                     authorizationManagerRequestMatcherRegistry
                             .requestMatchers("/api/v1/members/check-email**", "/api/v1/members/check-nickname**",
                                     "/api/v1/members/signup", "/api/v1/members/signin",
-                                    "/api/v1/http-metadata/methods", "/api/v1/http-metadata/headers", "/api/v1/kanbanboards/**", "/api/v1/modules/**"
+                                    "/api/v1/http-metadata/methods", "/api/v1/http-metadata/headers"
                             ).permitAll();
                     authorizationManagerRequestMatcherRegistry.anyRequest().authenticated();
                 })

@@ -55,18 +55,17 @@ public class KanbanBoardController {
     }
 
     @PostMapping("/{module_id}/issues")
-    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> createIssue(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
                                             @RequestBody @Validated WriteIssueRequest writeIssueRequest) {
+        System.out.println(writeIssueRequest);
         kanbanBoardService.createIssue(memberId, projectId, moduleId, writeIssueRequest);
 
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{module_id}/issues/{issue_id}")
-    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> deleteIssue(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
@@ -78,7 +77,6 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}")
-    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssue(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
@@ -91,7 +89,6 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}/member")
-    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssueMember(@SessionAttribute(name = "memberId") Long memberId,
                                                   @PathVariable("project_id") Long projectId,
                                                   @PathVariable("module_id") Long moduleId,
@@ -104,7 +101,6 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}/importance")
-    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssueImportance(@SessionAttribute(name = "memberId") Long memberId,
                                                       @PathVariable("project_id") Long projectId,
                                                       @PathVariable("module_id") Long moduleId,
@@ -117,7 +113,6 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}/status")
-    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssueStatus(@SessionAttribute(name = "memberId") Long memberId,
                                                   @PathVariable("project_id") Long projectId,
                                                   @PathVariable("module_id") Long moduleId,
@@ -130,7 +125,6 @@ public class KanbanBoardController {
     }
 
     @PatchMapping("/{module_id}/issues/{issue_id}/label")
-    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> updateIssueLabel(@SessionAttribute(name = "memberId") Long memberId,
                                                  @PathVariable("project_id") Long projectId,
                                                  @PathVariable("module_id") Long moduleId,
@@ -178,7 +172,6 @@ public class KanbanBoardController {
     }
 
     @DeleteMapping("/{module_id}/label/{label_id}")
-    @SendTo("/sub/kanbanRoom/{module_id}")
     public ResponseEntity<Void> deleteLabel(@SessionAttribute(name = "memberId") Long memberId,
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
