@@ -14,6 +14,7 @@ import org.sixback.omess.domain.member.model.dto.request.SignInMemberRequest;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.repository.MemberRepository;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
+import org.sixback.omess.domain.project.model.dto.request.InviteProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.UpdateProjectRequest;
 import org.sixback.omess.domain.project.model.entity.Project;
 import org.sixback.omess.domain.project.model.entity.ProjectMember;
@@ -28,6 +29,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.sixback.omess.common.TestUtils.*;
 import static org.sixback.omess.common.exception.ErrorType.*;
@@ -250,7 +254,7 @@ class ProjectControllerTest {
 
         @Test
         @DisplayName("프로젝트 업데이트 - 로그인 안된 사용자 실패")
-        void updateProject_fail_notSignIn() throws Exception {
+        void updateProject_unAuthorized_fail() throws Exception {
             // given
             Member member = makeMember();
             Project project = makeProject("name");
@@ -267,6 +271,36 @@ class ProjectControllerTest {
                     .andExpect(jsonPath("$.title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
                     .andExpect(jsonPath("$.status").value(401))
                     .andExpect(jsonPath("$.detail").value(NEED_AUTHENTICATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
+            ;
+        }
+
+        @Test
+        @DisplayName("프로젝트 업데이트 - 권한 없음 실패")
+        void updateProject_permission_fail() throws Exception {
+            // given
+            Member member = makeMember();
+            Member member2 = makeMember("nickn", "email1@naver.com", "password1234");
+            Project project = makeProject("name");
+
+            memberRepository.save(member);
+            memberRepository.save(member2);
+            projectRepository.save(project);
+
+            Cookie cookie = getCookie("email1@naver.com", "password1234");
+
+            String updateProjectRequest = objectMapper.writeValueAsString(new UpdateProjectRequest("pName"));
+
+            // when
+            mockMvc.perform(patch("/api/v1/projects/" + project.getId())
+                            .contentType(APPLICATION_JSON)
+                            .content(updateProjectRequest)
+                            .cookie(cookie))
+                    // then
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.title").value(UNAUTHORIZED_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(403))
                     .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
                     .andDo(print())
             ;
@@ -333,12 +367,187 @@ class ProjectControllerTest {
         }
     }
 
-    private Cookie getCookie(String email, String password) throws Exception {
-            MockHttpServletResponse response = mockMvc.perform(post("/api/v1/members/signin")
+    // 프로젝트 권한
+    // 로그인 권한
+    // 밸리테이션 체크
+    @Nested
+    class InviteProject {
+        @Test
+        @DisplayName("프로젝트 초대 - 성공")
+        void inviteProject_success() throws Exception {
+            // given
+            Project project = makeProject();
+            Member member = makeMember("nickname", email, password);
+            ProjectMember projectMember = makeProjectMember(project, member);
+            projectRepository.save(project);
+            memberRepository.save(member);
+            projectMemberRepository.save(projectMember);
+
+            Cookie cookie = getCookie(email, password);
+
+            List<Member> members = makeMembers();
+            memberRepository.saveAll(members);
+
+            List<Long> invitedMember = members.stream()
+                    .map(Member::getId)
+                    .toList();
+            InviteProjectRequest inviteProjectRequest = new InviteProjectRequest(invitedMember);
+            String input = objectMapper.writeValueAsString(inviteProjectRequest);
+
+            // when
+            mockMvc.perform(post("/api/v1/projects/{projectId}", project.getId())
                             .contentType(APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(new SignInMemberRequest(email, password))))
-                    .andReturn()
-                    .getResponse();
+                            .content(input)
+                            .cookie(cookie))
+                    // then
+                    .andExpect(status().isCreated())
+                    .andDo(print())
+            ;
+
+            List<ProjectMember> projectMembers = projectMemberRepository.findAllByProject_Id(project.getId());
+            List<Long> result = projectMembers
+                    .stream()
+                    .map(pm -> pm.getMember().getId())
+                    .toList();
+            Assertions.assertThat(result).containsAll(invitedMember);
+        }
+
+        @Test
+        @DisplayName("프로젝트 초대 - 인증 실패")
+        void inviteProject_unAuthorized_fail() throws Exception {
+            // given
+            Project project = makeProject();
+            Member member = makeMember("nickname", "email@naver.com", "password123");
+            ProjectMember projectMember = makeProjectMember(project, member);
+            projectRepository.save(project);
+            memberRepository.save(member);
+            projectMemberRepository.save(projectMember);
+
+            List<Member> members = makeMembers();
+            memberRepository.saveAll(members);
+
+            List<Long> invitedMember = members.stream()
+                    .map(Member::getId)
+                    .toList();
+            InviteProjectRequest inviteProjectRequest = new InviteProjectRequest(invitedMember);
+            String input = objectMapper.writeValueAsString(inviteProjectRequest);
+
+            // when
+            mockMvc.perform(post("/api/v1/projects/{projectId}", project.getId())
+                            .contentType(APPLICATION_JSON)
+                            .content(input))
+                    // then
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(401))
+                    .andExpect(jsonPath("$.detail").value(NEED_AUTHENTICATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
+            ;
+        }
+
+        @Test
+        @DisplayName("프로젝트 초대 - 권한 실패")
+        void inviteProject_permission_fail() throws Exception {
+            // given
+            Project project = makeProject();
+            Member member = makeMember("nickname", "email@naver.com", "password123");
+            projectRepository.save(project);
+            memberRepository.save(member);
+            Cookie cookie = getCookie(email, password);
+
+            List<Member> members = makeMembers();
+            memberRepository.saveAll(members);
+
+            List<Long> invitedMember = members.stream()
+                    .map(Member::getId)
+                    .toList();
+            InviteProjectRequest inviteProjectRequest = new InviteProjectRequest(invitedMember);
+            String input = objectMapper.writeValueAsString(inviteProjectRequest);
+
+            // when
+            mockMvc.perform(post("/api/v1/projects/{projectId}", project.getId())
+                            .contentType(APPLICATION_JSON)
+                            .content(input)
+                            .cookie(cookie))
+                    // then
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.title").value(UNAUTHORIZED_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
+            ;
+        }
+
+        @Test
+        @DisplayName("프로젝트 초대 - 빈 바디 실패")
+        void inviteProject_noBody_fail() throws Exception {
+            // given
+            Project project = makeProject();
+            Member member = makeMember("nickname", email, password);
+            ProjectMember projectMember = makeProjectMember(project, member);
+            projectRepository.save(project);
+            memberRepository.save(member);
+            projectMemberRepository.save(projectMember);
+
+            Cookie cookie = getCookie(email, password);
+
+            List<Member> members = makeMembers();
+            memberRepository.saveAll(members);
+
+            // when
+            mockMvc.perform(post("/api/v1/projects/{projectId}", project.getId())
+                            .contentType(APPLICATION_JSON)
+                            .cookie(cookie))
+                    // then
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.title").value(INCOMPLETE_REQUEST_BODY_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
+            ;
+        }
+
+        @Test
+        @DisplayName("프로젝트 초대 - 초대하고 하는 사용자의 리스트가 빈 요청 실패")
+        void inviteProject_EmptyInvitedMembers_fail() throws Exception {
+            // given
+            Project project = makeProject();
+            Member member = makeMember("nickname", email, password);
+            ProjectMember projectMember = makeProjectMember(project, member);
+            projectRepository.save(project);
+            memberRepository.save(member);
+            projectMemberRepository.save(projectMember);
+
+            List<Member> members = makeMembers();
+            memberRepository.saveAll(members);
+
+            Cookie cookie = getCookie(email, password);
+            InviteProjectRequest inviteProjectRequest = new InviteProjectRequest(new ArrayList<>());
+            String input = objectMapper.writeValueAsString(inviteProjectRequest);
+
+            // when
+            mockMvc.perform(post("/api/v1/projects/{projectId}", project.getId())
+                            .contentType(APPLICATION_JSON)
+                            .content(input)
+                            .cookie(cookie))
+                    // then
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.title").value(VALIDATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
+            ;
+        }
+    }
+
+
+    private Cookie getCookie(String email, String password) throws Exception {
+        MockHttpServletResponse response = mockMvc.perform(post("/api/v1/members/signin")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new SignInMemberRequest(email, password))))
+                .andReturn()
+                .getResponse();
         return response.getCookie("SESSION");
     }
 }
