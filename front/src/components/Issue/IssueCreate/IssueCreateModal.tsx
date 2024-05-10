@@ -28,8 +28,7 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
     const [importance, setImportance] = useState<number | null>(null);
     const [charger, setCharger] = useState<number | null>(null);
     const [label, setLabel] = useState<number | null>(null);
-    const {createIssue, kanbanBoardId} = useKanbanBoardStore();
-    const projectId = 28;
+    const {createIssue, currentProjectId, kanbanBoardId} = useKanbanBoardStore();
     const onCloseModal = () => {
         setMd("");
         onClose();
@@ -51,9 +50,9 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
                 memberId: charger,
                 labelId: label
             }
-            if (kanbanBoardId) {
+            if (kanbanBoardId && currentProjectId) {
                 console.log(writeIssueRequest);
-                createIssue(projectId, kanbanBoardId, writeIssueRequest);
+                createIssue(currentProjectId, kanbanBoardId, writeIssueRequest);
                 onCloseModal();
             }
         } else if (!title) {
