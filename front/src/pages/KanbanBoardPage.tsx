@@ -47,7 +47,7 @@ const KanbanBoardPage = ({projectId, moduleId}: KanbanBoardProps) => {
         getLabels,
     } = useKanbanBoardStore();
 
-    const serverUrl = import.meta.env.VITE_SERVER_URL;
+    const serverUrl = import.meta.env.VITE_WEBSOCKET_URL;
 
     useEffect(() => {
         setKanbanBoardId(moduleId);
