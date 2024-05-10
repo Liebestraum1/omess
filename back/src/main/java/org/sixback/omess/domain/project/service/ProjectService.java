@@ -55,6 +55,9 @@ public class ProjectService {
 
     @Transactional
     public void inviteProject(Long projectId, InviteProjectRequest inviteProjectRequest) {
+        if (inviteProjectRequest.getInvitedMembers().isEmpty()) {
+            throw new RuntimeException();
+        }
         Project project = getProjectEntity(projectId);
         List<ProjectMember> beSaved = new ArrayList<>();
         inviteProjectRequest.getInvitedMembers().forEach(invitedMemberId -> {
