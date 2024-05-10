@@ -541,6 +541,106 @@ class ProjectControllerTest {
         }
     }
 
+    @Nested
+    @DisplayName("프로젝트에 속한 멤버 조회")
+    class getMemberInProjectTest {
+        @Test
+        @DisplayName("프로젝트에 속한 멤버 조회 - 성공")
+        void getMemberInProjectTest_success() throws Exception {
+            // given
+            Member loginMember = makeMember("nickname", email, password);
+            List<Member> members = makeMembers();
+            members.add(loginMember);
+            memberRepository.saveAll(members);
+
+            Project project = makeProject();
+            projectRepository.save(project);
+            for (Member member : members) {
+                projectMemberRepository.save(makeProjectMember(project, member));
+            }
+            Cookie cookie = getCookie(email, password);
+
+            // when
+            mockMvc.perform(get("/api/v1/projects/{projectId}", project.getId())
+                            .contentType(APPLICATION_JSON)
+                            .cookie(cookie))
+                    // then
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(4))
+                    .andExpect(jsonPath("$.[0].id").isNumber())
+                    .andExpect(jsonPath("$.[0].nickname").isString())
+                    .andExpect(jsonPath("$.[0].profile").isString())
+                    .andExpect(jsonPath("$.[1].id").isNumber())
+                    .andExpect(jsonPath("$.[1].nickname").isString())
+                    .andExpect(jsonPath("$.[1].profile").isString())
+                    .andExpect(jsonPath("$.[2].id").isNumber())
+                    .andExpect(jsonPath("$.[2].nickname").isString())
+                    .andExpect(jsonPath("$.[2].profile").isString())
+                    .andExpect(jsonPath("$.[3].id").isNumber())
+                    .andExpect(jsonPath("$.[3].nickname").isString())
+                    .andExpect(jsonPath("$.[3].profile").isString())
+                    .andDo(print())
+            ;
+        }
+
+        @Test
+        @DisplayName("프로젝트에 속한 멤버 조회 - 인증 실패")
+        void getMemberInProjectTest_noAuthorized_fail() throws Exception {
+            // given
+            List<Member> members = makeMembers();
+            memberRepository.saveAll(members);
+
+            Project project = makeProject();
+            projectRepository.save(project);
+            for (Member member : members) {
+                projectMemberRepository.save(makeProjectMember(project, member));
+            }
+            Cookie cookie = getCookie(email, password);
+
+            // when
+            mockMvc.perform(get("/api/v1/projects/{projectId}", project.getId())
+                            .contentType(APPLICATION_JSON))
+                    // then
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(401))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
+            ;
+        }
+
+        @Test
+        @DisplayName("프로젝트에 속한 멤버 조회 - 권한 없음 실패")
+        void getMemberInProjectTest_permission_fail() throws Exception {
+            // given
+            Member loginMember = makeMember("nickname", email, password);
+            memberRepository.save(loginMember);
+
+            List<Member> members = makeMembers();
+            memberRepository.saveAll(members);
+
+            Project project = makeProject();
+            projectRepository.save(project);
+            for (Member member : members) {
+                projectMemberRepository.save(makeProjectMember(project, member));
+            }
+            Cookie cookie = getCookie(email, password);
+
+            // when
+            mockMvc.perform(get("/api/v1/projects/{projectId}", project.getId())
+                            .contentType(APPLICATION_JSON)
+                            .cookie(cookie))
+                    // then
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.title").value(UNAUTHORIZED_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId()))
+                    .andDo(print())
+            ;
+        }
+
+    }
+
 
     private Cookie getCookie(String email, String password) throws Exception {
         MockHttpServletResponse response = mockMvc.perform(post("/api/v1/members/signin")
