@@ -51,7 +51,7 @@ const ModuleContent = () => {
 
     return (
         <ModuleContentBox>
-            <PathBar />
+            {/* <PathBar /> */}
             <DisplayModuleContent></DisplayModuleContent>
         </ModuleContentBox>
     );
