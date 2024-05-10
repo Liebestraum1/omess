@@ -3,6 +3,7 @@ package org.sixback.omess.domain.project.controller;
 import lombok.RequiredArgsConstructor;
 import org.sixback.omess.domain.project.dto.response.GetProjectMembersResponse;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
+import org.sixback.omess.domain.project.model.dto.request.InviteProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.UpdateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.response.CreateProjectResponse;
 import org.sixback.omess.domain.project.service.ProjectService;
@@ -47,5 +48,16 @@ public class ProjectController {
     ) {
         projectService.updateProject(projectId, updateProjectRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{projectId}")
+    public ResponseEntity<Void> inviteProject(
+            @Validated
+            @RequestBody
+            InviteProjectRequest inviteProjectRequest,
+            @PathVariable(name = "projectId") Long projectId
+    ) {
+        projectService.inviteProject(projectId, inviteProjectRequest);
+        return new ResponseEntity<>(CREATED);
     }
 }
