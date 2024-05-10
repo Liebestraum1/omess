@@ -118,7 +118,6 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                         changeOpen={changeOpen}
                     />
 
-
                 </Box>
             </Box>
         </>
