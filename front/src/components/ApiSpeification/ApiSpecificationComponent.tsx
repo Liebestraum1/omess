@@ -15,6 +15,7 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
     const [ApiSpecification, setApiSpecification] = useState<ApiSpecification | null>(null);
     const [isNewDomainMode, setIsNewDomainMode] = useState<boolean>(false)
     const [isNewApiMode, setIsNewApiMode] = useState<boolean>(false)
+    const [selectedDomainId, setSelectedDomainId] = useState<number>(0)
     const fetchApiSpecification = async () => {
         const data = await loadApiSpecification(projectId, apiSpecificationId);
         setApiSpecification(data);
@@ -30,10 +31,10 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
 
     const handleCreateDomainModalOpen = () => {
         setIsNewDomainMode(true)
-
     }
 
-    const handleCrateApiModalOpen = () => {
+    const handleCrateApiModalOpen = (domainId: number) => {
+        setSelectedDomainId(domainId)
         setIsNewApiMode(true)
     }
 
@@ -88,6 +89,7 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                                     domainId={domain.domainId}
                                     onChildChange={handleChildChange}
                                     apis={domain.apis}/>
+
                             </ListItem>
                             <Chip
                                 icon={<AddCircleIcon
@@ -95,12 +97,12 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                                 />}
                                 label="API 추가" variant='outlined'
                                 sx={{ml: 2}}
-                                onClick={handleCrateApiModalOpen}
+                                onClick={() => handleCrateApiModalOpen(domain.domainId)}
                             />
                             <ApiCreateModal
                                 projectId={projectId}
                                 apiSpecificationId={apiSpecificationId}
-                                domainId={domain.domainId}
+                                domainId={selectedDomainId}
                                 onChildChange={handleChildChange}
                                 open={isNewApiMode}
                                 changeOpen={changeCreateApiModalOpen}
