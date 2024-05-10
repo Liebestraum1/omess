@@ -130,6 +130,7 @@ const ApiCreateModal = (
 
     const handleClose = () => {
         setInputApiName('')
+        setInputApiEndpoint('')
         setInputApiDescription('')
         setInputApiStatusCode(0)
         setInputApiRequestSchema('')
