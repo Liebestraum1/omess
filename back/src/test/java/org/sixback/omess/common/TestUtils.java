@@ -28,6 +28,18 @@ public class TestUtils {
         return new Member(nickname, email, encodePassword);
     }
 
+    public static List<Member> makeMembers(int size) {
+        List<Member> members = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            members.add(makeMember());
+        }
+        return members;
+    }
+
+    public static List<Member> makeMembers() {
+        return makeMembers(3);
+    }
+
     public static Project makeProject() {
         return new Project(generateRandomString(10));
     }
