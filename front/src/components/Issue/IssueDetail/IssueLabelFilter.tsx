@@ -19,15 +19,15 @@ type IssueLabelFilterProp = {
 
 const IssueLabelFilter = ({labelId}: IssueLabelFilterProp) => {
 
-    const {kanbanBoardId, labels, updateIssueLabel, issueId} = useKanbanBoardStore();
+    const {currentProjectId, kanbanBoardId, labels, updateIssueLabel, issueId} = useKanbanBoardStore();
     const [selectedLabel, setSelectedLabel] = useState("");
     const [colorArr, setColorArr] = useState<string[]>([]);
 
     const handleChange = (event: SelectChangeEvent<string>) => {
-        if (kanbanBoardId && issueId) {
+        if (kanbanBoardId && issueId && currentProjectId) {
             setSelectedLabel(event.target.value);
 
-            updateIssueLabel(28, kanbanBoardId, issueId, parseInt(event.target.value))
+            updateIssueLabel(currentProjectId, kanbanBoardId, issueId, parseInt(event.target.value))
         }
     };
 

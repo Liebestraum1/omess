@@ -22,7 +22,7 @@ type IssueDetailModalProp = {
 const IssueUpdateModal = ({open, onClose, originTitle, originContent}: IssueDetailModalProp) => {
     const [title, setTitle] = useState<string>("");
     const [md, setMd] = useState<string | undefined>("");
-    const {updateIssue, kanbanBoardId, issueId, setIssuedId} = useKanbanBoardStore();
+    const {currentProjectId, updateIssue, kanbanBoardId, issueId, setIssuedId} = useKanbanBoardStore();
     const onCloseModal = () => {
         setIssuedId(null);
         onClose();
@@ -46,11 +46,11 @@ const IssueUpdateModal = ({open, onClose, originTitle, originContent}: IssueDeta
             content: md ? md : "",
         }
 
-        if (kanbanBoardId && issueId) {
+        if (currentProjectId && kanbanBoardId && issueId) {
             if (!title) {
                 handleClick();
             } else {
-                updateIssue(28, kanbanBoardId, issueId, updateIssueRequest);
+                updateIssue(currentProjectId, kanbanBoardId, issueId, updateIssueRequest);
 
                 onCloseModal();
             }

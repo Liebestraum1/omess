@@ -1,5 +1,4 @@
 import {
-    Button,
     Container,
 } from "@mui/material";
 
@@ -7,8 +6,8 @@ import KanbanBoadrFilter from "../components/KanbanBoard/KanbanBoadrFilter.tsx";
 import KanbanBoard from "../components/KanbanBoard/KanbanBoard.tsx";
 import {useKanbanBoardStore} from "../stores/KanbanBoardStorage.tsx";
 import {MemberProp} from "../types/Member/Member.ts";
-import {useEffect, useRef} from "react";
-import {CompatClient, Stomp} from "@stomp/stompjs";
+import {useEffect} from "react";
+import {Stomp} from "@stomp/stompjs";
 
 
 type KanbanBoardProps = {
@@ -38,66 +37,39 @@ const projectMembers: MemberProp[] = [
 
 const KanbanBoardPage = ({projectId, moduleId}: KanbanBoardProps) => {
     const {
-        setprojectMembers,
-        selectedLabel,
-        selectedMember,
-        selectedImpotance,
-        getKanbanBoard,
-        getIssues,
-        getLabels,
-        setKanbanBoardId,
+        setClient,
+        currentProjectId,
+        setCurrentProjectId,
         kanbanBoardId,
+        setKanbanBoardId,
+        setprojectMembers,
+        getKanbanBoard,
+        getLabels,
     } = useKanbanBoardStore();
     const serverUrl = "localhost:8080"
 
     useEffect(() => {
         setKanbanBoardId(moduleId);
-        if (kanbanBoardId) {
-            getKanbanBoard(28, kanbanBoardId);
-            getLabels(28, kanbanBoardId);
+        setCurrentProjectId(projectId);
+
+        if (kanbanBoardId && currentProjectId) {
+            getKanbanBoard(currentProjectId, kanbanBoardId);
+            getLabels(currentProjectId, kanbanBoardId);
             setprojectMembers(projectMembers);
         }
-    }, [moduleId]);
+    }, [moduleId, kanbanBoardId, projectId]);
 
 
     // stomp 칸반보드 구독
-    const stompClient = useRef<CompatClient>();
-
     useEffect(() => {
         const sock = new WebSocket(`ws://${serverUrl}/ws`);
-        stompClient.current = Stomp.over(() => sock);
-        stompClient.current.connect(
-            {},
-            () => {
-                stompClient.current && stompClient.current.subscribe('/sub/kanbanRoom/' + kanbanBoardId, () => {
-                    console.log("스톰프 왔다 이슈 목록 바꿔라")
-                    getIssues(28, moduleId, selectedMember, selectedLabel, selectedImpotance);
-                });
-            })
-    }, [kanbanBoardId, stompClient, getIssues, selectedMember, selectedLabel, selectedImpotance]);
+        setClient(Stomp.over(() => sock));
 
-    const sendMessage = () => {
-        if (stompClient.current && stompClient.current.connected) {
-            const issueRequest = {
-                title: "New Issue",
-                content: "Description of new issue",
-                importance: 1,
-                status: 1,
-            };
+    }, [kanbanBoardId]);
 
-            // STOMP 메시지 전송
-            stompClient.current.send('/pub/kanbanboards/' + kanbanBoardId,
-                {},
-                JSON.stringify(issueRequest)
-            );
-        } else {
-            console.log('Not connected to WebSocket');
-        }
-    };
 
     return (
         <Container style={{padding: 20}}>
-            <Button onClick={sendMessage}>버튼</Button>
             <KanbanBoadrFilter/>
             <KanbanBoard/>
         </Container>
