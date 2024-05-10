@@ -13,10 +13,7 @@ public class KanbanBoardStompController {
 
     @MessageMapping("/kanbanboards/{module_id}")
     @SendTo("/sub/kanbanRoom/{module_id}")
-    public String updateIssue(
-                            @DestinationVariable("module_id") Long moduleId,
-                             WriteIssueRequest writeIssueRequest) {
-        System.out.println(writeIssueRequest.getTitle());
-       return writeIssueRequest.getTitle();
+    public String updateIssue(@DestinationVariable("module_id") Long moduleId) {
+        return moduleId.toString();
     }
 }
