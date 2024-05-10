@@ -46,7 +46,8 @@ const KanbanBoardPage = ({projectId, moduleId}: KanbanBoardProps) => {
         getKanbanBoard,
         getLabels,
     } = useKanbanBoardStore();
-    const serverUrl = "localhost:8080"
+
+    const serverUrl = import.meta.env.VITE_SERVER_URL;
 
     useEffect(() => {
         setKanbanBoardId(moduleId);
