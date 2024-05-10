@@ -4,7 +4,7 @@ import {
     Alert,
     Button,
     Modal,
-    Snackbar
+    Snackbar, Typography
 } from "@mui/material";
 import {ChangeEvent, useState} from "react";
 import {createDomain} from "../request/ApiSpecificationRequest.ts";
@@ -23,8 +23,10 @@ const modalStyle = {
     bgcolor: 'background.paper',
     borderRadius: '5px',
     boxShadow: 24,
-    p: 4,
+    pt: 1,
+    px: 2,
     display: 'flex',
+    flexDirection: 'column',
     gap: 2,
 };
 
@@ -71,6 +73,9 @@ const CreateDomainModal = (
         >
             <Box>
                 <Box sx={modalStyle}>
+                    <Typography variant='h6' component='div'>
+                        도메인 생성
+                    </Typography>
                     <TextField
                         fullWidth
                         label="도메인 명(최대 20자)"
@@ -81,21 +86,19 @@ const CreateDomainModal = (
                         }}
                     />
 
-                    <Button
-                        variant="outlined"
-                        onClick={handleClose}
-                        color='secondary'
-                        sx={{width: '25%', height: '55px'}}
-                    >
-                        취소
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        onClick={handleSubmit}
-                        sx={{width: '25%', height: '55px'}}
-                    >
-                        추가
-                    </Button>
+                    <Box sx={{display: 'flex', justifyContent: 'flex-end'}}>
+                        <Button
+                            onClick={handleClose}
+                            color='secondary'
+                        >
+                            취소
+                        </Button>
+                        <Button
+                            onClick={handleSubmit}
+                        >
+                            추가
+                        </Button>
+                    </Box>
 
                 </Box>
                 <Snackbar
