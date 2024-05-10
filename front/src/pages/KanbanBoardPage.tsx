@@ -63,7 +63,7 @@ const KanbanBoardPage = ({projectId, moduleId}: KanbanBoardProps) => {
 
     // stomp 칸반보드 구독
     useEffect(() => {
-        const sock = new WebSocket(`ws://${serverUrl}/ws`);
+        const sock = new WebSocket(`wss://${serverUrl}/ws`);
         setClient(Stomp.over(() => sock));
 
     }, [kanbanBoardId]);
