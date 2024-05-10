@@ -3,7 +3,7 @@ import {LabelProp} from "../types/Label/Label.ts";
 import {MemberProp} from "../types/Member/Member.ts";
 import {IssueProp} from "../types/Issue/Issue.ts";
 import {CreateIssueProp} from "../types/Issue/CreateIssue.ts";
-import axios from "axios";
+import client from "../services/common" ;
 import {KanbanBoardProp} from "../types/KanbanBoard/KanbanBoard.ts";
 import {IssueDetailProp} from "../types/Issue/IssueDetail.ts";
 import {UpdateIssueRequest} from "../types/Issue/UpdateIssueRequest.ts";
@@ -98,7 +98,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
 
     //api 요청
     getKanbanBoard: async (projectId: number, moduleId: number) => {
-        await axios.get(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}`)
+        await client.get(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}`)
             .then((reponse) => {
                 const kanbanBoard: KanbanBoardProp = reponse.data;
                 get().setIssues(kanbanBoard.issues);
@@ -106,7 +106,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
 
     },
     getIssues: async (projectId: number, moduleId: number, chargerId: number | null, labelId: number | null, importance: number | null) => {
-        await axios.get(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues`,
+        await client.get(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues`,
             {
                 params: {
                     chargerId: chargerId,
@@ -122,7 +122,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
         });
     },
     getLabels: async (projectId: number, moduleId: number) => {
-        await axios.get(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/label`)
+        await client.get(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/label`)
             .then((response) => {
                 const labels = response.data;
                 get().setLabels(labels.labels);
@@ -130,7 +130,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     },
 
     createIssue: async (projectId: number, moduleId: number, writeIssueRequest: CreateIssueProp) => {
-        await axios.post(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues`,
+        await client.post(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues`,
             writeIssueRequest
         ).then(() => {
             get().sendStomp();
@@ -139,7 +139,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
 
     getIssueDetail: async (projectId: number, moduleId: number, issueId: number): Promise<IssueDetailProp> => {
         try {
-            const response = await axios.get(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`);
+            const response = await client.get(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`);
             return response.data;
         } catch (error) {
             console.error("Failed to fetch issue details: ", error);
@@ -148,7 +148,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     },
 
     updateIssueLabel: async (projectId: number, moduleId: number, issueId: number, labelId: number) => {
-        await axios.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}/label`,
+        await client.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}/label`,
             {
                 labelId: labelId
             }
@@ -158,7 +158,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     },
 
     updateIssueStatus: async (projectId: number, moduleId: number, issueId: number, status: number) => {
-        await axios.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}/status`,
+        await client.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}/status`,
             {
                 status: status
             }
@@ -168,7 +168,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     },
 
     updateIssueImportance: async (projectId: number, moduleId: number, issueId: number, importance: number) => {
-        await axios.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}/importance`,
+        await client.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}/importance`,
             {
                 importance: importance
             }
@@ -178,7 +178,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     },
 
     updateIssueMember: async (projectId: number, moduleId: number, issueId: number, chargerId: number) => {
-        await axios.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}/member`,
+        await client.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}/member`,
             {
                 chargerId: chargerId
             }
@@ -188,7 +188,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     },
 
     updateIssue: async (projectId: number, moduleId: number, issueId: number, updateIssueRequest: UpdateIssueRequest) => {
-        await axios.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`,
+        await client.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`,
             updateIssueRequest
         ).then(() => {
             get().sendStomp();
@@ -196,7 +196,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     },
 
     deleteIssue: async (projectId: number, moduleId: number, issueId: number) => {
-        await axios.delete(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`)
+        await client.delete(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`)
             .then(() => {
                 get().sendStomp();
             })
