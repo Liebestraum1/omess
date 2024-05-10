@@ -5,10 +5,14 @@ import lombok.Getter;
 @Getter
 public class Content {
 
-    private String detail;
+    private String detail = "";
     private Long writer;
 
-    public Content() {
+    protected Content() {
+    }
+
+    public static Content empty() {
+        return new Content();
     }
 
     public Content(String detail, Long writer) {

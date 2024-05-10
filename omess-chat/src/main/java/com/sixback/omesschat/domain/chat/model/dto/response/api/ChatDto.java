@@ -1,5 +1,8 @@
 package com.sixback.omesschat.domain.chat.model.dto.response.api;
 
+import lombok.Getter;
+
+@Getter
 public class ChatDto {
     private String id;
     private String name;

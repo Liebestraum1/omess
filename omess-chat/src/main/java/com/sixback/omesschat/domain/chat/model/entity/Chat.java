@@ -16,7 +16,7 @@ public class Chat {
 
     @MongoId
     private String id;
-    private Content header;
+    private Content header = Content.empty();
     private Long projectId;
     private List<ChatMember> members;
 

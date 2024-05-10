@@ -3,21 +3,16 @@ package com.sixback.omesschat.domain.chat.controller;
 import com.sixback.omesschat.domain.chat.model.dto.request.api.ChatCreate;
 import com.sixback.omesschat.domain.chat.model.dto.response.api.ChatDto;
 import com.sixback.omesschat.domain.chat.service.ChatApiService;
-import java.util.List;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/chat/{projectId}")
 @RequiredArgsConstructor
@@ -35,11 +30,12 @@ public class ChatController {
 
     @PostMapping
     public Mono<ResponseEntity<ChatDto>> createChat(
+            @RequestAttribute(name = "memberId") Long memberId,
             @PathVariable Long projectId,
-            @SessionAttribute Long memberId,
-            @RequestBody ChatCreate create
+            @RequestBody @Valid ChatCreate create
             ) {
-        return chatApiService.createChat(projectId, memberId, create);
+        log.info("채팅 생성 요청 : projectId : {}, memberId: {}", projectId, 1);
+        return chatApiService.createChat(projectId, 1L, create);
     }
 
     @DeleteMapping("/{chatId}")
