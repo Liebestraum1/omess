@@ -1,5 +1,6 @@
 package com.sixback.omesschat.common.config;
 
+import com.sixback.omesschat.common.filter.CorsFilter;
 import com.sixback.omesschat.common.filter.HttpCookieFilter;
 import com.sixback.omesschat.common.filter.WebSocketUpgradeFilter;
 import com.sixback.omesschat.domain.session.repository.SessionRepository;
@@ -23,5 +24,10 @@ public class WebConfig {
     @Bean
     public WebFilter webSocketUpgradeFilter() {
         return new WebSocketUpgradeFilter();
+    }
+
+    @Bean
+    public WebFilter corsFilter() {
+        return new CorsFilter();
     }
 }
