@@ -21,11 +21,12 @@ public class ChatController {
     private final ChatApiService chatApiService;
 
     @GetMapping
-    public Flux<ResponseEntity<ChatDto>> getMyChatList(
+    public Mono<ResponseEntity<Flux<ChatDto>>> getMyChatList(
             @PathVariable Long projectId,
-            @SessionAttribute Long memberId
+            @RequestAttribute(name = "memberId") Long memberId
     ) {
-        return chatApiService.loadMyChatList(projectId, memberId);
+        Flux<ChatDto> chatDtoFlux = chatApiService.loadMyChatList(projectId, memberId);
+        return Mono.just(ResponseEntity.ok(chatDtoFlux));
     }
 
     @PostMapping
@@ -34,14 +35,13 @@ public class ChatController {
             @PathVariable Long projectId,
             @RequestBody @Valid ChatCreate create
             ) {
-        log.info("채팅 생성 요청 : projectId : {}, memberId: {}", projectId, 1);
-        return chatApiService.createChat(projectId, 1L, create);
+        return chatApiService.createChat(projectId, memberId, create);
     }
 
     @DeleteMapping("/{chatId}")
     public Mono<ResponseEntity<ChatDto>> leaveChat(
             @PathVariable Long projectId,
-            @SessionAttribute Long memberId,
+            @RequestAttribute(name = "memberId") Long memberId,
             @PathVariable String chatId
     ) {
         return chatApiService.leaveChat(projectId, memberId, chatId);

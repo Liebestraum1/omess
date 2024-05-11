@@ -8,9 +8,9 @@ import reactor.core.publisher.Mono;
 
 public interface ChatRepository extends ReactiveMongoRepository<Chat, String> {
 
-    @Query("{projectId: ?0, members: {memberId: ?1, isAlive: true}}")
+    @Query("{ 'projectId': ?0, 'members': { '$elemMatch': { 'memberId': ?1, 'isAlive': true } } }")
     Flux<Chat> findByProjectIdAndMemberId(Long projectId, Long memberId);
 
-    @Query("{id: ?0, members:  {memberId: ?1, isAlive: true}}")
+    @Query("{ 'projectId': ?0, 'members': { '$elemMatch': { 'memberId': ?1, 'isAlive': true } } }")
     Mono<Chat> findByChatIdAndMemberId(String chatId, Long memberId);
 }
