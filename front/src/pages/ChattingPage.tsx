@@ -3,24 +3,38 @@ import ChatHeaderComponent from "../components/chat/ChatHeaderComponent.tsx";
 import ChatHistoryComponent from "../components/chat/ChatHistoryComponent.tsx";
 import ChatEditorComponent from "../components/chat/ChatEditorComponent.tsx";
 import {Alert, Box} from "@mui/material";
-import {ChatInfo} from "../types/chat/chat.ts";
 import {useChatStorage} from "../stores/chatStorage.tsx";
 import ChatRoomInfoComponent from "../components/chat/ChatRoomInfoComponent.tsx";
 import {useSignInStore} from "../stores/SignInStorage.tsx";
+import {useNavigate, useParams} from "react-router-dom";
 
 
-const ChattingPage = ({chat}: { chat: ChatInfo }) => {
-    const {init, client} = useChatStorage();
+const ChattingPage = () => {
+    const navigate = useNavigate();
+    const {chatId} = useParams();
+    const {setChat, chatList, chatInfo, init, client} = useChatStorage();
     const [isOpened, setIsOpened] = useState(false);
     const [selectedTab, setSelectedTab] = useState('info');
     const {memberId} = useSignInStore();
 
     useEffect(() => {
-        init(chat, 1);
-    }, [chat]);
+        if (chatId == undefined || chatList == undefined || chatList.length < 1) {
+            navigate("/");
+        } else {
+            const temp = chatList!.filter(value => value.id === chatId)[0]
+            setChat(temp)
+        }
+    }, [chatId]);
+
+    useEffect(() => {
+        init(memberId!);
+    }, [chatInfo]);
+
     return (
+        chatInfo &&
         <Box display='flex'
              height="100%"
+             width='100%'
         >
             <Box
                 display="flex"
@@ -30,7 +44,7 @@ const ChattingPage = ({chat}: { chat: ChatInfo }) => {
                 {client == null ? <Alert severity="error">서버와 연결상태를 확인해 주세요.</Alert> : null}
                 {/* Header */}
                 <Box flex={1}>
-                    <ChatHeaderComponent chat={chat} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
+                    <ChatHeaderComponent chat={chatInfo} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
                 </Box>
 
                 {/* Body */}
