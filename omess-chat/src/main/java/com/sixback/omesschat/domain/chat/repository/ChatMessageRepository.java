@@ -10,6 +10,7 @@ public interface ChatMessageRepository extends ReactiveMongoRepository<ChatMessa
     @Query("{chatId: ?0, isDeleted:  false}")
     Flux<ChatMessage> findAllByChatId(String chatId);
 
-    @Query("{chatId: ?0, isPined: true, isDeleted: false}")
+    @Query("{chatId: ?0, isPinned: true, isDeleted: false}")
     Flux<ChatMessage> findPinMessageByChatId(String chatId);
+
 }

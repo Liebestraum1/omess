@@ -24,7 +24,7 @@ public class ChatMapper {
     }
 
     public static ChatDto toChatDto(Chat chat) {
-        return new ChatDto(chat.getId(), chat.getName(), chat.getHeader().getDetail(), chat.getMembers().size());
+        return new ChatDto(chat.getId(), chat.getName(), chat.getHeader().getDetail(), chat.getMembers().size(), chat.getPinCount());
     }
 
     public static Chat toChat(Long projectId, String name, List<ChatMember> chatMembers) {

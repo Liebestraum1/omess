@@ -7,18 +7,17 @@ import com.sixback.omesschat.domain.chat.model.dto.response.api.ChatDto;
 import com.sixback.omesschat.domain.chat.model.entity.ChatMember;
 import com.sixback.omesschat.domain.chat.model.entity.ChatRole;
 import com.sixback.omesschat.domain.chat.repository.ChatRepository;
-import com.sixback.omesschat.domain.member.model.dto.MemberInfo;
 import com.sixback.omesschat.domain.member.service.MemberService;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatApiService {
@@ -29,7 +28,6 @@ public class ChatApiService {
     public Flux<ChatDto> loadMyChatList(Long projectId, Long memberId) {
         return chatRepository
                 .findByProjectIdAndMemberId(projectId, memberId)
-                .doOnNext(chat -> System.out.println("chat ID : " + chat.getId()))
                 .map(ChatMapper::toChatDto);
     }
 
@@ -52,7 +50,8 @@ public class ChatApiService {
     }
 
     public Mono<ResponseEntity<ChatDto>> leaveChat(Long projectId, Long memberId, String chatId) {
-        return chatRepository.findByChatIdAndMemberId(chatId, memberId)
+        log.info("chatId : {}, memberId: {}", chatId, memberId);
+        return chatRepository.findById(chatId)
                 .map(chat -> {
                     ChatMember chatMember = chat
                             .getMembers()
@@ -61,7 +60,8 @@ public class ChatApiService {
                             .findAny()
                             .orElseThrow();
                     chatMember.setAlive(false);
-                    return ResponseEntity.ok(ChatMapper.toChatDto(chat));
-                });
+                    return chat;
+                }).flatMap(chatRepository::save)
+                .map(chat -> ResponseEntity.ok(ChatMapper.toChatDto(chat)));
     }
 }

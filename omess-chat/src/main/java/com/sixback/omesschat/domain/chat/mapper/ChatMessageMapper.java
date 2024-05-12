@@ -21,7 +21,7 @@ public class ChatMessageMapper {
                 MessageFormatter.ofType(message.getClassify(), message.getMessage(), member.getNickname()),
                 message.getCreateAt(),
                 message.isUpdated(),
-                message.isPined(),
+                message.isPinned(),
                 message.getFiles()
         );
     }
