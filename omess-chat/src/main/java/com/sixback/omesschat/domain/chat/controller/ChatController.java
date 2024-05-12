@@ -44,6 +44,7 @@ public class ChatController {
             @RequestAttribute(name = "memberId") Long memberId,
             @PathVariable String chatId
     ) {
-        return chatApiService.leaveChat(projectId, memberId, chatId);
+        return chatApiService.leaveChat(projectId, memberId, chatId)
+                .doOnSuccess(chatDtoResponseEntity -> log.info(chatDtoResponseEntity.toString()));
     }
 }

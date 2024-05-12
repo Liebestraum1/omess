@@ -30,7 +30,7 @@ public class ChatMessage {
     private String updateAt;
     private boolean isUpdated = false;
     private boolean isDeleted = false;
-    private boolean isPined = false;
+    private boolean isPinned = false;
 
     public ChatMessage(MessageType classify, String chatId, Long writer, String message, List<ChatFile> files) {
         this.classify = classify;
@@ -53,7 +53,7 @@ public class ChatMessage {
     }
 
     public ChatMessage pin() {
-        isPined = !isPined;
+        isPinned = !isPinned;
         return this;
     }
 

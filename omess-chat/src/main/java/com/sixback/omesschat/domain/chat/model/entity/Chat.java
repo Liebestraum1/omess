@@ -19,6 +19,7 @@ public class Chat {
     private Content header = Content.empty();
     private Long projectId;
     private List<ChatMember> members;
+    private Long pinCount = 0L;
 
     @Setter
     private String name;
@@ -36,6 +37,16 @@ public class Chat {
 
     public Chat update(String name) {
         this.name = name;
+        return this;
+    }
+
+    public Chat pinned() {
+        this.pinCount++;
+        return this;
+    }
+
+    public Chat unpinned() {
+        this.pinCount--;
         return this;
     }
 }
