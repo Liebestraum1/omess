@@ -1,7 +1,7 @@
 export type ChatInfo = {
     id: string,
     name: string,
-    header?: string,
+    header: string,
     memberCount: number,
     pinCount: number,
 }

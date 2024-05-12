@@ -1,15 +1,15 @@
 import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
 import Module from "./Module.tsx";
-import { useProjectStore } from "../../stores/ProjectStorage.tsx";
-import { useEffect, useState } from "react";
+import {useProjectStore} from "../../stores/ProjectStorage.tsx";
+import {useEffect, useState} from "react";
 import {
-    ModuleCategoryResponse,
-    ModuleCreateRequest,
-    ModuleResponse,
     createModuleApi,
     getModuleCategoryApi,
     getModulesApi,
+    ModuleCategoryResponse,
+    ModuleCreateRequest,
+    ModuleResponse,
 } from "../../services/Module/ModuleApi.ts";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -25,7 +25,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { useModuleStore } from "../../stores/ModuleStorage.tsx";
+import {ChatAccordion} from "../chat/ChatAccordion.tsx";
 
 type GroupModules = {
     [key: string]: ModuleResponse[];
@@ -50,7 +50,6 @@ const ModuleSidebarTitleBox = styled(Box)({
     paddingInline: "16px",
     height: "48px",
     backgroundColor: "#dbc6f7",
-    marginBottom: "16px",
     whiteSpace: "nowrap",
 });
 
@@ -76,8 +75,9 @@ const ModuleSidebarBox = styled(Box)({
     },
 });
 
+
 const ModuleSidebar = () => {
-    const { selectedProjectName, selectedProjectId } = useProjectStore();
+    const {selectedProjectName, selectedProjectId} = useProjectStore();
 
     const [groupedModules, setGroupedModules] = useState<GroupModules>({});
     const [openModuleCreationModal, setOpenModuleCreationModal] = useState<boolean>(false);
@@ -85,9 +85,10 @@ const ModuleSidebar = () => {
     const [moduleCategory, setModuleCategory] = useState<Array<ModuleCategoryResponse>>([]);
     const [selectedModuleCategory, setSelectedModuleCategory] = useState<number | "">("");
 
+
     const createModule = (index: number) => {
         const requestCategory = moduleCategory[index];
-        const moduleCreateRequest: ModuleCreateRequest = { name: moduleName, category: requestCategory.category };
+        const moduleCreateRequest: ModuleCreateRequest = {name: moduleName, category: requestCategory.category};
         if (selectedProjectId) {
             createModuleApi(selectedProjectId, requestCategory.path, moduleCreateRequest).then((data) => {
                 setSelectedModuleCategory("");
@@ -95,6 +96,7 @@ const ModuleSidebar = () => {
             });
         }
     };
+
 
     useEffect(() => {
         if (selectedProjectId) {
@@ -124,19 +126,22 @@ const ModuleSidebar = () => {
     return (
         <ModuleSidebarBox>
             {selectedProjectId === undefined ? null : (
-                <ModuleSidebarTitleBox>
-                    <ModuleSidebarTitle variant="h6">{selectedProjectName} </ModuleSidebarTitle>
-                    <AddIcon onClick={() => setOpenModuleCreationModal(true)} sx={{ cursor: "pointer" }}></AddIcon>
-                </ModuleSidebarTitleBox>
+                <>
+                    <ModuleSidebarTitleBox>
+                        <ModuleSidebarTitle variant="h6">{selectedProjectName} </ModuleSidebarTitle>
+                        <AddIcon onClick={() => setOpenModuleCreationModal(true)} sx={{cursor: "pointer"}}></AddIcon>
+                    </ModuleSidebarTitleBox>
+                    {Object.keys(groupedModules).map((key) => (
+                        <Module
+                            moduleCategory={key}
+                            key={key}
+                            moduleItems={groupedModules[key].map((module: ModuleResponse) => module)}
+                        ></Module>
+                    ))}
+                    <ChatAccordion projectId={selectedProjectId}/>
+                </>
             )}
 
-            {Object.keys(groupedModules).map((key) => (
-                <Module
-                    moduleCategory={key}
-                    key={key}
-                    moduleItems={groupedModules[key].map((module: ModuleResponse) => module)}
-                ></Module>
-            ))}
 
             <Modal
                 open={openModuleCreationModal}
@@ -144,7 +149,7 @@ const ModuleSidebar = () => {
                 aria-labelledby="transition-modal-title"
                 aria-describedby="transition-modal-description"
                 closeAfterTransition
-                slots={{ backdrop: Backdrop }}
+                slots={{backdrop: Backdrop}}
                 slotProps={{
                     backdrop: {
                         timeout: 500,
@@ -172,7 +177,7 @@ const ModuleSidebar = () => {
                                 setModuleName(e.target.value);
                             }}
                         />
-                        <FormControl required variant="standard" sx={{ width: "75%" }}>
+                        <FormControl required variant="standard" sx={{width: "75%"}}>
                             <InputLabel id="demo-simple-select-required-label">모듈 종류</InputLabel>
                             <Select
                                 labelId="demo-simple-select-standard-label"
@@ -204,6 +209,7 @@ const ModuleSidebar = () => {
                     </ModuleCreationModalBox>
                 </Fade>
             </Modal>
+
         </ModuleSidebarBox>
     );
 };

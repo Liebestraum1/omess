@@ -32,8 +32,8 @@ const ChatHeaderComponent = ({chat, setIsOpened, setSelectedTab}: {
                             gap={2}
                             alignItems="center"
                         >
-                            <MemberCountComponent count={4} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
-                            <PinComponent pinCount={4} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
+                            <MemberCountComponent count={chat.memberCount} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
+                            <PinComponent pinCount={chat.pinCount} setIsOpened={setIsOpened} setSelectedTab={setSelectedTab}/>
                             <ChatHeaderDataComponent header={chat.header}/>
                         </Box>
                     </Box>
