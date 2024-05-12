@@ -10,7 +10,7 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import {Link} from 'react-router-dom';
 
 export const ChatAccordion = ({projectId}: { projectId: number | undefined }) => {
-    const {chatList, setChatList, removeChat} = useChatStorage();
+    const {chatList, setChatList, removeChat, chatId, reset} = useChatStorage();
 
     useEffect(() => {
         if (projectId) {
@@ -23,10 +23,13 @@ export const ChatAccordion = ({projectId}: { projectId: number | undefined }) =>
 
     const [openChatCreationModal, setOpenChatCreationModal] = useState<boolean>(false);
 
-    const handleChatLeave = (chatId: string) => {
+    const handleChatLeave = (chat: string) => {
         if (projectId == undefined) return;
-        leaveChat(projectId, chatId).then(() => {
-            removeChat(chatId);
+        leaveChat(projectId, chat).then(() => {
+            removeChat(chat);
+            if (chatId === chat) {
+                reset();
+            }
         }).catch((e) => console.error(e))
     }
 
