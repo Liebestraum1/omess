@@ -21,6 +21,7 @@ type ChatStorage = {
     setChatList: (chatList: Array<ChatInfo>) => void;
     addChat: (chat: ChatInfo) => void;
     removeChat: (chatId: string) => void;
+    reset: () => void;
 };
 
 export const useChatStorage = create<ChatStorage>((set, get) => {
@@ -223,6 +224,17 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         },
         setChat: (chat: ChatInfo) => {
             set({chatId: chat.id, chatInfo: chat})
+        },
+        reset: () => {
+            set({
+                chatId: null,
+                chatInfo: null,
+                messages: null,
+                files: null,
+                members: null,
+                pinMessages: null,
+                client: null
+            })
         }
     }
 });
