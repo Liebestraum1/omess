@@ -2,8 +2,10 @@ import {create} from "zustand";
 import {ChatInfo, ChatMember, ChatMessage, ChatName, FileInformation, Header} from "../types/chat/chat.ts";
 
 type ChatStorage = {
+    chatList: Array<ChatInfo> | null,
     chatId: string | null;
     chatInfo: ChatInfo | null,
+    setChat: (chat: ChatInfo) => void;
     serverUrl: string;
     client: WebSocket | null;
     members: Array<ChatMember> | null;
@@ -11,11 +13,14 @@ type ChatStorage = {
     isEnter: boolean;
     files: Array<FileInformation> | null;
     pinMessages: Array<ChatMessage> | null;
-    init: (chat: ChatInfo, memberId: number) => void;
+    init: (memberId: number) => void;
     sendMessage: (data: any) => void;
     addFile: (filename: FileInformation) => void;
     removeFile: (fileId: number) => void;
     resetFile: () => void;
+    setChatList: (chatList: Array<ChatInfo>) => void;
+    addChat: (chat: ChatInfo) => void;
+    removeChat: (chatId: string) => void;
 };
 
 export const useChatStorage = create<ChatStorage>((set, get) => {
@@ -26,6 +31,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
     }
     const addFirst = (message: ChatMessage) => {
         const messages = get().messages;
+
         messages!.unshift(message);
         set({messages: messages})
     }
@@ -41,23 +47,27 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
     }
 
     const deleteMessage = (message: ChatMessage) => {
+        const chat = get().chatInfo!;
         const messages = get().messages;
 
+        chat.pinCount = message.isPined ? chat.pinCount - 1 : chat.pinCount;
         const deleteMessages = messages!.filter(msg =>
             msg.id !== message.id
         )
 
-        set({messages: deleteMessages});
+        set({chatInfo: chat, messages: deleteMessages});
     }
 
     const pinMessage = (message: ChatMessage) => {
         const messages = get().messages;
+        const chat = get().chatInfo!
 
+        chat.pinCount = message.isPined ? chat.pinCount + 1 : chat.pinCount - 1;
         const updatedMessages = messages!.map(msg =>
             msg.id === message.id ? {...msg, isPined: message.isPined} : msg
         );
 
-        set({messages: updatedMessages});
+        set({chatInfo: chat, messages: updatedMessages});
     }
 
     const headerMessage = (header: Header) => {
@@ -90,6 +100,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
     }
 
     return {
+        chatList: [],
         serverUrl: 'ws://localhost:8081/chat/v1',
         isEnter: false,
         chatId: null,
@@ -99,13 +110,12 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         chatInfo: null,
         pinMessages: null,
         files: null,
-        init: (chat: ChatInfo, memberId: number) => {
+        init: (memberId: number) => {
+            const chat = get().chatInfo
             if (chat == null) {
                 console.log('must have chatInfo')
                 return;
             }
-
-            set({chatInfo: chat, chatId: chat.id})
 
             const url = get().serverUrl
             let client = get().client;
@@ -198,6 +208,21 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         },
         resetFile: () => {
             set({files: []})
+        },
+        setChatList: (chatList: Array<ChatInfo>) => {
+            set({chatList: chatList})
+        },
+        removeChat: (chatId: string) => {
+            const chatList = get().chatList?.filter(value => value.id !== chatId);
+            set({chatList: chatList})
+        },
+        addChat: (chat: ChatInfo) => {
+            const chatList = get().chatList ?? [];
+            chatList.push(chat)
+            set({chatList: chatList})
+        },
+        setChat: (chat: ChatInfo) => {
+            set({chatId: chat.id, chatInfo: chat})
         }
     }
 });

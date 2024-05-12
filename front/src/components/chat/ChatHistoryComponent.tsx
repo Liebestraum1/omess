@@ -37,7 +37,7 @@ const ChatHistoryComponent = () => {
             }}
         >
             {messages ? messages!.map((message, idx) => (
-                <Box>
+                <Box key={idx}>
                     {
                         messages[idx + 1] == null || message.createAt.split(' ')[0] !== messages[idx + 1].createAt.split(' ')[0] ?
                             <Divider>{message.createAt.split(' ')[0]}</Divider> : null
