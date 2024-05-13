@@ -16,4 +16,10 @@ public class KanbanBoardStompController {
     public String updateIssue(@DestinationVariable("module_id") Long moduleId) {
         return moduleId.toString();
     }
+
+    @MessageMapping("/kanbanboards/{module_id}/label")
+    @SendTo("/sub/kanbanRoom/{module_id}/label")
+    public String updateLabel(@DestinationVariable("module_id") Long moduleId) {
+        return moduleId.toString();
+    }
 }
