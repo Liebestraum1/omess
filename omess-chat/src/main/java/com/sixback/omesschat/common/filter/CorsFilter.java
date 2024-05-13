@@ -1,6 +1,7 @@
 package com.sixback.omesschat.common.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,9 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class CorsFilter implements WebFilter, Ordered {
 
+    @Value("${allow.origin}")
+    private String allowOrigin;
+
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
@@ -28,7 +32,7 @@ public class CorsFilter implements WebFilter, Ordered {
             ServerHttpResponse response = exchange.getResponse();
             HttpHeaders headers = response.getHeaders();
 
-            headers.add("Access-Control-Allow-Origin", "http://localhost:5173");
+            headers.add("Access-Control-Allow-Origin", allowOrigin);
             headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             headers.add("Access-Control-Allow-Headers",
                     "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range");

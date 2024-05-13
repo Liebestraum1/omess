@@ -17,6 +17,8 @@ spring:
       database: ${MONGODB_DATABASE}
       username: ${MONGODB_USERNAME}
       password: ${MONGODB_PASSWORD}
+allow:
+  origin: ${ALLOW_ORIGIN}
 
 logging:
   level:
