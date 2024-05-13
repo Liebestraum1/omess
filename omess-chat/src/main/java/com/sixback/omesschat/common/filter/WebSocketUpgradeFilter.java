@@ -20,6 +20,11 @@ public class WebSocketUpgradeFilter implements WebFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        String path = request.getURI().getPath();
+
+        if (path.startsWith("/actuator")) {
+            return chain.filter(exchange);
+        }
 
         Long memberId = exchange.getAttribute("memberId");
         String upgradeHeader = request.getHeaders().getFirst("Upgrade");
