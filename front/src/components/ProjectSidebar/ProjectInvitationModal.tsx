@@ -13,7 +13,14 @@ import {
 } from "@mui/material";
 import { ProjectInvitationModalProps } from "../../types/Project/Project";
 import { useEffect, useState } from "react";
-import { CreateProjectRequest, Member, createProjectApi, getMemberApi } from "../../services/Project/ProjectApi";
+import {
+    CreateProjectRequest,
+    InviteProjectRequest,
+    Member,
+    createProjectApi,
+    getMemberApi,
+    inviteProjectApi,
+} from "../../services/Project/ProjectApi";
 
 const ProjectInvitationModalBox = styled(Box)({
     width: "425px",
@@ -63,33 +70,38 @@ const extractConsonant = (input: string) => {
 
 const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: ProjectInvitationModalProps) => {
     // 서버 멤버 목록을 가져와서 나만 제외하고 보기
-    const [MemberList, setMemberList] = useState<Array<Member>>([]);
+    const [createdProjectId, setCreatedProjectId] = useState<number | undefined>();
+    const [memberList, setMemberList] = useState<Array<Member>>([]);
+    const [invitationList, setInviationList] = useState<Array<number>>([]);
 
     useEffect(() => {
         getMemberApi().then((data: any) => {
-            console.log(data);
             setMemberList(data);
         });
     }, []);
 
-    const arr: Array<object> = [
-        { id: 1, name: "서버 유저 1", email: "aaa@naver.com" },
-        { id: 2, name: "서버 유저 2", email: "bbb@gmail.com" },
-        { id: 3, name: "서버 유저 3", email: "ccc@naver.com" },
-    ];
+    useEffect(() => {
+        if (createdProjectId != undefined) {
+            const inviteProectRequest: InviteProjectRequest = {
+                inviteMembers: invitationList,
+            };
+            inviteProjectApi(createdProjectId, inviteProectRequest).then().catch().finally();
+        }
+    }, [createdProjectId]);
 
     const [projectName, setProjectName] = useState<string | undefined>();
 
     const createProject = () => {
         const createProjectRequset: CreateProjectRequest = { name: projectName };
         createProjectApi(createProjectRequset)
-            .then((data) => {
+            .then((data: any) => {
                 setAlertContent({
                     severity: "success",
                     title: "프로젝트 생성 성공!",
                     content: "프로젝트 생성에 성공했습니다.",
                 });
                 showAlert();
+                setCreatedProjectId(data.projectId);
                 onClose();
             })
             .catch((error) => {
@@ -104,8 +116,9 @@ const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: P
             });
     };
 
-    // 멤버 초대 로직 추가
-    const inviteMembers = () => {};
+    const addMemberToInvitationList = (event: any, value: Array<Member>) => {
+        setInviationList(value.map((member) => member.id));
+    };
 
     return (
         <Modal
@@ -146,7 +159,7 @@ const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: P
                         multiple
                         autoHighlight
                         id="tags-standard"
-                        options={MemberList}
+                        options={memberList}
                         filterOptions={(options, { inputValue }) => {
                             const extractedInputValue = extractConsonant(inputValue);
                             return options.filter(
@@ -157,6 +170,7 @@ const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: P
                         }}
                         isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
                         getOptionLabel={(option: any) => option.nickname}
+                        onChange={addMemberToInvitationList}
                         renderOption={(props, option: any) => (
                             <Box component="li" {...props}>
                                 <Box
@@ -211,7 +225,6 @@ const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: P
                             variant="outlined"
                             onClick={() => {
                                 createProject();
-                                // 바로 이 부분에 멤버 초대 로직 추가
                                 setProjectName(undefined);
                             }}
                         >
