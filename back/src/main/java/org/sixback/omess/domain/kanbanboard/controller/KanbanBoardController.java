@@ -60,7 +60,6 @@ public class KanbanBoardController {
                                             @PathVariable("project_id") Long projectId,
                                             @PathVariable("module_id") Long moduleId,
                                             @RequestBody @Validated WriteIssueRequest writeIssueRequest) {
-        System.out.println(writeIssueRequest);
         kanbanBoardService.createIssue(memberId, projectId, moduleId, writeIssueRequest);
 
         return ResponseEntity.ok().build();
