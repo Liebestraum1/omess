@@ -11,6 +11,7 @@ import org.sixback.omess.domain.kanbanboard.model.dto.request.kanbanboard.WriteK
 import org.sixback.omess.domain.kanbanboard.model.dto.request.label.WriteLabelRequest;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.issue.GetIssueDetailResponse;
 import org.sixback.omess.domain.kanbanboard.model.dto.response.kanbanboard.GetKanbanBoardResponse;
+import org.sixback.omess.domain.kanbanboard.model.dto.response.label.GetLabelResponses;
 import org.sixback.omess.domain.kanbanboard.service.KanbanBoardService;
 import org.sixback.omess.domain.member.model.dto.response.GetIssueResponses;
 import org.springframework.http.ResponseEntity;
@@ -183,9 +184,9 @@ public class KanbanBoardController {
     }
 
     @GetMapping("/{module_id}/label")
-    public ResponseEntity<?> getLabels(@SessionAttribute(name = "memberId") Long memberId,
-                                       @PathVariable("project_id") Long project_id,
-                                       @PathVariable("module_id") Long module_id){
+    public ResponseEntity<GetLabelResponses> getLabels(@SessionAttribute(name = "memberId") Long memberId,
+                                                       @PathVariable("project_id") Long project_id,
+                                                       @PathVariable("module_id") Long module_id){
         return ResponseEntity.ok().body(kanbanBoardService.getLabels(memberId, project_id, module_id));
     }
 
