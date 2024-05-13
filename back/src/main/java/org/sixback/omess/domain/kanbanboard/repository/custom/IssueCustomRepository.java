@@ -9,5 +9,7 @@ public interface IssueCustomRepository {
 
     List<Issue> getIssues(String path, Long chargerId, Long labelId, Integer importance);
 
+    List<Issue> getIssuesAll(String path);
+
     void updateIssues(Long labelId);
 }

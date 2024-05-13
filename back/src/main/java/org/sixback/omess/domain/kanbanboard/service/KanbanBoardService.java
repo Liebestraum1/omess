@@ -212,6 +212,28 @@ public class KanbanBoardService {
     }
 
     @Transactional
+    public GetIssueResponses getIssuesAll(Long projectId, Long moduleId) {
+        String path = makeKanbanBoardPath(projectId, moduleId);
+
+        List<Issue> findIssues = issueRepository.getIssuesAll(path);
+
+        return GetIssueResponses.builder()
+                .issues(findIssues.stream().map(issue -> GetIssueResponse.builder()
+                        .issueId(issue.getId())
+                        .charger(issue.getCharger() != null ? new GetMemberResponse(issue.getCharger().getId(), issue.getCharger().getNickname(), issue.getCharger().getEmail(), issue.getCharger().getProfile()) : null)
+                        .label(issue.getLabel() != null ? GetLabelResponse.builder()
+                                .labelId(issue.getLabel().getId())
+                                .name(issue.getLabel().getName())
+                                .build() : null)
+                        .title(issue.getTitle())
+                        .importance(issue.getImportance())
+                        .status(issue.getStatus())
+                        .build()
+                ).toList())
+                .build();
+    }
+
+    @Transactional
     public GetIssueDetailResponse getIssue(Long memberId, Long projectId, Long moduleId, Long issueId) {
 
         String path = makeIssuePath(projectId, moduleId, issueId);
