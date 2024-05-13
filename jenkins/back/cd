@@ -137,7 +137,7 @@ pipeline {
                 failure {
                     echo "Health check failed"
 
-                    //updateGitlabCommitStatus name: 'healthcheck', state: 'failed'
+                    updateGitlabCommitStatus name: 'healthcheck', state: 'failed'
                 }
             }
         }
