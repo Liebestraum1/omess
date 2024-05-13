@@ -11,6 +11,10 @@ export type CreateProjectRequest = {
     name: string | undefined;
 };
 
+export type InviteProjectRequest = {
+    inviteMembers: Array<number>;
+};
+
 export const getProjectApi = async <T>(): Promise<T> => {
     const { data } = await client.get<T>("/api/v1/projects");
     return data;
@@ -23,5 +27,13 @@ export const createProjectApi = async <T>(createProjectRequest: CreateProjectReq
 
 export const getMemberApi = async <T>(): Promise<T> => {
     const { data } = await client.get<T>("/api/v1/members");
+    return data;
+};
+
+export const inviteProjectApi = async <T>(
+    projectId: number,
+    InviteProjectRequest: InviteProjectRequest
+): Promise<T> => {
+    const { data } = await client.post<T>(`/api/v1/projects/${projectId}`, InviteProjectRequest);
     return data;
 };

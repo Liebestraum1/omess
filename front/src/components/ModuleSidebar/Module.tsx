@@ -42,7 +42,6 @@ const ModuleItemsTypeGuard = (moduleItems: Array<ModuleResponse>): React.ReactNo
                             key={index}
                             onClick={() => {
                                 setCurrentModuleContent(item.id, item.category);
-                                console.log(currentModuleContent);
                             }}
                             sx={{
                                 cursor: "pointer",
