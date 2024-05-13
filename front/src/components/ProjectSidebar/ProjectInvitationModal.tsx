@@ -12,8 +12,8 @@ import {
     styled,
 } from "@mui/material";
 import { ProjectInvitationModalProps } from "../../types/Project/Project";
-import { useState } from "react";
-import { CreateProjectRequest, createProjectApi } from "../../services/Project/ProjectApi";
+import { useEffect, useState } from "react";
+import { CreateProjectRequest, Member, createProjectApi, getMemberApi } from "../../services/Project/ProjectApi";
 
 const ProjectInvitationModalBox = styled(Box)({
     width: "425px",
@@ -63,6 +63,15 @@ const extractConsonant = (input: string) => {
 
 const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: ProjectInvitationModalProps) => {
     // 서버 멤버 목록을 가져와서 나만 제외하고 보기
+    const [MemberList, setMemberList] = useState<Array<Member>>([]);
+
+    useEffect(() => {
+        getMemberApi().then((data: any) => {
+            console.log(data);
+            setMemberList(data);
+        });
+    }, []);
+
     const arr: Array<object> = [
         { id: 1, name: "서버 유저 1", email: "aaa@naver.com" },
         { id: 2, name: "서버 유저 2", email: "bbb@gmail.com" },
@@ -137,15 +146,17 @@ const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: P
                         multiple
                         autoHighlight
                         id="tags-standard"
-                        options={arr}
+                        options={MemberList}
                         filterOptions={(options, { inputValue }) => {
                             const extractedInputValue = extractConsonant(inputValue);
-                            return options.filter((option: any) =>
-                                extractConsonant(option.name).includes(extractedInputValue)
+                            return options.filter(
+                                (option: any) =>
+                                    extractConsonant(option.nickname).includes(extractedInputValue) ||
+                                    extractConsonant(option.email).includes(extractedInputValue)
                             );
                         }}
                         isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
-                        getOptionLabel={(option: any) => option.name}
+                        getOptionLabel={(option: any) => option.nickname}
                         renderOption={(props, option: any) => (
                             <Box component="li" {...props}>
                                 <Box
@@ -155,7 +166,7 @@ const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: P
                                         width: "100%",
                                     }}
                                 >
-                                    <Typography variant="body1">{option.name}</Typography>
+                                    <Typography variant="body1">{option.nickname}</Typography>
                                     <Typography variant="body2" color="textSecondary">
                                         {option.email}
                                     </Typography>
@@ -166,7 +177,7 @@ const ProjectInvitationModal = ({ open, onClose, showAlert, setAlertContent }: P
                             value.map((option: any, index) => (
                                 <Chip
                                     avatar={<Avatar></Avatar>}
-                                    label={option.name}
+                                    label={option.nickname}
                                     {...getTagProps({ index })}
                                     sx={{ borderRadius: "8px" }}
                                     size="small"
