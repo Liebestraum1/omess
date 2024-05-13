@@ -2,7 +2,6 @@ package com.sixback.omesschat.common.filter;
 
 import com.sixback.omesschat.common.utils.Base64Util;
 import com.sixback.omesschat.domain.session.repository.SessionRepository;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -16,6 +15,8 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Slf4j
 @RequiredArgsConstructor
 public class HttpCookieFilter implements WebFilter, Ordered {
@@ -25,6 +26,11 @@ public class HttpCookieFilter implements WebFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        String path = request.getURI().getPath();
+
+        if (path.startsWith("/actuator")) {
+            return chain.filter(exchange);
+        }
 
         MultiValueMap<String, HttpCookie> cookies = request.getCookies();
 
