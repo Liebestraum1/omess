@@ -1,6 +1,7 @@
 package org.sixback.omess.domain.project.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sixback.omess.domain.project.dto.response.GetProjectMembersResponse;
 import org.sixback.omess.domain.project.model.dto.request.CreateProjectRequest;
 import org.sixback.omess.domain.project.model.dto.request.InviteProjectRequest;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
+@Slf4j
 @RequestMapping("/api/v1/projects")
 @RestController
 @RequiredArgsConstructor
@@ -69,5 +71,16 @@ public class ProjectController {
     ) {
         projectService.inviteProject(projectId, inviteProjectRequest);
         return new ResponseEntity<>(CREATED);
+    }
+
+    @PostMapping("/{projectId}/leave")
+    public ResponseEntity<Void> leaveProject(
+            @PathVariable(name = "projectId") Long projectId,
+            @SessionAttribute Long memberId
+    ) {
+        log.info("controller start");
+        projectService.leaveProject(projectId, memberId);
+        log.info("controller end");
+        return ResponseEntity.ok().build();
     }
 }

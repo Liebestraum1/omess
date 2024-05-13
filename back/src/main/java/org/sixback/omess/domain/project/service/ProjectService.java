@@ -2,6 +2,7 @@ package org.sixback.omess.domain.project.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sixback.omess.domain.member.model.entity.Member;
 import org.sixback.omess.domain.member.service.MemberService;
 import org.sixback.omess.domain.project.dto.response.GetProjectMembersResponse;
@@ -28,6 +29,7 @@ import static org.sixback.omess.domain.project.mapper.ProjectMapper.*;
 import static org.sixback.omess.domain.project.model.enums.ProjectRole.OWNER;
 import static org.sixback.omess.domain.project.model.enums.ProjectRole.USER;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
@@ -74,11 +76,6 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    protected Project getProjectEntity(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(""));
-    }
-
     public List<GetMembersInProjectResponse> getMembers(Long projectId) {
         return projectMemberRepository.findAllByProject_Id(projectId)
                 .stream()
@@ -87,4 +84,24 @@ public class ProjectService {
                 .toList();
     }
 
+    @Transactional
+    public void leaveProject(Long projectId, Long memberId) {
+        log.info("service start");
+        projectMemberRepository.findByProjectIdAndMemberId(projectId, memberId)
+                .ifPresent(projectMember -> {
+                    projectMemberRepository.deleteById(projectMember.getId());
+                    log.info("projectMember(id={}) is deleted", projectMember.getId());
+                });
+        if (projectMemberRepository.findAllByProject_Id(projectId).isEmpty()) {
+            projectRepository.deleteById(projectId);
+            log.info("project(id={}) is deleted", projectId);
+        }
+        log.info("service end");
+    }
+
+    @Transactional(readOnly = true)
+    protected Project getProjectEntity(Long id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(""));
+    }
 }
