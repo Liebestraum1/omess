@@ -76,15 +76,25 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
             {},
             () => {
                 get().client && get().currentProjectId && get().kanbanBoardId &&
-                get().client!.subscribe('/sub/kanbanRoom/' + get().kanbanBoardId,
+                get().client!.subscribe(`/sub/projects/${get().currentProjectId}/kanbanRoom/${get().kanbanBoardId}`,
                     (message) => {
-                        get().getIssues(get().currentProjectId!, parseInt(message.body), get().selectedMember, get().selectedLabel, get().selectedImpotance);
+                        const issues = JSON.parse(message.body); // issues 배열이 IssueProp 타입을 갖는다고 명시합니다.
+                        const {selectedLabel, selectedMember, selectedImpotance} = get();
+
+                        const filteredIssues = issues.issues.filter((issue: IssueProp) => { // 여기서 issue의 타입을 명시적으로 선언합니다.
+                            return (!selectedLabel || issue.label.labelId === selectedLabel) &&
+                                (!selectedMember || issue.charger.id === selectedMember) &&
+                                (!selectedImpotance || issue.importance === selectedImpotance);
+                        });
+
+                        get().setIssues(filteredIssues);
                     }
                 );
 
-                get().client!.subscribe('/sub/kanbanRoom/' + get().kanbanBoardId + `/label`,
+                get().client!.subscribe(`/sub/projects/${get().currentProjectId}/kanbanRoom/${get().kanbanBoardId}/label`,
                     (message) => {
-                        get().getLabels(get().currentProjectId!, parseInt(message.body));
+                        const data = JSON.parse(message.body);
+                        get().setLabels(data.labels);
                     }
                 );
             }
@@ -239,7 +249,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     sendIssue: () => {
         if (get().client && get().client?.connected) {
             // STOMP 메시지 전송
-            get().client?.send('/pub/kanbanboards/' + get().kanbanBoardId,
+            get().client?.send(`/pub/projects/${get().currentProjectId}/kanbanboards/${get().kanbanBoardId}`,
                 {},
             );
         } else {
@@ -249,7 +259,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
     sendlabel: () => {
         if (get().client && get().client?.connected) {
             // STOMP 메시지 전송
-            get().client?.send('/pub/kanbanboards/' + get().kanbanBoardId + `/label`,
+            get().client?.send(`/pub/projects/${get().currentProjectId}/kanbanboards/${get().kanbanBoardId}/label`,
                 {},
             );
         } else {
