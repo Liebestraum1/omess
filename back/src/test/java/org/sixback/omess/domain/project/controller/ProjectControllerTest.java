@@ -1,6 +1,8 @@
 package org.sixback.omess.domain.project.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Cookie;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -30,8 +32,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.sixback.omess.common.TestUtils.*;
 import static org.sixback.omess.common.exception.ErrorType.*;
@@ -64,6 +68,9 @@ class ProjectControllerTest {
     @Autowired
     ProjectMemberRepository projectMemberRepository;
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     @Autowired
     MemberRepository memberRepository;
 
@@ -72,7 +79,7 @@ class ProjectControllerTest {
     String password = "password123";
 
     @Nested
-    @DisplayName("create Project test ")
+    @DisplayName("프로젝트 생성")
     class CreateProject {
         @Test
         @DisplayName("프로젝트 생성 - 성공")
@@ -168,7 +175,7 @@ class ProjectControllerTest {
     }
 
     @Nested
-    @DisplayName("get Projects test")
+    @DisplayName("프로젝트 조회")
     class GetProjects {
         @Test
         @DisplayName("프로젝트 조회 - 성공")
@@ -221,7 +228,7 @@ class ProjectControllerTest {
     }
 
     @Nested
-    @DisplayName("get Projects test")
+    @DisplayName("프로젝트 업데이트")
     class UpdateProject {
         @Test
         @DisplayName("프로젝트 업데이트 - 성공")
@@ -367,10 +374,8 @@ class ProjectControllerTest {
         }
     }
 
-    // 프로젝트 권한
-    // 로그인 권한
-    // 밸리테이션 체크
     @Nested
+    @DisplayName("프로젝트 초대")
     class InviteProject {
         @Test
         @DisplayName("프로젝트 초대 - 성공")
@@ -641,6 +646,99 @@ class ProjectControllerTest {
 
     }
 
+    @Nested
+    @DisplayName("프로젝트 나가기")
+    @Transactional
+    class LeaveProject {
+        @Test
+        @DisplayName("프로젝트 나가기 - 성공")
+        @Transactional
+        void leaveProject_success() throws Exception {
+            // given
+            Member member = makeMember(nickname, email, password);
+            Project project = makeProject();
+            ProjectMember projectMember = makeProjectMember(project, member);
+
+            memberRepository.save(member);
+            projectRepository.save(project);
+            projectMemberRepository.save(projectMember);
+            Cookie cookie = getCookie(email, password);
+
+            // when
+            mockMvc.perform(post("/api/v1/projects/{projectId}/leave", project.getId())
+                            .contentType(APPLICATION_JSON)
+                            .cookie(cookie))
+            // then
+                    .andExpect(status().isOk())
+                    .andDo(print());
+
+            Optional<ProjectMember> deletedProjectMember = projectMemberRepository.findById(projectMember.getId());
+            Optional<Project> deletedProject = projectRepository.findById(project.getId());
+            Assertions.assertThat(deletedProjectMember.isEmpty()).isTrue();
+            Assertions.assertThat(deletedProject.isEmpty()).isTrue();
+        }
+
+        @Test
+        @DisplayName("프로젝트 나가기 - 인증 실패")
+        @Transactional
+        void leaveProject_unAuthorized_fail() throws Exception {
+            // given
+            Member member = makeMember(nickname, email, password);
+            Project project = makeProject();
+            ProjectMember projectMember = makeProjectMember(project, member);
+
+            memberRepository.save(member);
+            projectRepository.save(project);
+            projectMemberRepository.save(projectMember);
+
+            // when
+            mockMvc.perform(post("/api/v1/projects/{projectId}/leave", project.getId())
+                            .contentType(APPLICATION_JSON))
+                   // then
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.title").value(NEED_AUTHENTICATION_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(401))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + project.getId() + "/leave"))
+                    .andDo(print());
+
+            Assertions.assertThat(projectMemberRepository.findByProjectIdAndMemberId(project.getId(), member.getId()).isPresent()).isTrue();
+
+        }
+
+        @Test
+        @DisplayName("프로젝트 나가기 - 권한 없음 실패")
+        @Transactional
+        void leaveProject_permission_fail() throws Exception {
+            // given
+            Member member = makeMember(nickname, email, password);
+            Project project = makeProject();
+            ProjectMember projectMember = makeProjectMember(project, member);
+
+            memberRepository.save(member);
+            projectRepository.save(project);
+            projectMemberRepository.save(projectMember);
+
+            Cookie cookie = getCookie(email, password);
+
+            ProjectMemberResult projectMemberResult = makeProjectMembers();
+            memberRepository.save(projectMemberResult.getMember());
+            projectRepository.saveAll(projectMemberResult.getProjects());
+            projectMemberRepository.saveAll(projectMemberResult.getProjectMembers());
+
+            // when
+            mockMvc.perform(post("/api/v1/projects/{projectId}/leave", projectMemberResult.getProjectMembers().getFirst().getId())
+                            .contentType(APPLICATION_JSON)
+                            .cookie(cookie))
+                    // then
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.title").value(UNAUTHORIZED_ERROR.getTitle()))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.instance").value("/api/v1/projects/" + projectMemberResult.getProjectMembers().getFirst().getId() + "/leave"))
+                    .andDo(print());
+
+            Assertions.assertThat(projectMemberRepository.findByProjectIdAndMemberId(project.getId(), member.getId()).isPresent()).isTrue();
+        }
+    }
 
     private Cookie getCookie(String email, String password) throws Exception {
         MockHttpServletResponse response = mockMvc.perform(post("/api/v1/members/signin")
