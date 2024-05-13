@@ -46,7 +46,11 @@ type KanbanBoardStorage = {
     updateIssueMember: (projectId: number, moduleId: number, issueId: number, chargerId: number) => void;
     updateIssue: (projectId: number, moduleId: number, issueId: number, updateIssueRequest: UpdateIssueRequest) => void;
     deleteIssue: (projectId: number, moduleId: number, issueId: number) => void;
-    sendStomp: () => void;
+    getMembersInproject: (projectId: number) => void;
+    createLabel: (projectId: number, moduleId: number, name: string) => void;
+    deleteLabel: (projectId: number, moduleId: number, labelId: number) => void;
+    sendIssue: () => void;
+    sendlabel: () => void;
 }
 
 export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
@@ -75,6 +79,12 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
                 get().client!.subscribe('/sub/kanbanRoom/' + get().kanbanBoardId,
                     (message) => {
                         get().getIssues(get().currentProjectId!, parseInt(message.body), get().selectedMember, get().selectedLabel, get().selectedImpotance);
+                    }
+                );
+
+                get().client!.subscribe('/sub/kanbanRoom/' + get().kanbanBoardId + `/label`,
+                    (message) => {
+                        get().getLabels(get().currentProjectId!, parseInt(message.body));
                     }
                 );
             }
@@ -133,7 +143,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
         await client.post(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues`,
             writeIssueRequest
         ).then(() => {
-            get().sendStomp();
+            get().sendIssue();
         });
     },
 
@@ -153,7 +163,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
                 labelId: labelId
             }
         ).then(() => {
-            get().sendStomp();
+            get().sendIssue();
         })
     },
 
@@ -163,7 +173,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
                 status: status
             }
         ).then(() => {
-            get().sendStomp();
+            get().sendIssue();
         })
     },
 
@@ -173,7 +183,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
                 importance: importance
             }
         ).then(() => {
-            get().sendStomp();
+            get().sendIssue();
         })
     },
 
@@ -183,7 +193,7 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
                 chargerId: chargerId
             }
         ).then(() => {
-            get().sendStomp();
+            get().sendIssue();
         })
     },
 
@@ -191,21 +201,55 @@ export const useKanbanBoardStore = create<KanbanBoardStorage>((set, get) => ({
         await client.patch(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`,
             updateIssueRequest
         ).then(() => {
-            get().sendStomp();
+            get().sendIssue();
         })
     },
 
     deleteIssue: async (projectId: number, moduleId: number, issueId: number) => {
         await client.delete(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/issues/${issueId}`)
             .then(() => {
-                get().sendStomp();
+                get().sendIssue();
             })
     },
-
-    sendStomp: () => {
+    getMembersInproject: async (projectId: number) => {
+        await client.get(`/api/v1/projects/${projectId}`)
+            .then((response) => {
+                const projectMember = response.data;
+                get().setprojectMembers(projectMember);
+            }).catch((error) => {
+                console.log(error);
+            })
+    },
+    createLabel: async (projectId: number, moduleId: number, name: string) => {
+        await client.post(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/label`,
+            {
+                name: name
+            }).then(() => {
+            // 라벨 목록 갱신
+            get().sendlabel()
+        })
+    },
+    deleteLabel: async (projectId: number, moduleId: number, labelId: number) => {
+        await client.delete(`/api/v1/projects/${projectId}/kanbanboards/${moduleId}/label/${labelId}`)
+            .then(() => {
+                // 라벨 목록 갱신
+                get().sendlabel()
+            })
+    },
+    sendIssue: () => {
         if (get().client && get().client?.connected) {
             // STOMP 메시지 전송
             get().client?.send('/pub/kanbanboards/' + get().kanbanBoardId,
+                {},
+            );
+        } else {
+            console.log('Not connected to WebSocket');
+        }
+    },
+    sendlabel: () => {
+        if (get().client && get().client?.connected) {
+            // STOMP 메시지 전송
+            get().client?.send('/pub/kanbanboards/' + get().kanbanBoardId + `/label`,
                 {},
             );
         } else {

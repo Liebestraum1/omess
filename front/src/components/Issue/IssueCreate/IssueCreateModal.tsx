@@ -51,7 +51,6 @@ const IssueCreateModal = ({open, onClose}: IssueDetailModalProp) => {
                 labelId: label
             }
             if (kanbanBoardId && currentProjectId) {
-                console.log(writeIssueRequest);
                 createIssue(currentProjectId, kanbanBoardId, writeIssueRequest);
                 onCloseModal();
             }
