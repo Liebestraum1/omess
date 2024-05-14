@@ -40,7 +40,6 @@ const ProfileButton = () => {
                 TransitionComponent={Fade}
                 autoFocus={false}
             >
-                <MenuItem>My account</MenuItem>
                 <MenuItem
                     onClick={() => {
                         handleClose();
@@ -51,7 +50,7 @@ const ProfileButton = () => {
                             .catch();
                     }}
                 >
-                    Logout
+                    로그아웃
                 </MenuItem>
             </Menu>
         </Fragment>

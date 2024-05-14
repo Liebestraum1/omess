@@ -25,6 +25,11 @@ export const createProjectApi = async <T>(createProjectRequest: CreateProjectReq
     return data;
 };
 
+export const leaveProjectApi = async <T>(projectId: number): Promise<T> => {
+    const { data } = await client.post<T>(`/api/v1/projects/${projectId}/leave`);
+    return data;
+};
+
 export const getMemberApi = async <T>(): Promise<T> => {
     const { data } = await client.get<T>("/api/v1/members");
     return data;

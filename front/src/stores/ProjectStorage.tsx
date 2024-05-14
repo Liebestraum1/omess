@@ -6,8 +6,8 @@ type ProjectStore = {
     selectedProjectId: number | undefined;
     selectedProjectName: string | undefined;
     setProjectList: (projectList: Array<Project>) => void;
-    setSelectedProjectId: (projcetid: number) => void;
-    setSelectedProjectName: (projectName: string) => void;
+    setSelectedProjectId: (projcetid: number | undefined) => void;
+    setSelectedProjectName: (projectName: string | undefined) => void;
 };
 
 export const useProjectStore = create<ProjectStore>((set) => ({
@@ -19,12 +19,12 @@ export const useProjectStore = create<ProjectStore>((set) => ({
             projectList: projectList,
         }));
     },
-    setSelectedProjectId: (projectId: number) => {
+    setSelectedProjectId: (projectId: number | undefined) => {
         set(() => ({
             selectedProjectId: projectId,
         }));
     },
-    setSelectedProjectName: (projectName: string) => {
+    setSelectedProjectName: (projectName: string | undefined) => {
         set(() => ({
             selectedProjectName: projectName,
         }));
