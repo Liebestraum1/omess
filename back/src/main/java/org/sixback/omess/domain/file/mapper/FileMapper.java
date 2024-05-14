@@ -28,6 +28,7 @@ public class FileMapper {
     public static UploadFileResponse toUploadFileResponse(FileInformation fileInformation, String address) {
         return UploadFileResponse.builder()
                 .id(fileInformation.getId())
+                .originalName(fileInformation.getOriginalName())
                 .address(address)
                 .contentType(fileInformation.getContentType())
                 .referenceType(fileInformation.getReferenceType())
