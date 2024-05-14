@@ -9,6 +9,8 @@ type Props = {
     delete: () => void;
     isPined: boolean;
     pin: () => void;
+    writer: number;
+    memberId: number;
 }
 const ChatMessageMenu = (props: Props) => {
 
@@ -28,24 +30,28 @@ const ChatMessageMenu = (props: Props) => {
             >
                 {props.isPined ? <PushPinIcon/> : <PushPinOutlinedIcon/>}
             </Button>
-            <Button color="secondary" aria-label="edit"
-                    size='small'
-                    onClick={() => props.setIsEditing(true)}
-                    sx={{
-                        '&:hover': {backgroundColor: 'indigo'}
-                    }}
-            >
-                <EditIcon/>
-            </Button>
-            <Button color="secondary" aria-label="delete"
-                    size='small'
-                    onClick={() => props.delete()}
-                    sx={{
-                        '&:hover': {backgroundColor: 'indigo'}
-                    }}
-            >
-                <DeleteIcon/>
-            </Button>
+            {props.writer === props.memberId &&
+                <Box>
+                    <Button color="secondary" aria-label="edit"
+                            size='small'
+                            onClick={() => props.setIsEditing(true)}
+                            sx={{
+                                '&:hover': {backgroundColor: 'indigo'}
+                            }}
+                    >
+                        <EditIcon/>
+                    </Button>
+                    <Button color="secondary" aria-label="delete"
+                            size='small'
+                            onClick={() => props.delete()}
+                            sx={{
+                                '&:hover': {backgroundColor: 'indigo'}
+                            }}
+                    >
+                        <DeleteIcon/>
+                    </Button>
+                </Box>
+            }
         </Box>
     );
 }

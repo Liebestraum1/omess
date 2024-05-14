@@ -9,7 +9,7 @@ import '../../styles/MdEditor.css'
 import {ChatMessage} from "../../types/chat/chat.ts";
 import {fileCancel} from "../../services/file/FileApi.ts";
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import {Link, useNavigate} from "react-router-dom";
+import {useSignInStore} from "../../stores/SignInStorage.tsx";
 
 type Props = {
     prevMessage: ChatMessage,
@@ -17,6 +17,7 @@ type Props = {
 }
 const imageExts = ['png', 'jpg', 'jpeg'];
 const ChatMessageComponent = (props: Props) => {
+    const {memberId} = useSignInStore();
     const {sendMessage} = useChatStorage();
     const [isEditing, setIsEditing] = useState(false);
     const [isView, setIsView] = useState<boolean>(false);
@@ -206,7 +207,7 @@ const ChatMessageComponent = (props: Props) => {
                                                              p={1}
                                                              gap={5}
                                                              sx={{
-                                                                 cursor:'pointer',
+                                                                 cursor: 'pointer',
                                                                  '&:hover': {
                                                                      color: 'grey'
                                                                  }
@@ -234,6 +235,8 @@ const ChatMessageComponent = (props: Props) => {
                     props.message.classify === 'USER' ? !isEditing ?
                             isView ?
                                 <ChatMessageMenu isPined={props.message.isPined} pin={pinMessage}
+                                                 memberId={memberId!}
+                                                 writer={props.message.member.id}
                                                  setIsEditing={setIsEditing}
                                                  delete={deleteMessage}/>
                                 :
