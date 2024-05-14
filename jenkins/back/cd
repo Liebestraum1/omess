@@ -119,7 +119,7 @@ pipeline {
         stage('Health check') {
             steps{
                 script {
-                    sleep 10
+                    sleep 20
                     def status = sh(script: "curl -s -o /dev/null -I -w \"%{http_code}\" http://${newBackend}:8080/actuator/health", returnStdout: true).trim()
 
                     if(status != '200') {
