@@ -6,13 +6,15 @@ import lombok.Getter;
 public class ChatFile {
     private Long id;
     private String contentType;
+    private String filename;
     private String address;
 
     protected ChatFile() {
     }
 
-    public ChatFile(Long id, String contentType, String address) {
+    public ChatFile(Long id, String filename, String contentType, String address) {
         this.id = id;
+        this.filename = filename;
         this.contentType = contentType;
         this.address = address;
     }
