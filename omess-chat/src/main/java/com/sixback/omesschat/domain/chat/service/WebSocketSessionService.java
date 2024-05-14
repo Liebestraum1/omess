@@ -34,6 +34,10 @@ public class WebSocketSessionService {
         ChatUser chatUser = ChatUser.of(session, message.getMemberId());
         log.info("chatRoom: {}, chatUser: {}", chatRoom.toString(), chatUser.toString());
 
+        ChatRoom room = users.get(chatUser);
+        if (room != null) {
+            leave(session);
+        }
         chatRoom.register(chatUser);
         rooms.put(chatId, chatRoom);
         users.put(chatUser, chatRoom);
@@ -65,9 +69,9 @@ public class WebSocketSessionService {
         }
 
         ChatRoom chatRoom = users.get(chatUser);
+        users.remove(chatUser);
         chatRoom.remove(chatUser)
                 .doOnNext(aBoolean -> {
-                    users.remove(chatUser);
                     if (aBoolean) {
                         rooms.remove(chatRoom.getChatId());
                     }
