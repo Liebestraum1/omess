@@ -28,14 +28,12 @@ type ChatStorage = {
 export const useChatStorage = create<ChatStorage>((set, get) => {
     const addLast = (message: ChatMessage) => {
         const messages = get().messages;
-        messages!.push(message);
-        set({messages: messages})
+        set({messages: [...messages!, message]})
     }
     const addFirst = (message: ChatMessage) => {
         const messages = get().messages;
 
-        messages!.unshift(message);
-        set({messages: messages})
+        set({messages: [message, ...messages!]})
     }
 
     const updateMessage = (message: ChatMessage) => {
