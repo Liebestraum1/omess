@@ -1,5 +1,6 @@
 package org.sixback.omess.domain.file.service;
 
+import io.minio.GetObjectResponse;
 import io.minio.errors.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
@@ -43,7 +44,7 @@ public class FileService {
                         .referenceId(referenceId)
                         .referenceType(referenceType)
                         .build());
-                result.add(toUploadFileResponse(fileInformation, fileStorageService.getAddress(path)));
+                result.add(toUploadFileResponse(fileInformation, fileStorageService.getAddress(fileInformation.getId())));
             } catch (ServerException | InsufficientDataException | ErrorResponseException
                      | IOException | NoSuchAlgorithmException | InvalidKeyException
                      | InvalidResponseException | XmlParserException | InternalException e) {
@@ -71,6 +72,35 @@ public class FileService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public GetObjectResponse preview(Long id) {
+        FileInformation file = fileInfoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("파일이 존재하지 않습니다."));
+        log.info("file: {}", file);
+        try {
+            return fileStorageService.preview(file.getPath());
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
+            log.error("파일을 불러올 수 없습니다. e: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] download(Long id) {
+        FileInformation file = fileInfoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("hello"));
+        log.info("file: {}", file);
+        try {
+            return fileStorageService.download(file.getPath());
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
+            log.error("파일을 불러올 수 없습니다. exception: {}", e.getMessage());
+        }
+        return null;
+    }
 
     @Transactional
     public void deleteFileInfos(List<Long> fileInfoIds) {

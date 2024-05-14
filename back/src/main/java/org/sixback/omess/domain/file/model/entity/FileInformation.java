@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.sixback.omess.domain.file.model.enums.ReferenceType;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -12,6 +13,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Getter
 @Entity
+@ToString
 @NoArgsConstructor(access = PROTECTED)
 public class FileInformation {
     @Id
