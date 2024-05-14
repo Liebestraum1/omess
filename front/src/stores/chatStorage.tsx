@@ -103,7 +103,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
 
     return {
         chatList: [],
-        serverUrl: import.meta.env.VITE_WEBSOCKET_URL,
+        serverUrl: import.meta.env.VITE_CHAT_WEBSOCKET_URL,
         isEnter: false,
         chatId: null,
         client: null,
