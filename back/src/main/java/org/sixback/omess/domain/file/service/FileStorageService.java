@@ -4,7 +4,6 @@ import io.minio.*;
 import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,7 +57,7 @@ public class FileStorageService {
                 .build());
     }
 
-    public GetObjectResponse preview(String path) throws ErrorResponseException, InsufficientDataException,
+    public GetObjectResponse downloadFile(String path) throws ErrorResponseException, InsufficientDataException,
             InternalException, InvalidKeyException, InvalidResponseException,
             IOException, NoSuchAlgorithmException, ServerException, XmlParserException {
         GetObjectResponse object = minioClient.getObject(
@@ -68,18 +67,6 @@ public class FileStorageService {
                         .build());
         log.debug("object: {}", object);
         return object;
-    }
-
-    public byte[] download(String path) throws ErrorResponseException, InsufficientDataException,
-            InternalException, InvalidKeyException, InvalidResponseException,
-            IOException, NoSuchAlgorithmException, ServerException, XmlParserException {
-        GetObjectResponse object = minioClient.getObject(
-                GetObjectArgs.builder()
-                        .bucket(BUCKET_NAME)
-                        .object(path)
-                        .build());
-        log.debug("object: {}", object);
-        return IOUtils.toByteArray(object);
     }
 
     public String getAddress(Long id) {

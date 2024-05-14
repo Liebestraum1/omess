@@ -4,6 +4,7 @@ import io.minio.GetObjectResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sixback.omess.domain.file.model.dto.request.UploadFileRequest;
+import org.sixback.omess.domain.file.model.dto.response.GetDownloadResponse;
 import org.sixback.omess.domain.file.model.dto.response.GetFileInfoResponse;
 import org.sixback.omess.domain.file.model.dto.response.UploadFileResponse;
 import org.sixback.omess.domain.file.model.enums.ReferenceType;
@@ -37,7 +38,7 @@ public class FileController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GetFileInfoResponse>> getFiles(
+    public ResponseEntity<List<GetFileInfoResponse>> getFileInfos(
             @RequestParam(name = "id") String referenceId,
             @RequestParam(name = "type") ReferenceType referenceType
     ) {
@@ -66,12 +67,12 @@ public class FileController {
     }
 
     @GetMapping("/{fileId}/download")
-    public ResponseEntity<byte[]> download(@PathVariable(name = "fileId") Long id) {
-        byte[] data = fileService.download(id);
+    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable(name = "fileId") Long id) {
+        GetDownloadResponse getDownloadResponse = fileService.download(id);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        httpHeaders.setContentDispositionFormData("attachment", "data");
-        return new ResponseEntity<>(data, httpHeaders, HttpStatus.OK);
+        httpHeaders.setContentDispositionFormData("attachment", getDownloadResponse.originalName());
+        return new ResponseEntity<>(getDownloadResponse.data(), httpHeaders, HttpStatus.OK);
     }
 
     @DeleteMapping
