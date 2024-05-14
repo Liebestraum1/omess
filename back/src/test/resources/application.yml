@@ -35,3 +35,6 @@ minio:
   key:
     access: ${MINIO_ACCESS_KEY}
     secret: ${MINIO_SECRET_KEY}
+
+domain:
+  name: ${DOMAIN_NAME}
