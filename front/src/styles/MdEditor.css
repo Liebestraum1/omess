@@ -68,6 +68,14 @@
     opacity: 100;
 }
 
-.wmde-markdown code {
-    color: #ffffff;
+.markdown-view pre {
+    background-color: #4F378B; /* 코드 블록의 배경색을 어두운 회색으로 설정 */
+    color: #E8DEF8; /* 글씨색을 밝은 회색으로 설정 */
+    padding: 10px; /* 패딩 추가 */
+    border-radius: 5px; /* 모서리를 둥글게 */
+}
+
+.markdown-view code {
+    background-color: inherit; /* 코드 태그의 배경색을 상위 요소에서 상속 */
+    color: inherit; /* 코드 태그의 글씨색을 상위 요소에서 상속 */
 }
