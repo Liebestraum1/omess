@@ -15,7 +15,6 @@ type Props = {
     prevMessage: ChatMessage,
     message: ChatMessage
 }
-const imageExts = ['png', 'jpg', 'jpeg'];
 const ChatMessageComponent = (props: Props) => {
     const {memberId} = useSignInStore();
     const {sendMessage} = useChatStorage();
@@ -27,13 +26,8 @@ const ChatMessageComponent = (props: Props) => {
     const [isSequence, setIsSequence] = useState(false);
     const [isSystem, setIsSystem] = useState(false);
 
-    const extractExt = (address: string) => {
-        const temp = address.split('/');
-        const ext = temp[temp.length - 1].split('.')
-        return ext[ext.length - 1];
-    }
     const isImage = (ext: string) => {
-        return imageExts.includes(ext);
+        return ext.includes('image');
     }
 
     function transTime(t: string[]) {
@@ -121,8 +115,14 @@ const ChatMessageComponent = (props: Props) => {
         sendMessage(JSON.stringify(data))
     }
 
-    const moveFileLink = (address: string) => {
-        window.open(address, '_blank');
+    const downloadFile = (address: string) => {
+        // `<a>` 태그를 생성
+        const link = document.createElement('a');
+        link.href = address + '/download';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
 
@@ -196,7 +196,7 @@ const ChatMessageComponent = (props: Props) => {
                                         <Box>
                                             {
                                                 props.message.files.map(value => (
-                                                    isImage(extractExt(value.address)) ?
+                                                    isImage(value.contentType) ?
                                                         <img width='400px' height='300px' src={value.address}/>
                                                         :
                                                         <Box display='flex'
@@ -212,7 +212,7 @@ const ChatMessageComponent = (props: Props) => {
                                                                      color: 'grey'
                                                                  }
                                                              }}
-                                                             onClick={() => moveFileLink(value.address)}
+                                                             onClick={() => downloadFile(value.address)}
                                                         >
                                                             <AttachFileIcon/>
                                                             <Typography>파일</Typography>
