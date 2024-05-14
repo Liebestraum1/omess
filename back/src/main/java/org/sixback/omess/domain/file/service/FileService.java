@@ -6,11 +6,13 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sixback.omess.domain.file.model.dto.response.GetDownloadResponse;
 import org.sixback.omess.domain.file.model.dto.response.GetFileInfoResponse;
 import org.sixback.omess.domain.file.model.dto.response.UploadFileResponse;
 import org.sixback.omess.domain.file.model.entity.FileInformation;
 import org.sixback.omess.domain.file.model.enums.ReferenceType;
 import org.sixback.omess.domain.file.repository.FileInfoRepository;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.sixback.omess.domain.file.mapper.FileMapper.toGetDownloadResponse;
 import static org.sixback.omess.domain.file.mapper.FileMapper.toUploadFileResponse;
 import static org.sixback.omess.domain.file.model.enums.FileErrorMessage.FILE_INFO_NOT_FOUND_ERROR;
 
@@ -74,11 +77,10 @@ public class FileService {
 
     @Transactional(readOnly = true)
     public GetObjectResponse preview(Long id) {
-        FileInformation file = fileInfoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("파일이 존재하지 않습니다."));
+        FileInformation file = getEntity(id);
         log.info("file: {}", file);
         try {
-            return fileStorageService.preview(file.getPath());
+            return fileStorageService.downloadFile(file.getPath());
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
@@ -88,18 +90,18 @@ public class FileService {
     }
 
     @Transactional(readOnly = true)
-    public byte[] download(Long id) {
-        FileInformation file = fileInfoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("hello"));
+    public GetDownloadResponse download(Long id) {
+        FileInformation file = getEntity(id);
         log.info("file: {}", file);
+        GetObjectResponse objectResponse = null;
         try {
-            return fileStorageService.download(file.getPath());
+            objectResponse = fileStorageService.downloadFile(file.getPath());
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
             log.error("파일을 불러올 수 없습니다. exception: {}", e.getMessage());
         }
-        return null;
+        return toGetDownloadResponse(file, new InputStreamResource(objectResponse));
     }
 
     @Transactional
@@ -123,5 +125,11 @@ public class FileService {
                 log.error("exception: 발생 : {}", e.getMessage());
             }
         });
+    }
+
+    @Transactional
+    protected FileInformation getEntity(Long id) {
+        return fileInfoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("파일이 존재하지 않습니다."));
     }
 }
