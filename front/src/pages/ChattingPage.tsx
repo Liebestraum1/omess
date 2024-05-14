@@ -12,7 +12,7 @@ import {useNavigate, useParams} from "react-router-dom";
 const ChattingPage = () => {
     const navigate = useNavigate();
     const {chatId} = useParams();
-    const {setChat, chatList, chatInfo, init, client} = useChatStorage();
+    const {enter, setChat, chatList, chatInfo, init, client} = useChatStorage();
     const [isOpened, setIsOpened] = useState(false);
     const [selectedTab, setSelectedTab] = useState('info');
     const {memberId} = useSignInStore();
@@ -27,7 +27,12 @@ const ChattingPage = () => {
     }, [chatId]);
 
     useEffect(() => {
-        init(memberId!);
+        console.log(client)
+        if (client !== null) {
+            enter(memberId!);
+        } else {
+            init(memberId!);
+        }
     }, [chatInfo]);
 
     return (

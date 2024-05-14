@@ -6,6 +6,7 @@ import styled from "@mui/system/styled";
 import {useSignInStore} from "../../stores/SignInStorage.tsx";
 import {chatCreate} from "../../services/chat/ChatApi.ts";
 import {useChatStorage} from "../../stores/chatStorage.tsx";
+import {useNavigate} from "react-router-dom";
 
 const ModuleCreationModalBox = styled(Box)({
     width: "425px",
@@ -72,6 +73,7 @@ const ChatCreationModal = ({open, setOpen, projectId}: { open: boolean, setOpen:
         setIsEmailInvalid(!validateEmail(email));
     }
 
+    const navigator = useNavigate();
     const makeChat = () => {
         if (members!.length < 1 || chatName.trim().length < 1) {
             setIsAlert(true);

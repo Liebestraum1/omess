@@ -22,6 +22,7 @@ type ChatStorage = {
     addChat: (chat: ChatInfo) => void;
     removeChat: (chatId: string) => void;
     reset: () => void;
+    enter: (memberId: number) => void;
 };
 
 export const useChatStorage = create<ChatStorage>((set, get) => {
@@ -88,9 +89,9 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         addFirst(chatName.message)
     }
 
-    const membersMessage = (member: ChatMember) => {
+    const membersMessage = (member: any) => {
         const members = get().members;
-        members!.push(member);
+        members!.push({...member.member, ...member});
         set({members: members});
     }
 
@@ -112,6 +113,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         pinMessages: null,
         files: null,
         init: (memberId: number) => {
+            let client = get().client;
             const chat = get().chatInfo
             if (chat == null) {
                 console.log('must have chatInfo')
@@ -119,14 +121,11 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
             }
 
             const url = get().serverUrl
-            let client = get().client;
-            if (client == null) {
-                client = new WebSocket(url)
-                set({client})
-            }
+            client = new WebSocket(url)
+            set({client})
 
             client.onopen = () => {
-                if (client.readyState === WebSocket.OPEN) {
+                if (client!.readyState === WebSocket.OPEN) {
                     const enter = {
                         type: 'ENTER',
                         data: {
@@ -134,11 +133,8 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                             chatId: `${get().chatId}`
                         }
                     };
-                    client.send(JSON.stringify(enter));
-                    set({messages: []})
-                    set({pinMessages: []})
-                    set({members: []})
-                    set({files: []})
+                    client!.send(JSON.stringify(enter));
+                    set({messages: [], pinMessages: [], members: [], files: []})
                 }
             }
 
@@ -152,7 +148,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
             }
 
             client.onmessage = (event) => {
-                if (client.readyState !== WebSocket.OPEN) return;
+                if (client!.readyState !== WebSocket.OPEN) return;
                 const message = JSON.parse(event.data);
                 console.log(message.type, message.data)
                 switch (message.type) {
@@ -189,6 +185,18 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                         break;
                 }
             };
+        },
+        enter: (memberId: number) => {
+            if (get().client!.readyState !== WebSocket.OPEN) return;
+            const enter = {
+                type: 'ENTER',
+                data: {
+                    memberId: memberId,
+                    chatId: `${get().chatId}`
+                }
+            };
+            get().client!.send(JSON.stringify(enter));
+            set({messages: [], pinMessages: [], members: [], files: [], isEnter: false})
         },
         sendMessage: (data: any) => {
             if (get().client == null || get().client!.readyState !== WebSocket.OPEN) {
@@ -227,8 +235,6 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         },
         reset: () => {
             set({
-                chatId: null,
-                chatInfo: null,
                 messages: null,
                 files: null,
                 members: null,

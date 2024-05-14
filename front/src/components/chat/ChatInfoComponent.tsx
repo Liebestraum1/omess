@@ -1,7 +1,7 @@
 import {Button} from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 
-const ChatInfoComponent = ({chatId, setIsOpened, setSelectedTab}: {
+const ChatInfoComponent = ({setIsOpened, setSelectedTab}: {
     chatId: string,
     setIsOpened: any,
     setSelectedTab: any

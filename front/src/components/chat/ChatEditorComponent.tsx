@@ -117,25 +117,27 @@ const ChatEditorComponent = () => {
                     ))
                 }
             </Box>
-            <MDEditor
-                className='my-editor'
-                data-color-mode="light"
-                value={value}
-                onChange={(v) => setValue(v)}
-                onKeyPress={handleKeyDown}
-                textareaProps={{
-                    placeholder: '메시지 입력...',
-                    maxLength: 16383
-                }}
-                height='100%'
-                visibleDragbar={false}
-                preview={"edit"}
-                toolbarBottom={true}
-                commands={customCommands}
-                extraCommands={[
-                    sendBtn
-                ]}
-            ></MDEditor>
+            <Box flex={1}>
+                <MDEditor
+                    className='my-editor'
+                    data-color-mode="light"
+                    value={value}
+                    onChange={(v) => setValue(v)}
+                    onKeyPress={handleKeyDown}
+                    textareaProps={{
+                        placeholder: '메시지 입력...',
+                        maxLength: 16383
+                    }}
+                    height='100%'
+                    visibleDragbar={false}
+                    preview={"edit"}
+                    toolbarBottom={true}
+                    commands={customCommands}
+                    extraCommands={[
+                        sendBtn
+                    ]}
+                ></MDEditor>
+            </Box>
             <Box>
                 {
                     alert === '' ? null
