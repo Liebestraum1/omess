@@ -15,6 +15,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {
     Backdrop,
     Button,
+    Collapse,
     Fade,
     FormControl,
     FormHelperText,
@@ -27,6 +28,8 @@ import {
 } from "@mui/material";
 import { ChatAccordion } from "../chat/ChatAccordion.tsx";
 import { Link } from "react-router-dom";
+import ArrowDropDown from "@mui/icons-material/ArrowDropDown";
+import ArrowRight from "@mui/icons-material/ArrowRight";
 
 type GroupModules = {
     [key: string]: ModuleResponse[];
@@ -50,7 +53,7 @@ const ModuleSidebarTitleBox = styled(Box)({
     alignItems: "center",
     paddingInline: "16px",
     height: "48px",
-    backgroundColor: "#dbc6f7",
+    // backgroundColor: "#dbc6f7",
     whiteSpace: "nowrap",
 });
 
@@ -85,6 +88,8 @@ const ModuleSidebar = () => {
     const [moduleCategory, setModuleCategory] = useState<Array<ModuleCategoryResponse>>([]);
     const [selectedModuleCategory, setSelectedModuleCategory] = useState<number | "">("");
 
+    const [openModule, setOpenModule] = useState<boolean>(false);
+
     const createModule = (index: number) => {
         const requestCategory = moduleCategory[index];
         const moduleCreateRequest: ModuleCreateRequest = { name: moduleName, category: requestCategory.category };
@@ -94,6 +99,10 @@ const ModuleSidebar = () => {
                 setOpenModuleCreationModal(false);
             });
         }
+    };
+
+    const handleModule = () => {
+        setOpenModule(!openModule);
     };
 
     useEffect(() => {
@@ -127,17 +136,38 @@ const ModuleSidebar = () => {
                 <>
                     <ModuleSidebarTitleBox>
                         <ModuleSidebarTitle variant="h6">{selectedProjectName} </ModuleSidebarTitle>
-                        <AddIcon onClick={() => setOpenModuleCreationModal(true)} sx={{ cursor: "pointer" }}></AddIcon>
                     </ModuleSidebarTitleBox>
-                    {Object.keys(groupedModules).map((key) => (
-                        <Link to="/main/module" key={key}>
+                    <ModuleSidebarTitleBox
+                        sx={{
+                            backgroundColor: "#dbc6f7",
+                            paddingInline: "0px",
+                        }}
+                    >
+                        <Box
+                            onClick={handleModule}
+                            sx={{
+                                display: "flex",
+                                width: "100%",
+                                cursor: "pointer",
+                            }}
+                        >
+                            {openModule ? <ArrowDropDown color="action" /> : <ArrowRight color="action" />}
+                            <Typography>모듈</Typography>
+                        </Box>
+                        <AddIcon
+                            onClick={() => setOpenModuleCreationModal(true)}
+                            sx={{ cursor: "pointer", padding: "8px" }}
+                        ></AddIcon>
+                    </ModuleSidebarTitleBox>
+                    <Collapse in={openModule} timeout="auto" unmountOnExit>
+                        {Object.keys(groupedModules).map((key) => (
                             <Module
                                 moduleCategory={key}
                                 key={key}
                                 moduleItems={groupedModules[key].map((module: ModuleResponse) => module)}
                             ></Module>
-                        </Link>
-                    ))}
+                        ))}
+                    </Collapse>
                     <ChatAccordion projectId={selectedProjectId} />
                 </>
             )}

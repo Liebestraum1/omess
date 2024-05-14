@@ -1,13 +1,16 @@
-import { Divider, List, ListItem, Typography } from "@mui/material";
+import { Divider, Icon, List, ListItem, ListItemButton, SvgIconProps, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
-import React from "react";
+import React, { useState } from "react";
 import Circle from "@mui/icons-material/Circle";
+import ApiIcon from "@mui/icons-material/Api";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { ModuleResponse } from "../../services/Module/ModuleApi";
 import { useModuleStore } from "../../stores/ModuleStorage";
+import { useNavigate } from "react-router-dom";
 
 type moduleProps = {
-    moduleCategory: React.ReactNode;
+    moduleCategory: string;
     moduleItems: Array<ModuleResponse>;
 };
 
@@ -25,11 +28,26 @@ const ModuleItemTypography = styled(Typography)({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
     color: "#49454F",
-    fontSize: 12,
+    fontSize: 14,
 });
 
-const ModuleItemsTypeGuard = (moduleItems: Array<ModuleResponse>): React.ReactNode => {
-    const { currentModuleContent, setCurrentModuleContent } = useModuleStore();
+const iconStyle = {
+    fontSize: "16px",
+    paddingLeft: "12px",
+};
+const ModuleCategoryIcon = (moduleCategory: string) => {
+    switch (moduleCategory) {
+        case "API 명세서":
+            return <ApiIcon sx={iconStyle} />;
+        case "일정 관리":
+            return <CalendarMonthIcon sx={iconStyle} />;
+    }
+    return null;
+};
+
+const ModuleItemsListItems = (moduleCategory: string, moduleItems: Array<ModuleResponse>): React.ReactNode => {
+    const { setCurrentModuleContent } = useModuleStore();
+    const navigate = useNavigate();
 
     if (moduleItems === null || moduleItems === undefined || moduleItems.length == 0) {
         return null;
@@ -37,27 +55,37 @@ const ModuleItemsTypeGuard = (moduleItems: Array<ModuleResponse>): React.ReactNo
         return (
             <Box>
                 <List>
-                    {moduleItems.map((item, index) => (
-                        <ListItem
-                            key={index}
-                            onClick={() => {
-                                setCurrentModuleContent(item.id, item.category);
-                            }}
-                            sx={{
-                                cursor: "pointer",
-                            }}
-                        >
-                            <Circle sx={{ fontSize: 8, marginRight: 1.5, color: "#49454F" }} />
-                            <ModuleItemTypography variant="button">{item.title}</ModuleItemTypography>
-                        </ListItem>
-                    ))}
+                    <ListItem disablePadding>
+                        {ModuleCategoryIcon(moduleCategory)}
+                        <Typography fontSize={16} fontWeight={"600"} color={"#49454F"} paddingLeft="8px">
+                            {moduleCategory}
+                        </Typography>
+                    </ListItem>
+                    <List>
+                        {moduleItems.map((item, index) => (
+                            <ListItem
+                                key={index}
+                                disablePadding
+                                sx={{
+                                    width: "100%",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                <ListItemButton
+                                    onClick={() => {
+                                        setCurrentModuleContent(item.id, item.category);
+                                        navigate("/main/module");
+                                    }}
+                                >
+                                    <Circle
+                                        sx={{ fontSize: 4, marginLeft: "8px", marginRight: "8px", color: "#49454F" }}
+                                    />
+                                    <ModuleItemTypography variant="button">{item.title}</ModuleItemTypography>
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
                 </List>
-                <Divider
-                    variant="middle"
-                    sx={{
-                        marginBottom: 2,
-                    }}
-                />
             </Box>
         );
     }
@@ -67,16 +95,11 @@ const Module = ({ moduleCategory, moduleItems }: moduleProps) => {
     return (
         <Box
             sx={{
-                marginLeft: "4px",
                 whiteSpace: "nowrap",
             }}
         >
-            <ModuleCategoryBox>
-                <Typography fontSize={16} fontWeight={"500"} color={"#49454F"}>
-                    {moduleCategory}
-                </Typography>
-            </ModuleCategoryBox>
-            {ModuleItemsTypeGuard(moduleItems)}
+            <ModuleCategoryBox></ModuleCategoryBox>
+            {ModuleItemsListItems(moduleCategory, moduleItems)}
         </Box>
     );
 };
