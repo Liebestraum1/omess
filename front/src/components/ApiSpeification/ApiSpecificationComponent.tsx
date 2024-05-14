@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Box, Chip, List, ListItem} from "@mui/material";
+import {Box, Chip, Divider, List, ListItem} from "@mui/material";
 import {loadApiSpecification} from "./request/ApiSpecificationRequest.ts";
 import {ApiSpecification} from "../../types/api-specification/ApiSpecification.ts";
 import ApiListComponent from "./api/ApiListComponent.tsx";
@@ -67,47 +67,50 @@ const ApiSpecificationComponent = ({projectId, apiSpecificationId}: {
                     // sx={{border: '2px solid black'}}
                 >
                     {ApiSpecification.domains.map((domain) => (
-                        <List key={`domain-${domain.domainId}`}>
-                            <ListItem
-                                sx={{
-                                    // border: '2px solid blue',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between',
-                                }}
-                            >
-                                <DomainComponent
-                                    projectId={projectId}
-                                    apiSpecificationId={apiSpecificationId}
-                                    domainId={domain.domainId}
-                                    name={domain.name}
-                                    onChildChange={handleChildChange}
-                                />
-                                <ApiListComponent
-                                    projectId={projectId}
-                                    apiSpecificationId={apiSpecificationId}
-                                    domainId={domain.domainId}
-                                    onChildChange={handleChildChange}
-                                    apis={domain.apis}/>
+                        <Box key={`domain-${domain.domainId}-box`}>
+                            <List key={`domain-${domain.domainId}`}>
+                                <ListItem
+                                    sx={{
+                                        // border: '2px solid blue',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <DomainComponent
+                                        projectId={projectId}
+                                        apiSpecificationId={apiSpecificationId}
+                                        domainId={domain.domainId}
+                                        name={domain.name}
+                                        onChildChange={handleChildChange}
+                                    />
+                                    <ApiListComponent
+                                        projectId={projectId}
+                                        apiSpecificationId={apiSpecificationId}
+                                        domainId={domain.domainId}
+                                        onChildChange={handleChildChange}
+                                        apis={domain.apis}/>
 
-                            </ListItem>
-                            <Chip
-                                icon={<AddCircleIcon
-                                    style={{color: '#4F378B'}}
-                                />}
-                                label="API 추가" variant='outlined'
-                                sx={{ml: 2}}
-                                onClick={() => handleCrateApiModalOpen(domain.domainId)}
-                            />
-                            <ApiCreateModal
-                                projectId={projectId}
-                                apiSpecificationId={apiSpecificationId}
-                                domainId={selectedDomainId}
-                                onChildChange={handleChildChange}
-                                open={isNewApiMode}
-                                changeOpen={changeCreateApiModalOpen}
-                            />
-                        </List>
+                                </ListItem>
+                                <Chip
+                                    icon={<AddCircleIcon
+                                        style={{color: '#4F378B'}}
+                                    />}
+                                    label="API 추가" variant='outlined'
+                                    sx={{ml: 2}}
+                                    onClick={() => handleCrateApiModalOpen(domain.domainId)}
+                                />
+                                <ApiCreateModal
+                                    projectId={projectId}
+                                    apiSpecificationId={apiSpecificationId}
+                                    domainId={selectedDomainId}
+                                    onChildChange={handleChildChange}
+                                    open={isNewApiMode}
+                                    changeOpen={changeCreateApiModalOpen}
+                                />
+                            </List>
+                            <Divider key={`domain-${domain.domainId}-divider`} sx={{my: 2}} />
+                        </Box>
                     ))}
 
                     <CreateDomainModal
