@@ -1,13 +1,16 @@
-import { Alert, AlertTitle, Box, Button, Snackbar, styled } from "@mui/material";
-import ProjectFab from "./ProjectFab";
-import AddIcon from "@mui/icons-material/Add";
-import { getProjectApi } from "../../services/Project/ProjectApi";
 import { useEffect, useState } from "react";
+
+import { Alert, AlertTitle, Box, Button, Snackbar, styled } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+
 import { useProjectStore } from "../../stores/ProjectStorage";
-import { Project } from "../../types/Project/Project";
-import ProjectInvitationModal from "./ProjectInvitationModal";
-import { AlertContent } from "../../types/common/Alert";
 import { useModuleStore } from "../../stores/ModuleStorage";
+
+import { Project } from "../../types/Project/Project";
+import { AlertContent } from "../../types/common/Alert";
+import { getProjectApi } from "../../services/Project/ProjectApi";
+import ProjectFab from "./ProjectFab";
+import ProjectInvitationModal from "./ProjectInvitationModal";
 
 const ProjectSidebarBox = styled(Box)({
     display: "flex",
@@ -63,7 +66,7 @@ const ProjectSidebar = () => {
             {/* 프로젝트 목록 */}
             {projectList?.map((project) => (
                 <ProjectFab
-                    fabContent={project.name}
+                    projectFabContent={project.name}
                     onClick={() => {
                         setSelectedProjectId(project.projectId);
                         setSelectedProjectName(project.name);
@@ -74,7 +77,7 @@ const ProjectSidebar = () => {
             ))}
 
             {/* 프로젝트 추가 아이콘 */}
-            <ProjectFab onClick={() => setModalOpen(true)} fabContent={<AddIcon />} />
+            <ProjectFab onClick={() => setModalOpen(true)} projectFabContent={<AddIcon />} />
 
             {/* 프로젝트 생성 모달 */}
             <ProjectInvitationModal
