@@ -230,13 +230,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
             set({chatId: chat.id, chatInfo: chat})
         },
         reset: () => {
-            set({
-                messages: null,
-                files: null,
-                members: null,
-                pinMessages: null,
-                client: null
-            })
+            set({chatInfo:null, messages: [], pinMessages: [], members: [], files: [], isEnter: false})
         }
     }
 });
