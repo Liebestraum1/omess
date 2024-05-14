@@ -116,7 +116,6 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
             let client = get().client;
             const chat = get().chatInfo
             if (chat == null) {
-                console.log('must have chatInfo')
                 return;
             }
 
@@ -138,8 +137,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
                 }
             }
 
-            client.onerror = (error) => {
-                console.error("에러발생!!!", error);
+            client.onerror = () => {
                 set({client: null})
             };
 
@@ -150,7 +148,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
             client.onmessage = (event) => {
                 if (client!.readyState !== WebSocket.OPEN) return;
                 const message = JSON.parse(event.data);
-                console.log(message.type, message.data)
+                // console.log(message.type, message.data)
                 switch (message.type) {
                     case "MESSAGE":
                         addFirst(message.data);
@@ -200,7 +198,7 @@ export const useChatStorage = create<ChatStorage>((set, get) => {
         },
         sendMessage: (data: any) => {
             if (get().client == null || get().client!.readyState !== WebSocket.OPEN) {
-                console.error('client 연결 안돼 있음')
+                console.error('no client')
             } else {
                 get().client!.send(data)
             }
