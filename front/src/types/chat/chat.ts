@@ -37,5 +37,6 @@ export type ChatMessage = {
 
 export type FileInformation = {
     id: number,
+    contentType: string,
     address: string
 }
