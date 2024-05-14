@@ -7,14 +7,20 @@ import { useChatStorage } from "../stores/chatStorage.tsx";
 import ChatRoomInfoComponent from "../components/chat/ChatRoomInfoComponent.tsx";
 import { useSignInStore } from "../stores/SignInStorage.tsx";
 import { useNavigate, useParams } from "react-router-dom";
+import {useProjectStore} from "../stores/ProjectStorage.tsx";
 
 const ChattingPage = () => {
+    const {selectedProjectId} = useProjectStore();
     const navigate = useNavigate();
     const { chatId } = useParams();
-    const { enter, setChat, chatList, chatInfo, init, client } = useChatStorage();
+    const { reset, enter, setChat, chatList, chatInfo, init, client } = useChatStorage();
     const [isOpened, setIsOpened] = useState(false);
     const [selectedTab, setSelectedTab] = useState("info");
     const { memberId } = useSignInStore();
+
+    useEffect(() => {
+        reset()
+    }, [selectedProjectId]);
 
     useEffect(() => {
         if (chatId == undefined || chatList == undefined || chatList.length < 1) {
