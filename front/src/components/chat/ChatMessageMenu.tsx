@@ -16,6 +16,8 @@ const ChatMessageMenu = (props: Props) => {
 
     return (
         <Box
+            display='flex'
+            alignItems='center'
             boxShadow={3}
             borderRadius={3}
             gap={2}
