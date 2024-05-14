@@ -215,7 +215,7 @@ const ChatMessageComponent = (props: Props) => {
                                                              onClick={() => downloadFile(value.address)}
                                                         >
                                                             <AttachFileIcon/>
-                                                            <Typography>파일</Typography>
+                                                            <Typography>{value.originalName}</Typography>
                                                         </Box>
                                                 ))
                                             }
