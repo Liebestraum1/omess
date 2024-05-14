@@ -17,9 +17,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
 
 @Slf4j
 @RestController
@@ -70,9 +76,11 @@ public class FileController {
     public ResponseEntity<InputStreamResource> downloadFile(@PathVariable(name = "fileId") Long id) {
         GetDownloadResponse getDownloadResponse = fileService.download(id);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        httpHeaders.setContentDispositionFormData("attachment", getDownloadResponse.originalName());
-        return new ResponseEntity<>(getDownloadResponse.data(), httpHeaders, HttpStatus.OK);
+        httpHeaders.setContentType(APPLICATION_OCTET_STREAM);
+        log.info("name: {}", getDownloadResponse.originalName());
+        String originalName = URLEncoder.encode(getDownloadResponse.originalName(), UTF_8);
+        httpHeaders.setContentDispositionFormData("attachment", originalName);
+        return new ResponseEntity<>(getDownloadResponse.data(), httpHeaders, OK);
     }
 
     @DeleteMapping
