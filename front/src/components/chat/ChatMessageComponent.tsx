@@ -1,4 +1,4 @@
-import {Avatar, Box} from "@mui/material";
+import {Avatar, Box, Typography} from "@mui/material";
 import {useEffect, useRef, useState} from "react";
 import ChatMessageMenu from "./ChatMessageMenu.tsx";
 import ChatEditingButton from "./ChatEditingButton.tsx";
@@ -8,6 +8,8 @@ import MDEditor from '@uiw/react-md-editor';
 import '../../styles/MdEditor.css'
 import {ChatMessage} from "../../types/chat/chat.ts";
 import {fileCancel} from "../../services/file/FileApi.ts";
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import {Link, useNavigate} from "react-router-dom";
 
 type Props = {
     prevMessage: ChatMessage,
@@ -118,6 +120,10 @@ const ChatMessageComponent = (props: Props) => {
         sendMessage(JSON.stringify(data))
     }
 
+    const moveFileLink = (address: string) => {
+        window.open(address, '_blank');
+    }
+
 
     return (
         <Box
@@ -190,10 +196,25 @@ const ChatMessageComponent = (props: Props) => {
                                             {
                                                 props.message.files.map(value => (
                                                     isImage(extractExt(value.address)) ?
-                                                        <img src={value.address}/>
+                                                        <img width='400px' height='300px' src={value.address}/>
                                                         :
-                                                        <Box>
-                                                            파일 section
+                                                        <Box display='flex'
+                                                             justifyContent='start'
+                                                             border={1}
+                                                             borderRadius={1}
+                                                             my={1}
+                                                             p={1}
+                                                             gap={5}
+                                                             sx={{
+                                                                 cursor:'pointer',
+                                                                 '&:hover': {
+                                                                     color: 'grey'
+                                                                 }
+                                                             }}
+                                                             onClick={() => moveFileLink(value.address)}
+                                                        >
+                                                            <AttachFileIcon/>
+                                                            <Typography>파일</Typography>
                                                         </Box>
                                                 ))
                                             }

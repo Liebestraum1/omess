@@ -34,7 +34,7 @@ const ChatFileInput = ({file, setFiles}: {
 
     useEffect(() => {
         if (uploading) return;
-        fileUpload({referenceId: 'asdoinweqofd', referenceType: 'CHAT', files: Array.of(file)}, setPercent)
+        fileUpload({referenceId: chatId!, referenceType: 'CHAT', files: Array.of(file)}, setPercent)
             .then((response) => {
                 const {data} = response;
                 addFile({id: data[0].id, address: data[0].address});

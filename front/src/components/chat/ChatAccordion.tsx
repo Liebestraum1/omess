@@ -7,7 +7,7 @@ import {useChatStorage} from "../../stores/chatStorage.tsx";
 import {useEffect, useState} from "react";
 import {getChatList, leaveChat} from "../../services/chat/ChatApi.ts";
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 
 export const ChatAccordion = ({projectId}: { projectId: number | undefined }) => {
     const {chatList, setChatList, removeChat, chatId, reset} = useChatStorage();
@@ -23,6 +23,7 @@ export const ChatAccordion = ({projectId}: { projectId: number | undefined }) =>
 
     const [openChatCreationModal, setOpenChatCreationModal] = useState<boolean>(false);
 
+    const navigator = useNavigate();
     const handleChatLeave = (chat: string) => {
         if (projectId == undefined) return;
         leaveChat(projectId, chat).then(() => {
@@ -30,6 +31,7 @@ export const ChatAccordion = ({projectId}: { projectId: number | undefined }) =>
             if (chatId === chat) {
                 reset();
             }
+            navigator('/main')
         }).catch((e) => console.error(e))
     }
 
