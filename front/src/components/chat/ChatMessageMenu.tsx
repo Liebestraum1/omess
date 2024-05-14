@@ -20,7 +20,6 @@ const ChatMessageMenu = (props: Props) => {
             alignItems='center'
             boxShadow={3}
             borderRadius={3}
-            gap={2}
             sx={{padding: '5px'}}
         >
             <Button color="secondary" aria-label="pin"
