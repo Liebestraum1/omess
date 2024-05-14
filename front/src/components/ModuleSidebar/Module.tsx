@@ -18,8 +18,8 @@ const ModuleCategoryBox = styled(Box)({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginLeft: 8,
-    marginRight: 8,
+    marginLeft: "8px",
+    marginRight: "8px",
 });
 
 const ModuleItemTypography = styled(Typography)({
@@ -54,14 +54,22 @@ const ModuleItemsListItems = (moduleCategory: string, moduleItems: Array<ModuleR
     } else {
         return (
             <Box>
-                <List>
+                <List
+                    sx={{
+                        paddingBottom: "0px",
+                    }}
+                >
                     <ListItem disablePadding>
                         {ModuleCategoryIcon(moduleCategory)}
                         <Typography fontSize={16} fontWeight={"600"} color={"#49454F"} paddingLeft="8px">
                             {moduleCategory}
                         </Typography>
                     </ListItem>
-                    <List>
+                    <List
+                        sx={{
+                            paddingBottom: "0px",
+                        }}
+                    >
                         {moduleItems.map((item, index) => (
                             <ListItem
                                 key={index}

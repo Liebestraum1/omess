@@ -20,6 +20,7 @@ import {
     FormControl,
     FormHelperText,
     InputLabel,
+    Menu,
     MenuItem,
     Modal,
     Select,
@@ -30,6 +31,8 @@ import { ChatAccordion } from "../chat/ChatAccordion.tsx";
 import { Link } from "react-router-dom";
 import ArrowDropDown from "@mui/icons-material/ArrowDropDown";
 import ArrowRight from "@mui/icons-material/ArrowRight";
+import { getProjectApi, leaveProjectApi } from "../../services/Project/ProjectApi.ts";
+import { Project } from "../../types/Project/Project.ts";
 
 type GroupModules = {
     [key: string]: ModuleResponse[];
@@ -55,6 +58,7 @@ const ModuleSidebarTitleBox = styled(Box)({
     height: "48px",
     // backgroundColor: "#dbc6f7",
     whiteSpace: "nowrap",
+    padding: "0px",
 });
 
 const ModuleSidebarTitle = styled(Typography)({
@@ -80,15 +84,25 @@ const ModuleSidebarBox = styled(Box)({
 });
 
 const ModuleSidebar = () => {
-    const { selectedProjectName, selectedProjectId } = useProjectStore();
+    const { selectedProjectName, selectedProjectId, setSelectedProjectName, setSelectedProjectId, setProjectList } =
+        useProjectStore();
 
     const [groupedModules, setGroupedModules] = useState<GroupModules>({});
     const [openModuleCreationModal, setOpenModuleCreationModal] = useState<boolean>(false);
+
     const [moduleName, setModuleName] = useState<string>("");
     const [moduleCategory, setModuleCategory] = useState<Array<ModuleCategoryResponse>>([]);
     const [selectedModuleCategory, setSelectedModuleCategory] = useState<number | "">("");
 
     const [openModule, setOpenModule] = useState<boolean>(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleProjectMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleProjectMenuClose = () => {
+        setAnchorEl(null);
+    };
 
     const createModule = (index: number) => {
         const requestCategory = moduleCategory[index];
@@ -99,6 +113,25 @@ const ModuleSidebar = () => {
                 setOpenModuleCreationModal(false);
             });
         }
+    };
+
+    const leaveProject = () => {
+        if (selectedProjectId != undefined) {
+            leaveProjectApi(selectedProjectId).then(() => {
+                setSelectedProjectId(undefined);
+                setSelectedProjectName(undefined);
+                getProjectList();
+            });
+        }
+    };
+
+    const getProjectList = () => {
+        getProjectApi()
+            .then((data: any) => {
+                const dataList: Array<Project> = data["projects"];
+                setProjectList(dataList);
+            })
+            .catch((error) => {});
     };
 
     const handleModule = () => {
@@ -135,8 +168,41 @@ const ModuleSidebar = () => {
             {selectedProjectId === undefined ? null : (
                 <>
                     <ModuleSidebarTitleBox>
-                        <ModuleSidebarTitle variant="h6">{selectedProjectName} </ModuleSidebarTitle>
+                        <Button
+                            fullWidth
+                            sx={{
+                                display: "flex",
+                                justifyContent: "flex-start",
+                                height: "100%",
+                            }}
+                            onClick={handleProjectMenu}
+                        >
+                            <ModuleSidebarTitle variant="h6">{selectedProjectName} </ModuleSidebarTitle>
+                        </Button>
                     </ModuleSidebarTitleBox>
+                    <Menu
+                        id="fade-menu"
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleProjectMenuClose}
+                        TransitionComponent={Fade}
+                    >
+                        <MenuItem
+                            onClick={() => {
+                                handleProjectMenuClose();
+                            }}
+                        >
+                            프로젝트 멤버 추가
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                handleProjectMenuClose();
+                                leaveProject();
+                            }}
+                        >
+                            프로젝트 나가기
+                        </MenuItem>
+                    </Menu>
                     <ModuleSidebarTitleBox
                         sx={{
                             backgroundColor: "#dbc6f7",
@@ -160,13 +226,17 @@ const ModuleSidebar = () => {
                         ></AddIcon>
                     </ModuleSidebarTitleBox>
                     <Collapse in={openModule} timeout="auto" unmountOnExit>
-                        {Object.keys(groupedModules).map((key) => (
-                            <Module
-                                moduleCategory={key}
-                                key={key}
-                                moduleItems={groupedModules[key].map((module: ModuleResponse) => module)}
-                            ></Module>
-                        ))}
+                        {Object.keys(groupedModules).length != 0 ? (
+                            Object.keys(groupedModules).map((key) => (
+                                <Module
+                                    moduleCategory={key}
+                                    key={key}
+                                    moduleItems={groupedModules[key].map((module: ModuleResponse) => module)}
+                                ></Module>
+                            ))
+                        ) : (
+                            <Typography margin={"8px"}> 모듈이 비어있습니다. </Typography>
+                        )}
                     </Collapse>
                     <ChatAccordion projectId={selectedProjectId} />
                 </>
