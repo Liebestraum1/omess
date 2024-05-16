@@ -13,6 +13,8 @@ import {
 } from "../../services/Module/ModuleApi.ts";
 import AddIcon from "@mui/icons-material/Add";
 import {
+    Alert,
+    AlertTitle,
     Backdrop,
     Button,
     Collapse,
@@ -24,6 +26,7 @@ import {
     MenuItem,
     Modal,
     Select,
+    Snackbar,
     TextField,
     Typography,
 } from "@mui/material";
@@ -33,6 +36,8 @@ import ArrowDropDown from "@mui/icons-material/ArrowDropDown";
 import ArrowRight from "@mui/icons-material/ArrowRight";
 import { getProjectApi, leaveProjectApi } from "../../services/Project/ProjectApi.ts";
 import { Project } from "../../types/Project/Project.ts";
+import MemberInvitationModal from "./MemberInvitationModal.tsx";
+import { AlertContent } from "../../types/common/Alert.ts";
 
 type GroupModules = {
     [key: string]: ModuleResponse[];
@@ -83,6 +88,10 @@ const ModuleSidebarBox = styled(Box)({
     },
 });
 
+const alertButton = (action: () => void) => {
+    return <Button onClick={action}>확인</Button>;
+};
+
 const ModuleSidebar = () => {
     const { selectedProjectName, selectedProjectId, setSelectedProjectName, setSelectedProjectId, setProjectList } =
         useProjectStore();
@@ -114,6 +123,14 @@ const ModuleSidebar = () => {
             });
         }
     };
+
+    const [showAlert, setShowAlert] = useState<boolean>(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [alertContent, setAlertContent] = useState<AlertContent>({
+        severity: undefined,
+        title: "",
+        content: "",
+    });
 
     const leaveProject = () => {
         if (selectedProjectId != undefined) {
@@ -190,6 +207,7 @@ const ModuleSidebar = () => {
                         <MenuItem
                             onClick={() => {
                                 handleProjectMenuClose();
+                                setModalOpen(true);
                             }}
                         >
                             프로젝트 멤버 추가
@@ -238,6 +256,25 @@ const ModuleSidebar = () => {
                             <Typography margin={"8px"}> 모듈이 비어있습니다. </Typography>
                         )}
                     </Collapse>
+
+                    <MemberInvitationModal
+                        open={modalOpen}
+                        onClose={() => setModalOpen(false)}
+                        showAlert={() => setShowAlert(true)}
+                        setAlertContent={(alertContent: AlertContent) => setAlertContent(alertContent)}
+                    ></MemberInvitationModal>
+                    <Snackbar
+                        open={showAlert}
+                        anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
+                        autoHideDuration={3000}
+                        onClose={() => setShowAlert(false)}
+                    >
+                        <Alert severity={alertContent.severity} action={alertButton(() => setShowAlert(false))}>
+                            <AlertTitle>{alertContent.title}</AlertTitle>
+                            {alertContent.content}
+                        </Alert>
+                    </Snackbar>
+
                     <ChatAccordion projectId={selectedProjectId} />
                 </>
             )}
