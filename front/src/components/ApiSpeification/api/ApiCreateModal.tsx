@@ -265,7 +265,7 @@ const ApiCreateModal = (
             }));
 
             createApi(projectId, apiSpecificationId, domainId, inputApiMethod, inputApiName, inputApiDescription, inputApiEndpoint, inputApiStatusCode,
-                inputApiRequestSchema, inputApiResponseSchema, toRequestHeaders, toPathVariables, toQueryParams)
+                inputApiRequestSchema, inputApiResponseSchema, toRequestHeaders, toQueryParams, toPathVariables)
                 .then(() => {
                     handleClose()
                     onChildChange()
